@@ -76,14 +76,29 @@ npm run preview
 
 Production URL: https://homepage.kakera.workers.dev
 
-### Automatic deploys
+### Automatic deploys (Cloudflare Workers Builds)
 
-Pushes to `main` trigger a GitHub Actions workflow that runs `npm ci`, builds the app, and deploys with Wrangler.
+Pushes to `main` trigger [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/) — Cloudflare's native CI/CD.
 
-Required repository secrets:
+**Dashboard setup** (one-time):
 
-- `CLOUDFLARE_API_TOKEN` — Cloudflare API token with **Workers Scripts: Edit**
-- `CLOUDFLARE_ACCOUNT_ID` — `8b7eba6c480b84cad297f995413afd14`
+1. Open [homepage Builds settings](https://dash.cloudflare.com/8b7eba6c480b84cad297f995413afd14/workers/services/view/homepage/production/settings/builds)
+2. Click **Connect** → authorize GitHub → select `zhanghaocong/homepage`
+3. Configure:
+   - **Production branch:** `main`
+   - **Build command:** `npm run build`
+   - **Deploy command:** `npx wrangler deploy`
+   - **Root directory:** `/`
+4. Save — the next push to `main` will build and deploy automatically
+
+**Build settings reference**
+
+| Setting | Value |
+|---|---|
+| Git repository | `zhanghaocong/homepage` |
+| Production branch | `main` |
+| Build command | `npm run build` |
+| Deploy command | `npx wrangler deploy` |
 
 ### Manual deploy
 
