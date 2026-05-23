@@ -74,6 +74,19 @@ npm run preview
 
 ## Deployment
 
+Production URL: https://homepage.kakera.workers.dev
+
+### Automatic deploys
+
+Pushes to `main` trigger a GitHub Actions workflow that runs `npm ci`, builds the app, and deploys with Wrangler.
+
+Required repository secrets:
+
+- `CLOUDFLARE_API_TOKEN` — Cloudflare API token with **Workers Scripts: Edit**
+- `CLOUDFLARE_ACCOUNT_ID` — `8b7eba6c480b84cad297f995413afd14`
+
+### Manual deploy
+
 If you don't have a Cloudflare account, [create one here](https://dash.cloudflare.com/sign-up)! Go to your [Workers dashboard](https://dash.cloudflare.com/?to=%2F%3Aaccount%2Fworkers-and-pages) to see your [free custom Cloudflare Workers subdomain](https://developers.cloudflare.com/workers/configuration/routing/workers-dev/) on `*.workers.dev`.
 
 Once that's done, you can build your app:
