@@ -13,7 +13,7 @@
 		Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-html.l-dark {
+html.theme-dark {
 	--site-bg: #222;
 	--site-fg: #e9e6e2;
 	--site-fg-muted: #a8a5a0;
@@ -33,7 +33,6 @@ body.page {
 .page,
 .js-wrapper.p-home,
 .js-old .js-wrapper,
-.l-light .p-home,
 .l-splash,
 .l-splash__front,
 .l-splash__front-bg,
@@ -41,22 +40,22 @@ body.page {
 	background: var(--site-bg) !important;
 }
 
-.l-dark .p-home a,
-.l-dark .p-home h2,
-.l-dark .p-home p,
-.l-dark .l-header nav a,
-.l-dark .l-header nav span,
-.l-dark .l-header .site-header__logo a,
-.l-dark .site-header__theme {
+.theme-dark .p-home a,
+.theme-dark .p-home h2,
+.theme-dark .p-home p,
+.theme-dark .l-header nav a,
+.theme-dark .l-header nav span,
+.theme-dark .l-header .site-header__logo a,
+.theme-dark .site-header__theme {
 	color: var(--site-fg) !important;
 }
 
-.l-dark .site-header__link {
+.theme-dark .site-header__link {
 	color: var(--site-fg-muted) !important;
 }
 
-.l-dark .site-header__link:hover,
-.l-dark .site-header__link.active {
+.theme-dark .site-header__link:hover,
+.theme-dark .site-header__link.active {
 	color: var(--site-fg) !important;
 }
 

@@ -21,8 +21,9 @@ export function resolveTheme(preference: ThemePreference): ResolvedTheme {
 
 export function applyResolvedTheme(resolved: ResolvedTheme) {
 	const root = document.documentElement;
-	root.classList.remove("l-light", "l-dark");
-	root.classList.add(resolved === "dark" ? "l-dark" : "l-light");
+	// theme-* avoids photoyoshi .l-light/.l-dark (grid/full view) background rules
+	root.classList.remove("theme-light", "theme-dark");
+	root.classList.add(resolved === "dark" ? "theme-dark" : "theme-light");
 	root.style.colorScheme = resolved;
 	root.dataset.theme = resolved;
 	window.dispatchEvent(new CustomEvent(THEME_CHANGE_EVENT, { detail: resolved }));
@@ -69,4 +70,4 @@ export function initTheme() {
 }
 
 /** Inline in `<head>` to avoid theme flash before hydration. */
-export const themeBootScript = `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var s=localStorage.getItem(k);var d=s==="dark"||(s!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;r.classList.add(d?"l-dark":"l-light");r.dataset.theme=d?"dark":"light";r.style.colorScheme=d?"dark":"light";}catch(e){document.documentElement.classList.add("l-light");}})();`;
+export const themeBootScript = `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var s=localStorage.getItem(k);var d=s==="dark"||(s!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;r.classList.add(d?"theme-dark":"theme-light");r.dataset.theme=d?"dark":"light";r.style.colorScheme=d?"dark":"light";}catch(e){document.documentElement.classList.add("theme-light");}})();`;
