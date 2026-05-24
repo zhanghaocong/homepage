@@ -15,6 +15,12 @@ export function initHomePageScript(container: HTMLElement) {
 	root = container;
 }
 
+export function resetGridParallax(container: HTMLElement) {
+	for (const cell of container.querySelectorAll<HTMLElement>(".gl-img_w")) {
+		cell.style.transform = "";
+	}
+}
+
 export function homePageOnUpdateAfter(scroll: JsScroll) {
 	if (!root) return;
 

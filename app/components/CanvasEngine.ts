@@ -139,6 +139,7 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 	const loader = new TextureLoader();
 	loader.setCrossOrigin("anonymous");
 	const textureCache = new Map<string, Texture>();
+	const meshedFrames = new WeakSet<HTMLElement>();
 
 	const groups: Record<string, CategoryGroup> = {
 		cateInterior: { group: new Group(), elements: [] },
@@ -198,9 +199,10 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 
 	function setPosition(mesh: Mesh, frame: HTMLElement) {
 		const rect = frame.getBoundingClientRect();
-		mesh.position.x = rect.left + rect.width / 2 - window.innerWidth / 2;
-		mesh.position.y =
-			window.innerHeight / 2 - rect.top - rect.height / 2;
+		const vw = window._w ?? window.innerWidth;
+		const vh = window._h ?? window.innerHeight;
+		mesh.position.x = rect.left + rect.width / 2 - vw / 2;
+		mesh.position.y = vh / 2 - rect.top - rect.height / 2;
 	}
 
 	function addToGroup(mesh: Mesh, category: string, element: HTMLElement) {
@@ -217,6 +219,7 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 	}
 
 	function createMeshForFrame(frame: HTMLElement) {
+		if (meshedFrames.has(frame)) return;
 		const img = frame.querySelector<HTMLImageElement>(".gl-i");
 		if (!img?.dataset.jsSrc) return;
 
@@ -232,6 +235,49 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 		const mesh = new Mesh(geo, mat);
 		setPosition(mesh, frame);
 		addToGroup(mesh, img.dataset.category ?? "interior", frame);
+		meshedFrames.add(frame);
+	}
+
+	function ensureMeshes(root: HTMLElement) {
+		const frames = root.querySelectorAll<HTMLElement>(".c-section .gl-img");
+		for (const frame of frames) {
+			createMeshForFrame(frame);
+		}
+	}
+
+	function syncMeshes(root: HTMLElement) {
+		for (const g of Object.values(groups)) {
+			const kept: typeof g.elements = [];
+			for (const entry of g.elements) {
+				if (!entry.element.isConnected) {
+					g.group.remove(entry.mesh);
+					entry.mesh.geometry.dispose();
+					(entry.mesh.material as ShaderMaterial).dispose();
+					continue;
+				}
+				kept.push(entry);
+			}
+			g.elements = kept;
+		}
+		ensureMeshes(root);
+	}
+
+	function resizeGeometry(mesh: Mesh, width: number, height: number) {
+		const geo = mesh.geometry as PlaneGeometry;
+		if (
+			Math.abs(geo.parameters.width - width) < 1 &&
+			Math.abs(geo.parameters.height - height) < 1
+		) {
+			return;
+		}
+		geo.dispose();
+		mesh.geometry = new PlaneGeometry(
+			width,
+			height,
+			PLANE_SEGMENTS,
+			PLANE_SEGMENTS,
+		);
+		mesh.scale.set(1, 1, 1);
 	}
 
 	function updateMesh(frame: HTMLElement, mesh: Mesh, power: ScrollPower) {
@@ -240,6 +286,7 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 
 		const frameW = Math.max(frame.clientWidth, 1);
 		const frameH = Math.max(frame.clientHeight, 1);
+		resizeGeometry(mesh, frameW, frameH);
 		const frameAspect = frameW / frameH;
 		const imgAspect = getImageAspect(img);
 		const geo = mesh.geometry as PlaneGeometry;
@@ -263,16 +310,16 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 		mesh.scale.set(scaleX, scaleY, 1);
 
 		const rect = frame.getBoundingClientRect();
-		mesh.position.x =
-			frameW / 2 - window.innerWidth / 2 + rect.left;
-		mesh.position.y =
-			window.innerHeight / 2 - frameH / 2 - rect.top;
+		const vw = window._w ?? window.innerWidth;
+		const vh = window._h ?? window.innerHeight;
+		mesh.position.x = frameW / 2 - vw / 2 + rect.left;
+		mesh.position.y = vh / 2 - frameH / 2 - rect.top;
 
 		mesh.visible =
 			frameH > 2 &&
 			frameW > 2 &&
-			rect.right > -window.innerWidth * 0.25 &&
-			rect.left < window.innerWidth * 1.25;
+			rect.right > -vw * 0.25 &&
+			rect.left < vw * 1.25;
 	}
 
 	let initRaf = 0;
@@ -325,7 +372,19 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 	const onResize = () => {
 		for (const g of Object.values(groups)) {
 			for (const { element, mesh } of g.elements) {
+				const img = element.querySelector<HTMLImageElement>(".gl-i");
+				if (!img) continue;
+				const frameW = Math.max(element.clientWidth, 1);
+				const frameH = Math.max(element.clientHeight, 1);
+				resizeGeometry(mesh, frameW, frameH);
 				setPosition(mesh, element);
+				const frameAspect = frameW / frameH;
+				const imgAspect = getImageAspect(img);
+				const u = (mesh.material as ShaderMaterial).uniforms;
+				u.vUvScale.value.set(
+					frameAspect > imgAspect ? 1 : frameAspect / imgAspect,
+					frameAspect > imgAspect ? imgAspect / frameAspect : 1,
+				);
 			}
 		}
 	};
@@ -351,6 +410,7 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 		groups,
 		effectUniforms,
 		init,
+		syncMeshes,
 		effectTick,
 		onResize,
 		destroy,
@@ -420,8 +480,11 @@ export function createCanvasEngine(canvasWrap: HTMLElement) {
 	};
 
 	const onResize = () => {
-		const nw = window.innerWidth;
-		const nh = window.innerHeight;
+		const nw = window._w ?? window.innerWidth;
+		const nh = window._h ?? window.innerHeight;
+		const nextFar = -nh / 2 / Math.tan((fov2 * Math.PI) / 180 / 2);
+		camera.far = nextFar - nw;
+		camera.position.z = -nextFar;
 		camera.aspect = nw / nh;
 		camera.updateProjectionMatrix();
 		renderer.setSize(nw, nh);

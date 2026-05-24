@@ -6,6 +6,7 @@ import {
 	destroyHomePageScript,
 	homePageOnUpdateAfter,
 	initHomePageScript,
+	resetGridParallax,
 } from "~/lib/homePageScript";
 import { initKoalaLoader } from "~/lib/koalaLoader";
 import { createJsScroll, type JsScroll } from "~/lib/jsScroll";
@@ -14,7 +15,7 @@ import {
 	initModeSwitch,
 } from "~/lib/modeSwitch";
 import { runHomeSplash } from "~/lib/splashAnimation";
-import { initViewport, syncViewportGlobals } from "~/lib/viewport";
+import { initViewport } from "~/lib/viewport";
 import { setGalleryMode } from "~/lib/galleryParams";
 
 function Scope({ variant }: { variant: "grid" | "full" }) {
@@ -56,18 +57,34 @@ export function PhotoGallery() {
 		initHomePageScript(shell);
 		void import("~/components/CanvasEngine");
 
+		let destroyed = false;
+		let canvas: import("~/components/CanvasEngine").CanvasEngine | null = null;
+		let raf = 0;
+
+		const syncCanvasAfterResize = () => {
+			resetGridParallax(shell);
+			if (!canvas) return;
+			const apply = () => {
+				canvas!.homeScene.syncMeshes(content);
+				canvas!.onResize();
+				canvas!.warmupRender();
+			};
+			apply();
+			requestAnimationFrame(() => {
+				apply();
+				requestAnimationFrame(apply);
+			});
+		};
+
 		const scroll = createJsScroll({
 			wrap,
 			body,
 			content,
 			onUpdateAfter: () => homePageOnUpdateAfter(scroll),
+			onResizeAfter: syncCanvasAfterResize,
 		});
 
 		initModeSwitch(wrap, scroll);
-
-		let destroyed = false;
-		let canvas: import("~/components/CanvasEngine").CanvasEngine | null = null;
-		let raf = 0;
 
 		const scrollLoop = () => {
 			scroll.raf();
@@ -97,18 +114,11 @@ export function PhotoGallery() {
 			if (!destroyed) runHomeSplash(shell, scroll);
 		});
 
-		const onResize = () => {
-			syncViewportGlobals();
-			canvas?.onResize();
-		};
-		window.addEventListener("resize", onResize);
-
 		return () => {
 			destroyed = true;
 			stopLoader();
 			gsap.ticker.remove(canvasLoop);
 			cancelAnimationFrame(raf);
-			window.removeEventListener("resize", onResize);
 			stopViewport();
 			scroll.destroy();
 			canvas?.destroy();

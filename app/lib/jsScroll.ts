@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import { syncViewportGlobals } from "~/lib/viewport";
 
 export type ScrollPower = {
 	history: number[];
@@ -49,12 +50,11 @@ type JsScrollOptions = {
 	speed?: number;
 	ease?: number;
 	onUpdateAfter?: () => void;
+	onResizeAfter?: () => void;
 };
 
 const clamp = (v: number, min: number, max: number) =>
 	Math.min(Math.max(v, min), max);
-
-const positiveMod = (n: number, m: number) => ((n % m) + m) % m;
 
 const roundToNearest = (t: number, e = 1e-6) =>
 	Math.abs(1 - Math.abs(t)) < e ? Math.sign(t) : t;
@@ -117,33 +117,72 @@ function onScrollPowerComplete(power: ScrollPower) {
 	});
 }
 
-function cloneSectionsUntilWideEnough(content: HTMLElement) {
-	const windowSpan = window.innerWidth;
+function getWindowSpan() {
+	return window._w ?? window.innerWidth;
+}
+
+function minContentWidth() {
+	return getWindowSpan() * 1.5;
+}
+
+/** Matches photoyoshi CSS: grid*6 below ~1.35 aspect, grid*4 above. */
+function isWideAspect() {
+	const w = window._w ?? window.innerWidth;
+	const h = window._h ?? window.innerHeight;
+	return w / h > 3039929748475085 / 2251799813685248;
+}
+
+function sectionTotalWidth(content: HTMLElement) {
+	const windowSpan = getWindowSpan();
 	let totalWidth = 0;
+	for (const section of content.querySelectorAll<HTMLElement>(".c-section")) {
+		totalWidth += section.offsetWidth || windowSpan;
+	}
+	return totalWidth;
+}
+
+function appendCloneRound(content: HTMLElement) {
 	const originals = content.querySelectorAll<HTMLElement>(
 		".c-section:not(.c-clone)",
 	);
+	if (originals.length === 0) return false;
 
+	for (const section of originals) {
+		const clone = section.cloneNode(true) as HTMLElement;
+		clone.classList.add("c-clone");
+		content.appendChild(clone);
+	}
+	return true;
+}
+
+function ensureContentWideEnough(content: HTMLElement) {
+	const target = minContentWidth();
+	let guard = 0;
+	while (sectionTotalWidth(content) <= target && guard < 24) {
+		if (!appendCloneRound(content)) break;
+		guard++;
+	}
+	return guard > 0;
+}
+
+function cloneSectionsUntilWideEnough(content: HTMLElement) {
 	for (const section of content.querySelectorAll(".c-section.c-clone")) {
 		section.remove();
 	}
+	ensureContentWideEnough(content);
+}
 
-	const measureTotal = () => {
-		totalWidth = 0;
-		for (const section of content.querySelectorAll<HTMLElement>(".c-section")) {
-			totalWidth += section.offsetWidth || windowSpan;
-		}
-	};
+function resetCellTransforms(content: HTMLElement) {
+	for (const cell of content.querySelectorAll<HTMLElement>(".gl-img_w")) {
+		cell.style.transform = "";
+	}
+}
 
-	measureTotal();
-	while (totalWidth <= windowSpan * 1.5) {
-		for (const section of originals) {
-			const clone = section.cloneNode(true) as HTMLElement;
-			clone.classList.add("c-clone");
-			content.appendChild(clone);
-		}
-		measureTotal();
-		if (originals.length === 0) break;
+function clearSectionMeasureStyles(content: HTMLElement) {
+	for (const el of content.querySelectorAll<HTMLElement>(".c-section")) {
+		el.style.width = "";
+		el.style.height = "";
+		el.style.flexShrink = "";
 	}
 }
 
@@ -154,6 +193,7 @@ export function createJsScroll({
 	speed = 80,
 	ease = 0.125,
 	onUpdateAfter,
+	onResizeAfter,
 }: JsScrollOptions): JsScroll {
 	const power = createScrollPower();
 	let delta1 = 0;
@@ -171,50 +211,87 @@ export function createJsScroll({
 
 	if (scrollbar) scrollbar.dataset.dir = "hr";
 
-	const measure = () => {
-		sections.length = 0;
-		for (const el of content.querySelectorAll<HTMLElement>(".c-section")) {
-			el.style.transform = "translate3d(0px, 0px, 0px)";
-		}
+	const MEASURE_CONTENT_WIDTH = "99999px";
 
-		let totalWidth = 0;
-		for (const el of content.querySelectorAll<HTMLElement>(".c-section")) {
-			const rect = el.getBoundingClientRect();
+	let lastWideAspect = isWideAspect();
+
+	const syncSectionsFromDom = () => {
+		const els = content.querySelectorAll<HTMLElement>(".c-section");
+		sections.length = 0;
+		for (const el of els) {
 			sections.push({
 				el,
-				left: rect.left,
-				width: rect.width,
+				left: 0,
+				width: 0,
 				x: 0,
 				cx: 0,
 				progress: 0,
 				selected: false,
 				visible: true,
 			});
-			totalWidth += rect.width;
+		}
+	};
+
+	/** Mirrors photoyoshi scroll onResize measure (in-place, viewport rects). */
+	const measure = () => {
+		for (const entry of sections) {
+			entry.el.style.width = "auto";
+			entry.el.style.height = "auto";
+			entry.el.style.flexShrink = "0";
+			entry.el.style.transform = "translate3d(0px, 0px, 0px)";
+		}
+		content.style.width = MEASURE_CONTENT_WIDTH;
+
+		let totalWidth = 0;
+		for (const entry of sections) {
+			const rect = entry.el.getBoundingClientRect();
+			entry.width = entry.el.offsetWidth || rect.width;
+			entry.left = rect.left;
+			totalWidth += entry.width;
+		}
+		content.style.width = `${totalWidth}px`;
+
+		for (const entry of sections) {
+			entry.el.style.transform = "translate3d(0px, 0px, 0px)";
+			const rect = entry.el.getBoundingClientRect();
+			entry.width = entry.el.offsetWidth || rect.width;
+			entry.left = rect.left;
 		}
 
-		content.style.width = `${totalWidth}px`;
 		ready = sections.length > 0;
 	};
-
-	const remeasure = () => {
-		cloneSectionsUntilWideEnough(content);
-		measure();
-		scrollX = delta1;
-	};
-
-	cloneSectionsUntilWideEnough(content);
-	measure();
 
 	const contentWidth = () => {
 		let total = 0;
 		for (const entry of sections) total += entry.width;
 		return total || content.scrollWidth;
 	};
-	const threshold =
-		window.innerWidth < 768 ? window.innerWidth * 0.5 : window.innerWidth / 2;
+
+	const layoutInit = () => {
+		syncSectionsFromDom();
+		cloneSectionsUntilWideEnough(content);
+		syncSectionsFromDom();
+		measure();
+		let guard = 0;
+		while (contentWidth() <= minContentWidth() && guard < 24) {
+			appendCloneRound(content);
+			syncSectionsFromDom();
+			measure();
+			guard++;
+		}
+		clearSectionMeasureStyles(content);
+		resetCellTransforms(content);
+	};
+
+	layoutInit();
+
+	const getThreshold = () => {
+		const w = getWindowSpan();
+		return w < 768 ? w * 0.5 : w / 2;
+	};
 
 	let completeTimer: ReturnType<typeof window.setTimeout> | null = null;
+	let resizeRafId = 0;
 	const completeWait = 30;
 
 	const clearScrollTimers = () => {
@@ -280,11 +357,6 @@ export function createJsScroll({
 	wrap.addEventListener("pointerup", onPointerUp);
 	wrap.addEventListener("pointercancel", onPointerUp);
 
-	const onResize = () => {
-		remeasure();
-	};
-	window.addEventListener("resize", onResize);
-
 	const raf = () => {
 		if (!ready) return;
 
@@ -292,9 +364,11 @@ export function createJsScroll({
 		if (Math.abs(scrollX) < 1e-3) scrollX = 0;
 
 		const cw = contentWidth();
-		scrollLeft = positiveMod(scrollX, cw || 1);
+		scrollLeft = cw > 0 ? scrollX % cw : 0;
 
 		const position = cw > 0 ? scrollLeft / cw : 0;
+		const threshold = getThreshold();
+		const viewportW = getWindowSpan();
 		let activeSet = false;
 
 		for (const entry of sections) {
@@ -302,18 +376,18 @@ export function createJsScroll({
 			if (entry.x < -entry.width - entry.left - threshold) {
 				entry.x += cw;
 			}
-			if (entry.left + entry.x - window.innerWidth > threshold) {
+			if (entry.left + entry.x - viewportW > threshold) {
 				entry.x -= cw;
 			}
 
-			const iLeft = entry.x + entry.left;
+			const iLeft = entry.left + entry.x;
 			const iRight = iLeft + entry.width;
 			const inView =
 				iRight > -threshold &&
-				iLeft - entry.width < window.innerWidth + threshold;
+				iLeft - entry.width < viewportW + threshold;
 
 			entry.cx = clamp(
-				(iLeft + window.innerWidth / 2) / window.innerWidth - 0.5,
+				(iLeft + viewportW / 2) / viewportW - 0.5,
 				-1,
 				1,
 			);
@@ -333,9 +407,9 @@ export function createJsScroll({
 
 			if (inView) {
 				entry.progress =
-					Math.abs(iLeft / window.innerWidth) < 1e-3
+					Math.abs(iLeft / viewportW) < 1e-3
 						? 0
-						: roundToNearest(iLeft / window.innerWidth);
+						: roundToNearest(iLeft / viewportW);
 				entry.el.style.transform = `translate3d(${entry.x}px, 0px, 0px)`;
 				entry.visible = true;
 			} else {
@@ -353,6 +427,63 @@ export function createJsScroll({
 
 		onUpdateAfter?.();
 	};
+
+	const remeasure = () => {
+		syncViewportGlobals();
+		void content.offsetWidth;
+
+		resetCellTransforms(content);
+
+		const nowWide = isWideAspect();
+		if (nowWide !== lastWideAspect) {
+			cloneSectionsUntilWideEnough(content);
+			lastWideAspect = nowWide;
+		} else {
+			ensureContentWideEnough(content);
+		}
+		resetCellTransforms(content);
+
+		syncSectionsFromDom();
+		measure();
+
+		let guard = 0;
+		while (contentWidth() <= minContentWidth() && guard < 24) {
+			appendCloneRound(content);
+			syncSectionsFromDom();
+			measure();
+			guard++;
+		}
+
+		clearSectionMeasureStyles(content);
+		resetCellTransforms(content);
+
+		scrollX = delta1;
+		raf();
+		onResizeAfter?.();
+		requestAnimationFrame(() => {
+			scrollX = delta1;
+			raf();
+			onResizeAfter?.();
+		});
+	};
+
+	const scheduleRemeasure = () => {
+		syncViewportGlobals();
+		if (resizeRafId !== 0) return;
+		resizeRafId = requestAnimationFrame(() => {
+			resizeRafId = 0;
+			remeasure();
+		});
+	};
+
+	const onResize = () => scheduleRemeasure();
+	window.addEventListener("resize", onResize);
+
+	const resizeObserver =
+		typeof ResizeObserver !== "undefined"
+			? new ResizeObserver(() => scheduleRemeasure())
+			: null;
+	resizeObserver?.observe(wrap);
 
 	const onScrollTo = (
 		target: number,
@@ -380,11 +511,17 @@ export function createJsScroll({
 				s.el.dataset.category === category,
 		);
 		if (!entry) return;
-		onScrollTo(entry.left - (window.innerWidth - entry.width) / 2, 2);
+		const viewportW = getWindowSpan();
+		onScrollTo(entry.left - (viewportW - entry.width) / 2, 2);
 	};
 
 	const destroy = () => {
 		clearScrollTimers();
+		if (resizeRafId !== 0) {
+			cancelAnimationFrame(resizeRafId);
+			resizeRafId = 0;
+		}
+		resizeObserver?.disconnect();
 		window.removeEventListener("wheel", onWheel);
 		window.removeEventListener("resize", onResize);
 		wrap.removeEventListener("pointerdown", onPointerDown);
