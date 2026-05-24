@@ -17,7 +17,7 @@ export function GalleryPostProcessing({ meshRegistry }: GalleryPostProcessingPro
 			depthBuffer={false}
 			stencilBuffer={false}
 		>
-			<GalleryComposite registry={meshRegistry} />
+			<GalleryComposite effectUniforms={meshRegistry.effectUniforms} />
 		</EffectComposer>
 	);
 }

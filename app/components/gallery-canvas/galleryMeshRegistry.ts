@@ -28,6 +28,14 @@ type CategoryGroup = {
 const MESH_BATCH_SIZE = 8;
 const PLANE_SEGMENTS = 16;
 
+export type GalleryEffectUniforms = {
+	u_type: { value: number };
+	scroll_pow: { value: number };
+	modeChangePow: { value: number };
+	mode: { value: number };
+	device: { value: number };
+};
+
 export type GalleryMeshRegistryOptions = {
 	scene: Scene;
 	isMobile: boolean;
@@ -40,7 +48,7 @@ export type GalleryMeshRegistryOptions = {
  */
 export class GalleryMeshRegistry {
 	readonly pm: { value: number };
-	readonly effectUniforms = {
+	readonly effectUniforms: GalleryEffectUniforms = {
 		u_type: { value: 1 },
 		scroll_pow: { value: 0 },
 		modeChangePow: { value: 0 },

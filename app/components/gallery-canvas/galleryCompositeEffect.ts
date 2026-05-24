@@ -1,26 +1,26 @@
 import { Effect } from "postprocessing";
 import { Uniform } from "three";
-import type { GalleryMeshRegistry } from "~/components/gallery-canvas/galleryMeshRegistry";
+import type { GalleryEffectUniforms } from "~/components/gallery-canvas/galleryMeshRegistry";
 import compositePostFragmentShader from "~/components/gallery-canvas/shaders/compositePost.frag.glsl?raw";
 
 type GalleryCompositeEffectOptions = {
-	registry: GalleryMeshRegistry;
+	effectUniforms: GalleryEffectUniforms;
 };
 
 export class GalleryCompositeEffectImpl extends Effect {
-	private readonly registry: GalleryMeshRegistry;
+	private readonly effectUniforms: GalleryEffectUniforms;
 
-	constructor({ registry }: GalleryCompositeEffectOptions) {
+	constructor({ effectUniforms }: GalleryCompositeEffectOptions) {
 		super("GalleryCompositeEffect", compositePostFragmentShader, {
 			uniforms: new Map([
-				["u_type", new Uniform(registry.effectUniforms.u_type.value)],
-				["scroll_pow", new Uniform(registry.effectUniforms.scroll_pow.value)],
-				["modeChangePow", new Uniform(registry.effectUniforms.modeChangePow.value)],
-				["mode", new Uniform(registry.effectUniforms.mode.value)],
-				["device", new Uniform(registry.effectUniforms.device.value)],
+				["u_type", new Uniform(effectUniforms.u_type.value)],
+				["scroll_pow", new Uniform(effectUniforms.scroll_pow.value)],
+				["modeChangePow", new Uniform(effectUniforms.modeChangePow.value)],
+				["mode", new Uniform(effectUniforms.mode.value)],
+				["device", new Uniform(effectUniforms.device.value)],
 			]),
 		});
-		this.registry = registry;
+		this.effectUniforms = effectUniforms;
 	}
 
 	update(
@@ -28,7 +28,7 @@ export class GalleryCompositeEffectImpl extends Effect {
 		_inputBuffer: unknown,
 		_deltaTime: number,
 	): void {
-		const src = this.registry.effectUniforms;
+		const src = this.effectUniforms;
 		this.uniforms.get("u_type")!.value = src.u_type.value;
 		this.uniforms.get("scroll_pow")!.value = src.scroll_pow.value;
 		this.uniforms.get("modeChangePow")!.value = src.modeChangePow.value;
