@@ -43,7 +43,6 @@ export function createCanvasEngine(canvasWrap: HTMLElement): GalleryEngineHandle
 
 	const engine = attachGalleryEngine({
 		gl: renderer,
-		scene,
 		camera,
 		canvas,
 		meshRegistry,

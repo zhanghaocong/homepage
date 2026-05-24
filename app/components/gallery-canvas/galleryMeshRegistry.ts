@@ -38,7 +38,6 @@ export type GalleryMeshRegistryOptions = {
 export class GalleryMeshRegistry {
 	readonly pm: { value: number };
 	readonly effectUniforms = {
-		tDiffuse: { value: null as unknown },
 		u_type: { value: 1 },
 		scroll_pow: { value: 0 },
 		modeChangePow: { value: 0 },

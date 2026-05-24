@@ -1,13 +1,10 @@
-uniform sampler2D tDiffuse;
 uniform int u_type;
 uniform float scroll_pow;
 uniform float modeChangePow;
 uniform float mode;
 uniform float device;
-varying vec2 vUv;
 
-void main() {
-  vec2 uv = vUv;
+void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
   if (u_type == 1) {
     vec2 uvTwist = uv;
     float angleX = (uv.x - 0.5) * 3.14159 * 0.9;
@@ -36,9 +33,11 @@ void main() {
 
     float edgeDarkness = smoothstep(0.3, 0., uv.x) + smoothstep(0.7, 1., uv.x);
     edgeDarkness = clamp(edgeDarkness, 0.0, 1.0);
-    vec4 baseColor = texture2D(tDiffuse, finalUV);
+    vec4 baseColor = texture2D(inputBuffer, finalUV);
     vec4 darkenedColor = baseColor * (1.0 - edgeDarkness * 0.8);
 
-    gl_FragColor = mix(baseColor, darkenedColor, mode);
+    outputColor = mix(baseColor, darkenedColor, mode);
+  } else {
+    outputColor = inputColor;
   }
 }

@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { GalleryCamera } from "~/components/gallery-canvas/GalleryCamera";
 import { GalleryEngineBridge } from "~/components/gallery-canvas/GalleryEngineBridge";
 import { GalleryPhotoMeshes } from "~/components/gallery-canvas/GalleryPhotoMeshes";
+import { GalleryPostProcessing } from "~/components/gallery-canvas/GalleryPostProcessing";
 import { GallerySyncSystem } from "~/components/gallery-canvas/GallerySyncSystem";
 import type { GalleryMeshRegistry } from "~/components/gallery-canvas/galleryMeshRegistry";
 import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
@@ -40,10 +41,13 @@ export function GalleryScene({
 				onMeshesReady={onEngineReady}
 			/>
 			{meshRegistry ? (
-				<GalleryEngineBridge
-					engineRef={engineRef}
-					meshRegistry={meshRegistry}
-				/>
+				<>
+					<GalleryEngineBridge
+						engineRef={engineRef}
+						meshRegistry={meshRegistry}
+					/>
+					<GalleryPostProcessing meshRegistry={meshRegistry} />
+				</>
 			) : null}
 			<GallerySyncSystem engineRef={engineRef} scrollRef={scrollRef} />
 		</>

@@ -8,8 +8,7 @@ type GallerySyncSystemProps = {
 };
 
 /**
- * Single render-loop coordinator: syncs meshes from scroll power and renders the composer.
- * Replaces the former gsap.ticker → engine.tick() bridge in PhotoGallery.
+ * Updates mesh uniforms from scroll power before EffectComposer renders (priority 1).
  */
 export function GallerySyncSystem({
 	engineRef,
@@ -20,7 +19,7 @@ export function GallerySyncSystem({
 		const scroll = scrollRef.current;
 		if (!engine || !scroll) return;
 		engine.tick(scroll.power, scroll.currentCategory);
-	}, 1);
+	}, 0);
 
 	return null;
 }

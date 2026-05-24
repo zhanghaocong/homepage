@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "three";
-import { attachGalleryEngine } from "~/components/gallery-canvas/galleryEngine";
+import { attachGalleryRuntime } from "~/components/gallery-canvas/galleryEngine";
 import type { GalleryMeshRegistry } from "~/components/gallery-canvas/galleryMeshRegistry";
 import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
 
@@ -11,21 +11,20 @@ type GalleryEngineBridgeProps = {
 };
 
 /**
- * Attaches the post-processing composer to R3F's renderer.
- * Mesh creation/sync is owned by GalleryPhotoMeshes.
+ * Attaches scroll-direction state and resize handling for the gallery runtime.
+ * Post-processing rendering is owned by GalleryPostProcessing.
  */
 export function GalleryEngineBridge({
 	engineRef,
 	meshRegistry,
 }: GalleryEngineBridgeProps) {
-	const { gl, scene, camera } = useThree();
+	const { gl, camera } = useThree();
 
 	useEffect(() => {
 		if (!(camera instanceof PerspectiveCamera)) return;
 
-		const engine = attachGalleryEngine({
+		const engine = attachGalleryRuntime({
 			gl,
-			scene,
 			camera,
 			canvas: gl.domElement,
 			meshRegistry,
@@ -39,7 +38,7 @@ export function GalleryEngineBridge({
 				engineRef.current = null;
 			}
 		};
-	}, [camera, engineRef, gl, meshRegistry, scene]);
+	}, [camera, engineRef, gl, meshRegistry]);
 
 	return null;
 }

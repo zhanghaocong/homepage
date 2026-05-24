@@ -1,8 +1,6 @@
 import { extend } from "@react-three/fiber";
 import { shaderMaterial } from "@react-three/drei";
-import { DoubleSide, ShaderMaterial, Texture, Vector2 } from "three";
-import compositeFragmentShader from "~/components/gallery-canvas/shaders/composite.frag.glsl?raw";
-import compositeVertexShader from "~/components/gallery-canvas/shaders/composite.vert.glsl?raw";
+import { DoubleSide, Texture, Vector2 } from "three";
 import photoFragmentShader from "~/components/gallery-canvas/shaders/photo.frag.glsl?raw";
 import photoVertexShader from "~/components/gallery-canvas/shaders/photo.vert.glsl?raw";
 import { galleryParams } from "~/lib/galleryParams";
@@ -37,28 +35,7 @@ export function createGalleryPhotoMaterial(texture: Texture): GalleryPhotoMateri
 	return material;
 }
 
-export type CompositeEffectUniforms = {
-	tDiffuse: { value: unknown };
-	u_type: { value: number };
-	scroll_pow: { value: number };
-	modeChangePow: { value: number };
-	mode: { value: number };
-	device: { value: number };
-};
-
-export function createCompositeMaterial(
-	uniforms: CompositeEffectUniforms,
-): ShaderMaterial {
-	return new ShaderMaterial({
-		uniforms,
-		vertexShader: compositeVertexShader,
-		fragmentShader: compositeFragmentShader,
-	});
-}
-
 export {
-	compositeFragmentShader,
-	compositeVertexShader,
 	photoFragmentShader,
 	photoVertexShader,
 };

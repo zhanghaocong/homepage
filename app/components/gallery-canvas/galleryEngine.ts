@@ -1,40 +1,25 @@
 import {
 	PerspectiveCamera,
-	Scene,
 	WebGLRenderer,
 } from "three";
-import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { applyGalleryCamera, getViewportSize } from "~/components/gallery-canvas/cameraUtils";
 import type { GalleryMeshRegistry } from "~/components/gallery-canvas/galleryMeshRegistry";
-import { createCompositeMaterial } from "~/components/gallery-canvas/materials";
 import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
 import type { ScrollPower } from "~/lib/jsScroll";
 
-type AttachGalleryEngineOptions = {
+type AttachGalleryRuntimeOptions = {
 	gl: WebGLRenderer;
-	scene: Scene;
 	camera: PerspectiveCamera;
 	canvas: HTMLCanvasElement;
 	meshRegistry: GalleryMeshRegistry;
 };
 
-export function attachGalleryEngine({
+export function attachGalleryRuntime({
 	gl,
-	scene,
 	camera,
 	canvas,
 	meshRegistry,
-}: AttachGalleryEngineOptions): GalleryEngineHandle {
-	const composer = new EffectComposer(gl);
-	composer.addPass(new RenderPass(scene, camera));
-
-	const compositeMat = createCompositeMaterial(meshRegistry.effectUniforms);
-	const compositePass = new ShaderPass(compositeMat);
-	compositePass.renderToScreen = true;
-	composer.addPass(compositePass);
-
+}: AttachGalleryRuntimeOptions): GalleryEngineHandle {
 	const onWheelDir = (e: WheelEvent) => {
 		const dx = e.deltaX || 0;
 		const dy = e.deltaY || 0;
@@ -54,14 +39,12 @@ export function attachGalleryEngine({
 		destroy: () => {},
 	};
 
-	const warmupRender = () => {
-		meshRegistry.effectTick(stillPower);
-		composer.render();
-	};
-
 	const tick = (power: ScrollPower, _currentCategory: string) => {
 		meshRegistry.effectTick(power);
-		composer.render();
+	};
+
+	const warmupRender = () => {
+		meshRegistry.effectTick(stillPower);
 	};
 
 	const onResize = () => {
@@ -71,14 +54,15 @@ export function attachGalleryEngine({
 		gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 		canvas.style.width = `${nw}px`;
 		canvas.style.height = `${nh}px`;
-		composer.setSize(nw, nh);
 		meshRegistry.onResize();
 	};
 
 	const destroy = () => {
 		window.removeEventListener("wheel", onWheelDir);
-		composer.dispose();
 	};
 
 	return { homeScene, tick, warmupRender, onResize, destroy };
 }
+
+/** @deprecated Use attachGalleryRuntime */
+export const attachGalleryEngine = attachGalleryRuntime;
