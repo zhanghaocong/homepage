@@ -1,40 +1,88 @@
 import { Link, NavLink } from "react-router";
-import { site } from "~/data/site";
 
-const navItems = [
-	{ to: "/", label: "Home", end: true },
-	{ to: "/about", label: "About", end: false },
-	{ to: "/projects", label: "Projects", end: false },
-] as const;
+const Logo = () => (
+	<svg
+		width="110"
+		height="18"
+		viewBox="0 0 110 18"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		aria-hidden="true"
+	>
+		<path
+			d="M0.0618016 17.7958H5.18545L15.2797 0.861572H0V4.48061L8.05039 4.49638L0.0618016 17.7958Z"
+			fill="#252726"
+		/>
+		<path
+			d="M11.5336 17.7958L21.6425 0.861572H16.5792L6.40845 17.7958H11.5336Z"
+			fill="#252726"
+		/>
+		<path
+			d="M62.8152 0.844604V4.46364C66.0142 4.46364 69.9106 4.46938 74.503 4.47941L72.8315 7.23848H62.877V10.8876H70.6478L68.6966 14.1297H62.8152V17.7788H71.6396L81.7323 0.844604H62.8152Z"
+			fill="#252726"
+		/>
+		<path d="M46.6437 0.844604H41.4009V17.7989H46.6437V0.844604Z" fill="#252726" />
+		<path
+			d="M72.8467 17.7788H77.9865L88.0793 0.844604H83.0336L72.8467 17.7788Z"
+			fill="#252726"
+		/>
+		<path
+			d="M104.132 0.844604L93.9617 17.7788H99.0868L109.196 0.844604H104.132Z"
+			fill="#252726"
+		/>
+		<path
+			d="M52.948 6.76016V0.879395H47.9023V17.7979H52.948V10.4394H60.9675V6.76016H52.948Z"
+			fill="#252726"
+		/>
+		<path
+			d="M94.7673 17.7788H99.891L110 0.844604H104.938L94.7673 17.7788Z"
+			fill="#252726"
+		/>
+		<path
+			d="M92.7697 7.04271C93.5436 7.04271 94.2293 6.79619 94.8282 6.30314C95.5713 5.67966 95.9421 4.89566 95.9421 3.95112C95.9421 3.19722 95.689 2.5293 95.1829 1.94596C94.5428 1.22215 93.7379 0.860962 92.7682 0.860962C91.9942 0.860962 91.307 1.10749 90.7096 1.60054C89.9665 2.22401 89.5957 3.00802 89.5957 3.95255C89.5957 4.70646 89.8488 5.37581 90.355 5.95772C90.9951 6.68153 91.8 7.04271 92.7697 7.04271Z"
+			fill="#252726"
+		/>
+		<path
+			d="M30.2871 17.7976H34.0791V17.7933H35.3401V9.23234H37.6606V5.5832H35.3401V3.33582H33.9952V3.33725H30.2709V5.5832H21.1537V9.23234H26.2464L21.1228 17.7976H26.2464L30.2871 10.9967V17.7976Z"
+			fill="#252726"
+		/>
+		<path
+			d="M95.9612 11.0543C95.9612 10.3004 95.7081 9.63245 95.2019 9.04911C94.5618 8.3253 93.7569 7.96411 92.7872 7.96411C92.0132 7.96411 91.3261 8.21063 90.7286 8.70368C89.9856 9.32716 89.6147 10.1112 89.6147 11.0557C89.6147 11.8096 89.8678 12.479 90.374 13.0609C91.0141 13.7847 91.819 14.1459 92.7887 14.1459C93.5627 14.1459 94.2484 13.8993 94.8473 13.4063C95.5904 12.7828 95.9612 11.9988 95.9612 11.0543Z"
+			fill="#252726"
+		/>
+	</svg>
+);
 
 export function Header() {
 	return (
-		<header className="border-b border-zinc-200/80 dark:border-zinc-800">
-			<div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
-				<Link
-					to="/"
-					className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
-				>
-					{site.name}
-				</Link>
-				<nav className="flex items-center gap-6">
-					{navItems.map(({ to, label, end }) => (
-						<NavLink
-							key={to}
-							to={to}
-							end={end}
-							className={({ isActive }) =>
-								[
-									"text-sm transition-colors",
-									isActive
-										? "font-medium text-zinc-900 dark:text-zinc-100"
-										: "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100",
-								].join(" ")
-							}
-						>
-							{label}
-						</NavLink>
-					))}
+		<header className="l-header">
+			<div className="l-header__inner">
+				<h1>
+					<Link to="/" aria-label="photoyoshi">
+						<Logo />
+					</Link>
+				</h1>
+				<nav>
+					<NavLink to="/" end className="c-link__text fs-s js-link --a">
+						<span className="o">
+							<span className="t n">Work</span>
+						</span>
+					</NavLink>
+					<span className="fs-s">
+						<span className="o">
+							<span className="t n">,&nbsp;</span>
+						</span>
+					</span>
+					<NavLink to="/about" className="c-link__text fs-s js-link --a">
+						<span className="o">
+							<span className="t n">About</span>
+						</span>
+					</NavLink>
+					<NavLink to="/" className="c-link__text fs-s js-link --c">
+						<span className="o">
+							<span className="t c">Close</span>
+						</span>
+					</NavLink>
 				</nav>
 			</div>
 		</header>

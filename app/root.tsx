@@ -6,6 +6,7 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -15,16 +16,8 @@ import { site } from "~/data/site";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
-	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
-	{
-		rel: "preconnect",
-		href: "https://fonts.gstatic.com",
-		crossOrigin: "anonymous",
-	},
-	{
-		rel: "stylesheet",
-		href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-	},
+	{ rel: "stylesheet", href: "https://use.typekit.net/oqy1tlz.css" },
+	{ rel: "stylesheet", href: "https://photoyoshi.com/assets/css/style.css" },
 ];
 
 export function meta({}: Route.MetaArgs) {
@@ -36,14 +29,14 @@ export function meta({}: Route.MetaArgs) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html lang="en" className="is-js is-load__before l-light">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<Meta />
 				<Links />
 			</head>
-			<body className="min-h-screen bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
+			<body className="page" data-xhr="wrapper">
 				{children}
 				<ScrollRestoration />
 				<Scripts />
@@ -53,8 +46,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+	const location = useLocation();
+	const isHome = location.pathname === "/";
+
+	if (isHome) {
+		return (
+			<>
+				<Header />
+				<Outlet />
+			</>
+		);
+	}
+
 	return (
-		<div className="flex min-h-screen flex-col">
+		<div className="site-shell flex min-h-screen flex-col bg-white text-zinc-900">
 			<Header />
 			<main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
 				<Outlet />
@@ -81,12 +86,12 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	}
 
 	return (
-		<div className="flex min-h-screen flex-col">
+		<div className="site-shell flex min-h-screen flex-col">
 			<Header />
 			<main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
 				<div className="space-y-4 text-center">
 					<h1 className="text-3xl font-semibold">{message}</h1>
-					<p className="text-zinc-600 dark:text-zinc-300">{details}</p>
+					<p className="text-zinc-600">{details}</p>
 					<Link
 						to="/"
 						className="inline-block text-sm font-medium underline underline-offset-4"
@@ -94,7 +99,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 						Back to home
 					</Link>
 					{stack && (
-						<pre className="mt-6 w-full overflow-x-auto rounded-lg bg-zinc-100 p-4 text-left text-sm dark:bg-zinc-900">
+						<pre className="mt-6 w-full overflow-x-auto rounded-lg bg-zinc-100 p-4 text-left text-sm">
 							<code>{stack}</code>
 						</pre>
 					)}
