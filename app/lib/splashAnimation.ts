@@ -40,8 +40,6 @@ export function runHomeSplash(
 			inner.querySelectorAll(".gl-img"),
 		);
 
-		galleryParams.modeChangePow = 1;
-
 		childElements.forEach((items) => {
 			for (let i = 0; i < items.length; i++) {
 				const node = items[i] as HTMLElement;

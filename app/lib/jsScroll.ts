@@ -308,6 +308,14 @@ export function createJsScroll({
 		}, completeWait);
 	};
 
+	/** Mirrors photoyoshi jsScroll.onReset — kill auto-scroll so user input owns delta1. */
+	const resetScrollTo = () => {
+		if (!scrollToTween) return;
+		scrollToTween.kill();
+		scrollToTween = null;
+		scrollX = delta1;
+	};
+
 	const applyScrollImpulse = (detail: number) => {
 		power.delta1 += Math.abs(detail);
 		power.delta2 += Math.abs(detail);
@@ -317,6 +325,7 @@ export function createJsScroll({
 
 	const onWheel = (event: WheelEvent) => {
 		event.preventDefault();
+		resetScrollTo();
 		clearScrollTimers();
 		const detail = getWheelDetail(event);
 		delta1 += -detail * speed;
@@ -334,8 +343,8 @@ export function createJsScroll({
 		dragStartDelta = delta1;
 		wrap.setPointerCapture(event.pointerId);
 		power.pow0.value = 0;
+		resetScrollTo();
 		clearScrollTimers();
-		scrollToTween?.kill();
 	};
 
 	const onPointerMove = (event: PointerEvent) => {
