@@ -6,9 +6,7 @@ import {
 	tuneGalleryAtlasForRenderer,
 } from "~/lib/galleryAtlas";
 import type { JsScroll } from "~/lib/jsScroll";
-
-/** `.l-light .p-home` on photoyoshi — avoids white halos where fragments are discarded. */
-const GALLERY_CLEAR = 0xe7e5de;
+import { siteBgHex } from "~/lib/siteBg";
 
 export type GalleryCanvasProps = {
 	contentRef: React.RefObject<HTMLElement | null>;
@@ -34,7 +32,7 @@ export function GalleryCanvas({
 			dpr={[1, 2]}
 			style={{ display: "block", width: "100%", height: "100%" }}
 			onCreated={({ gl, size }) => {
-				gl.setClearColor(GALLERY_CLEAR, 1);
+				gl.setClearColor(siteBgHex(), 1);
 				gl.setSize(size.width, size.height, false);
 				void loadGalleryAtlasTexture().then(() => {
 					tuneGalleryAtlasForRenderer(gl);

@@ -22,8 +22,8 @@ const MAX_THUMB = 512;
 const MAX_ATLAS_WIDTH = 8192;
 const ATLAS_QUALITY = 85;
 
-/** photoyoshi `.l-light .p-home` — gutter + preview background */
-const GUTTER_RGB = { r: 231, g: 229, b: 222 };
+/** Match `--site-bg` (#fff) — gutter + preview background */
+const GUTTER_RGB = { r: 255, g: 255, b: 255 };
 
 const allCateImages = JSON.parse(
 	await readFile(join(root, "app/data/allCateImages.json"), "utf8"),

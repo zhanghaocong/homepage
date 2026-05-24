@@ -15,14 +15,17 @@ body.page {
 	font-family: var(--site-font);
 	font-weight: 400;
 	font-feature-settings: normal;
-	background: var(--site-bg);
+	background: var(--site-bg) !important;
 	color: var(--site-fg);
 }
 
 .page,
+.js-wrapper.p-home,
+.js-old .js-wrapper,
 .l-light .p-home,
 .l-splash,
 .l-splash__front,
+.l-splash__front-bg,
 .p-about__text--inner {
 	background: var(--site-bg) !important;
 }
@@ -50,7 +53,8 @@ body.page {
 }
 
 .site-shell {
-	@apply bg-white text-zinc-900 antialiased;
+	@apply text-zinc-900 antialiased;
+	background: var(--site-bg);
 	font-family: var(--site-font);
 }
 
