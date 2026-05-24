@@ -55,7 +55,7 @@ body.page {
 }
 
 .site-header {
-	background: var(--site-bg);
+	background: transparent;
 }
 
 .site-header__inner {
