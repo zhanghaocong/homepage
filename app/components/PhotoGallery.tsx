@@ -1,5 +1,4 @@
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { CATEGORY_UI, galleryCounts, galleryTotal } from "~/data/gallery";
 import { buildGallerySections } from "~/lib/buildGallerySections";
 import {
@@ -13,6 +12,13 @@ import { createJsScroll, type JsScroll } from "~/lib/jsScroll";
 import { runHomeSplash } from "~/lib/splashAnimation";
 import { initViewport } from "~/lib/viewport";
 import { initGalleryMode } from "~/lib/galleryParams";
+import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
+
+const GalleryCanvas = lazy(() =>
+	import("~/components/gallery-canvas/GalleryCanvas").then((m) => ({
+		default: m.GalleryCanvas,
+	})),
+);
 
 function Scope() {
 	return (
@@ -31,9 +37,12 @@ export function PhotoGallery() {
 	const bodyRef = useRef<HTMLDivElement>(null);
 	const contentRef = useRef<HTMLDivElement>(null);
 	const canvasWrapRef = useRef<HTMLDivElement>(null);
+	const canvasEngineRef = useRef<GalleryEngineHandle | null>(null);
+	const scrollRef = useRef<JsScroll | null>(null);
+	const [canvasReady, setCanvasReady] = useState(false);
 	const enginesRef = useRef<{
 		scroll: JsScroll;
-		canvas: import("~/components/CanvasEngine").CanvasEngine | null;
+		canvas: GalleryEngineHandle | null;
 	} | null>(null);
 
 	useEffect(() => {
@@ -50,19 +59,20 @@ export function PhotoGallery() {
 		const stopViewport = initViewport();
 		buildGallerySections(content);
 		initHomePageScript(shell);
-		void import("~/components/CanvasEngine");
 
 		let destroyed = false;
-		let canvas: import("~/components/CanvasEngine").CanvasEngine | null = null;
 		let raf = 0;
+
+		const getCanvas = () => canvasEngineRef.current;
 
 		const syncCanvasAfterResize = () => {
 			resetGridParallax(shell);
+			const canvas = getCanvas();
 			if (!canvas) return;
 			const apply = () => {
-				canvas!.homeScene.syncMeshes(content);
-				canvas!.onResize();
-				canvas!.warmupRender();
+				canvas.homeScene.syncMeshes(content);
+				canvas.onResize();
+				canvas.warmupRender();
 			};
 			apply();
 			requestAnimationFrame(() => {
@@ -79,29 +89,15 @@ export function PhotoGallery() {
 			onResizeAfter: syncCanvasAfterResize,
 		});
 
+		scrollRef.current = scroll;
+		enginesRef.current = { scroll, canvas: null };
+		setCanvasReady(true);
+
 		const scrollLoop = () => {
 			scroll.raf();
 			raf = requestAnimationFrame(scrollLoop);
 		};
 		raf = requestAnimationFrame(scrollLoop);
-
-		const canvasLoop = () => {
-			if (destroyed || !canvas) return;
-			canvas.tick(scroll.power, scroll.currentCategory);
-		};
-
-		void (async () => {
-			const { createCanvasEngine } = await import("~/components/CanvasEngine");
-			if (destroyed) return;
-			canvas = createCanvasEngine(canvasWrap);
-			enginesRef.current = { scroll, canvas };
-			gsap.ticker.add(canvasLoop);
-			canvas.homeScene.init(content, () => {
-				requestAnimationFrame(() => {
-					if (!destroyed) canvas?.warmupRender();
-				});
-			});
-		})();
 
 		const stopLoader = initKoalaLoader(shell, () => {
 			if (!destroyed) runHomeSplash(shell, scroll);
@@ -109,16 +105,25 @@ export function PhotoGallery() {
 
 		return () => {
 			destroyed = true;
+			setCanvasReady(false);
 			stopLoader();
-			gsap.ticker.remove(canvasLoop);
 			cancelAnimationFrame(raf);
 			stopViewport();
 			scroll.destroy();
-			canvas?.destroy();
+			scrollRef.current = null;
+			canvasEngineRef.current = null;
 			destroyHomePageScript();
 			enginesRef.current = null;
 		};
 	}, []);
+
+	const handleEngineReady = () => {
+		if (!enginesRef.current) return;
+		enginesRef.current.canvas = canvasEngineRef.current;
+		requestAnimationFrame(() => {
+			canvasEngineRef.current?.warmupRender();
+		});
+	};
 
 	const jumpToCategory = (cat: string) => {
 		(window as Window & { selectedCategory?: string }).selectedCategory = cat;
@@ -177,7 +182,18 @@ export function PhotoGallery() {
 					</div>
 				</div>
 
-				<div className="js-canvas__wrap" ref={canvasWrapRef} aria-hidden="true" />
+				<div className="js-canvas__wrap" ref={canvasWrapRef} aria-hidden="true">
+					{canvasReady ? (
+						<Suspense fallback={null}>
+							<GalleryCanvas
+								contentRef={contentRef}
+								engineRef={canvasEngineRef}
+								scrollRef={scrollRef}
+								onEngineReady={handleEngineReady}
+							/>
+						</Suspense>
+					) : null}
+				</div>
 			</div>
 
 			<div className="c-scrollbar">
