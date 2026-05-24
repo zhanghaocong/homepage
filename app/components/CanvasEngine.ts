@@ -132,9 +132,13 @@ type CategoryGroup = {
 	elements: MeshEntry[];
 };
 
+const MESH_BATCH_SIZE = 8;
+const PLANE_SEGMENTS = 16;
+
 function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 	const loader = new TextureLoader();
 	loader.setCrossOrigin("anonymous");
+	const textureCache = new Map<string, Texture>();
 
 	const groups: Record<string, CategoryGroup> = {
 		cateInterior: { group: new Group(), elements: [] },
@@ -150,6 +154,17 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 		mode: { value: 0 },
 		device: { value: app.isMobile ? 0.5 : 0 },
 	};
+
+	function textureForImage(img: HTMLImageElement) {
+		const src = img.dataset.jsSrc ?? img.currentSrc ?? img.src;
+		const cached = textureCache.get(src);
+		if (cached) return cached;
+
+		const tex = loader.load(src);
+		tex.colorSpace = SRGBColorSpace;
+		textureCache.set(src, tex);
+		return tex;
+	}
 
 	function createMaterial(texture: Texture) {
 		return new ShaderMaterial({
@@ -201,6 +216,24 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 		groups[key].elements.push({ element, mesh });
 	}
 
+	function createMeshForFrame(frame: HTMLElement) {
+		const img = frame.querySelector<HTMLImageElement>(".gl-i");
+		if (!img?.dataset.jsSrc) return;
+
+		const rect = frame.getBoundingClientRect();
+		const tex = textureForImage(img);
+		const geo = new PlaneGeometry(
+			Math.max(rect.width, 1),
+			Math.max(rect.height, 1),
+			PLANE_SEGMENTS,
+			PLANE_SEGMENTS,
+		);
+		const mat = createMaterial(tex);
+		const mesh = new Mesh(geo, mat);
+		setPosition(mesh, frame);
+		addToGroup(mesh, img.dataset.category ?? "interior", frame);
+	}
+
 	function updateMesh(frame: HTMLElement, mesh: Mesh, power: ScrollPower) {
 		const img = frame.querySelector<HTMLImageElement>(".gl-i");
 		if (!img) return;
@@ -242,32 +275,35 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 			rect.left < window.innerWidth * 1.25;
 	}
 
-	const init = (root: HTMLElement) => {
-		const items = Array.from(root.querySelectorAll<HTMLElement>(".gl-img"));
+	let initRaf = 0;
 
-		for (const frame of items) {
-			const img = frame.querySelector<HTMLImageElement>(".gl-i");
-			if (!img?.dataset.jsSrc) continue;
-
-			const rect = frame.getBoundingClientRect();
-			const tex = loader.load(img.dataset.jsSrc);
-			tex.colorSpace = SRGBColorSpace;
-
-			const geo = new PlaneGeometry(
-				Math.max(rect.width, 1),
-				Math.max(rect.height, 1),
-				36,
-				36,
-			);
-			const mat = createMaterial(tex);
-			const mesh = new Mesh(geo, mat);
-			setPosition(mesh, frame);
-			addToGroup(mesh, img.dataset.category ?? "interior", frame);
-		}
-
+	const init = (root: HTMLElement, onReady?: () => void) => {
 		for (const g of Object.values(groups)) {
 			app.scene.add(g.group);
 		}
+
+		const originals = Array.from(
+			root.querySelectorAll<HTMLElement>(".c-section:not(.c-clone) .gl-img"),
+		);
+		const clones = Array.from(
+			root.querySelectorAll<HTMLElement>(".c-section.c-clone .gl-img"),
+		);
+		const queue = [...originals, ...clones];
+		let index = 0;
+
+		const step = () => {
+			const end = Math.min(index + MESH_BATCH_SIZE, queue.length);
+			for (; index < end; index++) {
+				createMeshForFrame(queue[index]);
+			}
+			if (index < queue.length) {
+				initRaf = requestAnimationFrame(step);
+			} else {
+				onReady?.();
+			}
+		};
+
+		step();
 	};
 
 	const effectTick = (
@@ -295,15 +331,20 @@ function createHomeScene(app: AppState & { scene: Scene; isMobile: boolean }) {
 	};
 
 	const destroy = () => {
+		cancelAnimationFrame(initRaf);
 		for (const g of Object.values(groups)) {
 			g.group.traverse((obj) => {
 				if (obj instanceof Mesh) {
 					obj.geometry.dispose();
-					obj.material.dispose();
+					(obj.material as ShaderMaterial).dispose();
 				}
 			});
 			app.scene.remove(g.group);
 		}
+		for (const tex of textureCache.values()) {
+			tex.dispose();
+		}
+		textureCache.clear();
 	};
 
 	return {
@@ -363,9 +404,25 @@ export function createCanvasEngine(canvasWrap: HTMLElement) {
 	};
 	window.addEventListener("wheel", onWheelDir, { passive: true });
 
+	let renderingEnabled = false;
+	const stillPower = {
+		pow1: { value: 0 },
+		pow2: { value: 0 },
+	} as ScrollPower;
+
+	const warmupRender = () => {
+		homeScene.effectTick(stillPower, state.pm, "interior");
+		composer.render();
+	};
+
 	const tick = (power: ScrollPower, currentCategory: string) => {
+		if (!renderingEnabled) return;
 		homeScene.effectTick(power, state.pm, currentCategory);
 		composer.render();
+	};
+
+	const enableRendering = () => {
+		renderingEnabled = true;
 	};
 
 	const onResize = () => {
@@ -389,7 +446,7 @@ export function createCanvasEngine(canvasWrap: HTMLElement) {
 		canvas.remove();
 	};
 
-	return { homeScene, tick, onResize, destroy };
+	return { homeScene, tick, enableRendering, warmupRender, onResize, destroy };
 }
 
 export type CanvasEngine = ReturnType<typeof createCanvasEngine>;

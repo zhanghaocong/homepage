@@ -53,6 +53,7 @@ export function PhotoGallery() {
 		const stopViewport = initViewport();
 		buildGallerySections(content);
 		initHomePageScript(shell);
+		void import("~/components/CanvasEngine");
 
 		const scroll = createJsScroll({
 			wrap,
@@ -65,11 +66,14 @@ export function PhotoGallery() {
 
 		let destroyed = false;
 		let canvas: import("~/components/CanvasEngine").CanvasEngine | null = null;
+		let revealRequested = false;
 		let raf = 0;
 
 		const render = () => {
 			scroll.raf();
-			canvas?.tick(scroll.power, scroll.currentCategory);
+			if (revealRequested) {
+				canvas?.tick(scroll.power, scroll.currentCategory);
+			}
 			raf = requestAnimationFrame(render);
 		};
 		raf = requestAnimationFrame(render);
@@ -79,18 +83,25 @@ export function PhotoGallery() {
 				const { createCanvasEngine } = await import("~/components/CanvasEngine");
 				if (destroyed) return;
 				canvas = createCanvasEngine(canvasWrap);
-				requestAnimationFrame(() => {
+				canvas.homeScene.init(content, () => {
 					requestAnimationFrame(() => {
-						if (!destroyed) canvas?.homeScene.init(content);
+						if (!destroyed) canvas?.warmupRender();
 					});
 				});
 				enginesRef.current = { scroll, canvas };
+				if (revealRequested) canvas.enableRendering();
 			})();
 		};
 
 		const stopLoader = initKoalaLoader(shell, () => {
 			if (!destroyed) {
-				runHomeSplash(shell, scroll, { onReveal: initCanvas });
+				initCanvas();
+				runHomeSplash(shell, scroll, {
+					onReveal: () => {
+						revealRequested = true;
+						canvas?.enableRendering();
+					},
+				});
 			}
 		});
 
