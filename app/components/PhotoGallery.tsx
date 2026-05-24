@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
 import { CATEGORY_UI, galleryCounts, galleryTotal } from "~/data/gallery";
 import { buildGallerySections } from "~/lib/buildGallerySections";
 import {
@@ -66,43 +67,34 @@ export function PhotoGallery() {
 
 		let destroyed = false;
 		let canvas: import("~/components/CanvasEngine").CanvasEngine | null = null;
-		let revealRequested = false;
 		let raf = 0;
 
-		const render = () => {
+		const scrollLoop = () => {
 			scroll.raf();
-			if (revealRequested) {
-				canvas?.tick(scroll.power, scroll.currentCategory);
-			}
-			raf = requestAnimationFrame(render);
+			raf = requestAnimationFrame(scrollLoop);
 		};
-		raf = requestAnimationFrame(render);
+		raf = requestAnimationFrame(scrollLoop);
 
-		const initCanvas = () => {
-			void (async () => {
-				const { createCanvasEngine } = await import("~/components/CanvasEngine");
-				if (destroyed) return;
-				canvas = createCanvasEngine(canvasWrap);
-				canvas.homeScene.init(content, () => {
-					requestAnimationFrame(() => {
-						if (!destroyed) canvas?.warmupRender();
-					});
-				});
-				enginesRef.current = { scroll, canvas };
-				if (revealRequested) canvas.enableRendering();
-			})();
+		const canvasLoop = () => {
+			if (destroyed || !canvas) return;
+			canvas.tick(scroll.power, scroll.currentCategory);
 		};
+
+		void (async () => {
+			const { createCanvasEngine } = await import("~/components/CanvasEngine");
+			if (destroyed) return;
+			canvas = createCanvasEngine(canvasWrap);
+			enginesRef.current = { scroll, canvas };
+			gsap.ticker.add(canvasLoop);
+			canvas.homeScene.init(content, () => {
+				requestAnimationFrame(() => {
+					if (!destroyed) canvas?.warmupRender();
+				});
+			});
+		})();
 
 		const stopLoader = initKoalaLoader(shell, () => {
-			if (!destroyed) {
-				initCanvas();
-				runHomeSplash(shell, scroll, {
-					onReveal: () => {
-						revealRequested = true;
-						canvas?.enableRendering();
-					},
-				});
-			}
+			if (!destroyed) runHomeSplash(shell, scroll);
 		});
 
 		const onResize = () => {
@@ -114,6 +106,7 @@ export function PhotoGallery() {
 		return () => {
 			destroyed = true;
 			stopLoader();
+			gsap.ticker.remove(canvasLoop);
 			cancelAnimationFrame(raf);
 			window.removeEventListener("resize", onResize);
 			stopViewport();

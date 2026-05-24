@@ -35,12 +35,12 @@ export function runHomeSplash(
 	}
 
 	window.setTimeout(() => {
-		const glInner = root.querySelectorAll(
-			".c-section:not(.c-clone) .gl-inner",
-		);
+		const glInner = root.querySelectorAll(".gl-inner");
 		const childElements = Array.from(glInner).map((inner) =>
 			inner.querySelectorAll(".gl-img"),
 		);
+
+		galleryParams.modeChangePow = 1;
 
 		childElements.forEach((items) => {
 			for (let i = 0; i < items.length; i++) {
@@ -74,9 +74,9 @@ export function runHomeSplash(
 
 		const revealGallery = () => {
 			hooks?.onReveal?.();
-			gsap.fromTo("canvas", { opacity: 0 }, { opacity: 1, duration: 1 });
+			gsap.fromTo("canvas", { opacity: 0 }, { opacity: 1, duration: 0.85 });
 			const distance = window.innerWidth < 680 ? 4.48 : 2.125;
-			scroll.onScrollTo(scroll.delta1 + window._w * distance, 3, 0, "power4.out");
+			scroll.onScrollTo(scroll.delta1 + window._w * distance, 2.5, 0, "power4.out");
 
 			childElements.forEach((items) => {
 				killAllTweens(items);
@@ -88,31 +88,31 @@ export function runHomeSplash(
 					if (i === 2) {
 						gsap.to(node, {
 							width: landscape ? "100%" : "65%",
-							duration: 2.3,
+							duration: 1.8,
 							ease: "power4.out",
-							delay: 0.5,
+							delay: 0.35,
 						});
 						gsap.to(node, {
 							height: landscape ? "65%" : "100%",
-							duration: 1.8,
+							duration: 1.4,
 							ease: "power4.out",
 						});
 					}
 				}
 
-				gsap.to(items[0], { y: 0, duration: 1.7, ease: "expo.out", delay: 1 });
-				gsap.to(items[1], { y: 0, duration: 1.7, ease: "expo.out", delay: 0.5 });
-				gsap.to(items[3], { y: 0, duration: 1.7, ease: "expo.out", delay: 0.5 });
-				gsap.to(items[4], { y: 0, duration: 1.7, ease: "expo.out", delay: 1 });
+				gsap.to(items[0], { y: 0, duration: 1.35, ease: "expo.out", delay: 0.7 });
+				gsap.to(items[1], { y: 0, duration: 1.35, ease: "expo.out", delay: 0.38 });
+				gsap.to(items[3], { y: 0, duration: 1.35, ease: "expo.out", delay: 0.38 });
+				gsap.to(items[4], { y: 0, duration: 1.35, ease: "expo.out", delay: 0.7 });
 			});
 
-			gsap.fromTo(".to", { opacity: 0 }, { opacity: 1, duration: 0.5, delay: 1.5 });
+			gsap.fromTo(".to", { opacity: 0 }, { opacity: 1, duration: 0.45, delay: 1.2 });
 			gsap
 				.timeline()
 				.fromTo(
 					galleryParams,
-					{ modeChangePow: 1 },
-					{ modeChangePow: 0, duration: 1.5, ease: "power1.out" },
+					{ modeChangePow: 1, duration: 1, ease: "power1.out" },
+					{ modeChangePow: 0, duration: 1.2, ease: "power1.out" },
 				);
 		};
 
@@ -135,11 +135,19 @@ export function runHomeSplash(
 		}, "< .2");
 
 		if (window.innerWidth < 680) {
-			tl.to(".l-splash__front-inner", {
-				width: "130%",
-				duration: 1.8,
-				ease: "power2.inOut",
-			}, "<");
+			if (window._w > window._h) {
+				tl.to(".l-splash__front-inner", {
+					width: "130%",
+					duration: 1.8,
+					ease: "power2.inOut",
+				}, "<");
+			} else {
+				tl.to(".l-splash__front-inner", {
+					height: "120%",
+					duration: 1.8,
+					ease: "power2.inOut",
+				}, "<");
+			}
 			tl.fromTo(
 				".l-splash__front-wrap",
 				{ clipPath: "inset(30vh 25vw 30vh 25vw)" },
@@ -167,10 +175,10 @@ export function runHomeSplash(
 			{ clipPath: "inset(0vw 0vw 100vh 0vw)", duration: 1.8, ease: "expo.inOut" },
 			"<",
 		);
-		tl.call(revealGallery, [], "< 1.0");
-	}, 700);
+		tl.call(revealGallery, [], "< 0.7");
+	}, 600);
 
 	window.setTimeout(() => {
 		html.classList.remove("is-load");
-	}, 2500);
+	}, 2250);
 }

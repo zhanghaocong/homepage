@@ -404,7 +404,6 @@ export function createCanvasEngine(canvasWrap: HTMLElement) {
 	};
 	window.addEventListener("wheel", onWheelDir, { passive: true });
 
-	let renderingEnabled = false;
 	const stillPower = {
 		pow1: { value: 0 },
 		pow2: { value: 0 },
@@ -416,13 +415,8 @@ export function createCanvasEngine(canvasWrap: HTMLElement) {
 	};
 
 	const tick = (power: ScrollPower, currentCategory: string) => {
-		if (!renderingEnabled) return;
 		homeScene.effectTick(power, state.pm, currentCategory);
 		composer.render();
-	};
-
-	const enableRendering = () => {
-		renderingEnabled = true;
 	};
 
 	const onResize = () => {
@@ -446,7 +440,7 @@ export function createCanvasEngine(canvasWrap: HTMLElement) {
 		canvas.remove();
 	};
 
-	return { homeScene, tick, enableRendering, warmupRender, onResize, destroy };
+	return { homeScene, tick, warmupRender, onResize, destroy };
 }
 
 export type CanvasEngine = ReturnType<typeof createCanvasEngine>;
