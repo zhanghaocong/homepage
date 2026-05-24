@@ -15,20 +15,20 @@ export function meta({}: Route.MetaArgs) {
 export default function Projects() {
 	return (
 		<div className="space-y-8">
-			<div className="space-y-2">
-				<h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+			<header className="space-y-2 border-b border-zinc-200 pb-8">
+				<h1 className="text-[2.5rem] font-semibold tracking-tight text-zinc-900">
 					Projects
 				</h1>
-				<p className="text-zinc-600 dark:text-zinc-300">
+				<p className="text-lg text-zinc-500">
 					A selection of things I&apos;ve built recently.
 				</p>
-			</div>
+			</header>
 
 			<ul className="space-y-6">
 				{projects.map((project) => (
 					<li
 						key={project.slug}
-						className="rounded-xl border border-zinc-200/80 p-6 dark:border-zinc-800"
+						className="rounded-lg border border-zinc-200 p-6"
 					>
 						<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 							<div className="space-y-2">

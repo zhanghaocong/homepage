@@ -166,19 +166,6 @@ export function PhotoGallery() {
 						</p>
 					</div>
 
-					<div className="p-home__mode to" aria-label="View mode">
-						<div className="c-btn c-btn__grid" aria-label="WallMode">
-							<div className="c-btn__grid--inner">
-								{Array.from({ length: 4 }).map((_, i) => (
-									<span key={i} className="c-btn__grid l">
-										<span />
-										<span />
-										<span />
-									</span>
-								))}
-							</div>
-						</div>
-					</div>
 				</div>
 
 				<div className="js-canvas__wrap" ref={canvasWrapRef} aria-hidden="true">
