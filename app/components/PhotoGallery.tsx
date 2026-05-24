@@ -10,17 +10,13 @@ import {
 } from "~/lib/homePageScript";
 import { initKoalaLoader } from "~/lib/koalaLoader";
 import { createJsScroll, type JsScroll } from "~/lib/jsScroll";
-import {
-	destroyModeSwitch,
-	initModeSwitch,
-} from "~/lib/modeSwitch";
 import { runHomeSplash } from "~/lib/splashAnimation";
 import { initViewport } from "~/lib/viewport";
-import { setGalleryMode } from "~/lib/galleryParams";
+import { initGalleryMode } from "~/lib/galleryParams";
 
-function Scope({ variant }: { variant: "grid" | "full" }) {
+function Scope() {
 	return (
-		<div className={`p-home__scope c-scope --${variant}`}>
+		<div className="p-home__scope c-scope --grid">
 			<span className="l l1" />
 			<span className="l l2" />
 			<span className="l l3" />
@@ -48,8 +44,7 @@ export function PhotoGallery() {
 		const canvasWrap = canvasWrapRef.current;
 		if (!shell || !wrap || !body || !content || !canvasWrap) return;
 
-		setGalleryMode("grid");
-		document.documentElement.dataset.mode = "grid";
+		initGalleryMode();
 		document.documentElement.classList.add("l-light", "is-load__before");
 
 		const stopViewport = initViewport();
@@ -83,8 +78,6 @@ export function PhotoGallery() {
 			onUpdateAfter: () => homePageOnUpdateAfter(scroll),
 			onResizeAfter: syncCanvasAfterResize,
 		});
-
-		initModeSwitch(wrap, scroll);
 
 		const scrollLoop = () => {
 			scroll.raf();
@@ -122,7 +115,6 @@ export function PhotoGallery() {
 			stopViewport();
 			scroll.destroy();
 			canvas?.destroy();
-			destroyModeSwitch();
 			destroyHomePageScript();
 			enginesRef.current = null;
 		};
@@ -144,8 +136,7 @@ export function PhotoGallery() {
 				</div>
 
 				<div className="p-home__fixed to">
-					<Scope variant="grid" />
-					<Scope variant="full" />
+					<Scope />
 					<div className="p-home__category to">
 						<div className="p-home__category--title">
 							{CATEGORY_UI.map(({ id, label }) => (
@@ -172,11 +163,7 @@ export function PhotoGallery() {
 					</div>
 
 					<div className="p-home__mode to" aria-label="View mode">
-						<button
-							type="button"
-							className="js-modeGrid c-btn c-btn__grid"
-							aria-label="GridMode"
-						>
+						<div className="c-btn c-btn__grid" aria-label="WallMode">
 							<div className="c-btn__grid--inner">
 								{Array.from({ length: 4 }).map((_, i) => (
 									<span key={i} className="c-btn__grid l">
@@ -186,27 +173,7 @@ export function PhotoGallery() {
 									</span>
 								))}
 							</div>
-						</button>
-						<button
-							type="button"
-							className="js-modeFull c-btn c-btn__full"
-							aria-label="FullMode"
-						>
-							<div className="c-btn__full--inner">
-								<span className="c-btn__full l l1">
-									<span />
-								</span>
-								<span className="c-btn__full l l2">
-									<span />
-								</span>
-								<span className="c-btn__full l l3">
-									<span />
-								</span>
-								<span className="c-btn__full l l4">
-									<span />
-								</span>
-							</div>
-						</button>
+						</div>
 					</div>
 				</div>
 
@@ -247,8 +214,8 @@ export function PhotoGallery() {
 						</h1>
 					</div>
 					<div className="l-splash__middle">
-						<Scope variant="grid" />
-						<Scope variant="grid" />
+						<Scope />
+						<Scope />
 					</div>
 					<div className="l-splash__bottom">
 						<div className="l-splash__tag">
