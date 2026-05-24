@@ -1,14 +1,13 @@
-import {
-	Group,
-	Mesh,
-	PlaneGeometry,
-	Scene,
-	ShaderMaterial,
-	SRGBColorSpace,
-	Texture,
-	TextureLoader,
-} from "three";
+import { Group, Mesh, PlaneGeometry, Scene, ShaderMaterial, Vector4 } from "three";
 import { createGalleryPhotoMaterial } from "~/components/gallery-canvas/materials";
+import {
+	disposeGalleryAtlas,
+	galleryAtlasKeyFromSrc,
+	getGalleryAtlasSprite,
+	getGalleryAtlasTexture,
+	loadGalleryAtlasTexture,
+	spriteToUvRect,
+} from "~/lib/galleryAtlas";
 import {
 	getGalleryMode,
 	getGalleryModeChangePow,
@@ -57,9 +56,9 @@ export class GalleryMeshRegistry {
 	};
 
 	private readonly scene: Scene;
-	private readonly loader = new TextureLoader();
-	private readonly textureCache = new Map<string, Texture>();
+	private atlasReady = false;
 	private readonly meshedFrames = new WeakSet<HTMLElement>();
+	private readonly pendingFrames: HTMLElement[] = [];
 	private readonly groups: Record<string, CategoryGroup> = {
 		cateInterior: { group: new Group(), elements: [] },
 		catePortrait: { group: new Group(), elements: [] },
@@ -73,7 +72,6 @@ export class GalleryMeshRegistry {
 		this.pm = pm;
 		this.pm = pm;
 		this.effectUniforms.device.value = isMobile ? 0.5 : 0;
-		this.loader.setCrossOrigin("anonymous");
 	}
 
 	init(root: HTMLElement, onReady?: () => void) {
@@ -90,19 +88,29 @@ export class GalleryMeshRegistry {
 		const queue = [...originals, ...clones];
 		let index = 0;
 
-		const step = () => {
-			const end = Math.min(index + MESH_BATCH_SIZE, queue.length);
-			for (; index < end; index++) {
-				this.createMeshForFrame(queue[index]);
+		const finishInit = () => {
+			for (const frame of [...this.pendingFrames]) {
+				this.createMeshForFrame(frame);
 			}
-			if (index < queue.length) {
-				this.initRaf = requestAnimationFrame(step);
-			} else {
-				onReady?.();
-			}
+			this.pendingFrames.length = 0;
+			onReady?.();
 		};
 
-		step();
+		void loadGalleryAtlasTexture().then(() => {
+			this.atlasReady = true;
+			const runStep = () => {
+				const end = Math.min(index + MESH_BATCH_SIZE, queue.length);
+				for (; index < end; index++) {
+					this.createMeshForFrame(queue[index]);
+				}
+				if (index < queue.length) {
+					this.initRaf = requestAnimationFrame(runStep);
+				} else {
+					finishInit();
+				}
+			};
+			runStep();
+		});
 	}
 
 	syncMeshes(root: HTMLElement) {
@@ -169,21 +177,17 @@ export class GalleryMeshRegistry {
 			});
 			this.scene.remove(g.group);
 		}
-		for (const tex of this.textureCache.values()) {
-			tex.dispose();
-		}
-		this.textureCache.clear();
+		disposeGalleryAtlas();
+		this.atlasReady = false;
+		this.pendingFrames.length = 0;
 	}
 
-	private textureForImage(img: HTMLImageElement) {
+	private uvRectForImage(img: HTMLImageElement): Vector4 | null {
 		const src = img.dataset.jsSrc ?? img.currentSrc ?? img.src;
-		const cached = this.textureCache.get(src);
-		if (cached) return cached;
-
-		const tex = this.loader.load(src);
-		tex.colorSpace = SRGBColorSpace;
-		this.textureCache.set(src, tex);
-		return tex;
+		const key = galleryAtlasKeyFromSrc(src);
+		const sprite = getGalleryAtlasSprite(key);
+		if (!sprite) return null;
+		return spriteToUvRect(sprite);
 	}
 
 	private getImageAspect(img: HTMLImageElement) {
@@ -225,15 +229,23 @@ export class GalleryMeshRegistry {
 		const img = frame.querySelector<HTMLImageElement>(".gl-i");
 		if (!img?.dataset.jsSrc) return;
 
+		const atlas = getGalleryAtlasTexture();
+		const uvRect = this.uvRectForImage(img);
+		if (!this.atlasReady || !atlas || !uvRect) {
+			if (!this.pendingFrames.includes(frame)) {
+				this.pendingFrames.push(frame);
+			}
+			return;
+		}
+
 		const rect = frame.getBoundingClientRect();
-		const tex = this.textureForImage(img);
 		const geo = new PlaneGeometry(
 			Math.max(rect.width, 1),
 			Math.max(rect.height, 1),
 			PLANE_SEGMENTS,
 			PLANE_SEGMENTS,
 		);
-		const mesh = new Mesh(geo, createGalleryPhotoMaterial(tex));
+		const mesh = new Mesh(geo, createGalleryPhotoMaterial(atlas, uvRect));
 		this.setPosition(mesh, frame);
 		this.addToGroup(mesh, img.dataset.category ?? "interior", frame);
 		this.meshedFrames.add(frame);

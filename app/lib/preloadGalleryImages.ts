@@ -1,4 +1,5 @@
 import allCateImages from "~/data/allCateImages.json";
+import { getGalleryAtlasManifest } from "~/lib/galleryAtlas";
 import { imageUrl } from "~/data/gallery";
 
 export type GalleryLoadProgress = {
@@ -9,6 +10,10 @@ export type GalleryLoadProgress = {
 
 function uniqueGalleryUrls() {
 	const urls = new Set<string>();
+	const { image: atlasImage, sprites } = getGalleryAtlasManifest();
+	if (Object.keys(sprites).length > 0) {
+		urls.add(atlasImage);
+	}
 	for (const arr of Object.values(allCateImages)) {
 		for (const img of arr) {
 			urls.add(imageUrl(img.medium));

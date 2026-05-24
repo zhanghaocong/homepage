@@ -35,6 +35,7 @@
 		"@types/react-dom": "^19.0.0",
 		"@types/three": "^0.184.1",
 		"tailwindcss": "4.1.17",
+		"sharp": "^0.34.5",
 		"typescript": "5.9.3",
 		"vite": "^6.0.0",
 		"vite-tsconfig-paths": "5.1.4",
@@ -48,6 +49,7 @@
 		"deploy": "wrangler deploy",
 		"dev": "react-router dev",
 		"download:gallery": "node scripts/download-gallery-images.mjs",
+		"build:gallery-atlas": "node scripts/build-gallery-atlas.mjs",
 		"preview": "npm run build && vite preview",
 		"typecheck": "npm run cf-typegen && tsc -b"
 	},
