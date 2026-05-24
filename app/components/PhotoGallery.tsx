@@ -141,7 +141,6 @@ export function PhotoGallery() {
 				</div>
 
 				<div className="p-home__fixed to">
-					<Scope />
 					<div className="p-home__category to">
 						<div className="p-home__category--title">
 							{CATEGORY_UI.map(({ id, label }) => (
