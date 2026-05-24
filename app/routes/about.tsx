@@ -14,15 +14,11 @@ export function meta({}: Route.MetaArgs) {
 export default function About() {
 	return (
 		<article className="max-w-none space-y-8">
-			<header className="space-y-2 border-b border-zinc-200 pb-8">
-				<h1 className="text-[2.5rem] font-semibold tracking-tight text-zinc-900">
-					About
-				</h1>
-				<p className="text-lg text-zinc-500">
-					A short introduction and background.
-				</p>
+			<header className="site-page-header space-y-2">
+				<h1 className="site-page-title">About</h1>
+				<p className="site-page-lead">A short introduction and background.</p>
 			</header>
-			<div className="space-y-6 text-[0.9375rem] leading-relaxed text-zinc-600">
+			<div className="site-prose space-y-6">
 				<p>
 					Hi, I&apos;m {site.name}. I build web applications with a focus on
 					performance, developer experience, and clean interfaces.

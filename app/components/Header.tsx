@@ -1,4 +1,5 @@
 import { Link, NavLink, useLocation } from "react-router";
+import { ThemeToggle } from "~/components/ThemeToggle";
 
 export function Header() {
 	const { pathname } = useLocation();
@@ -27,6 +28,7 @@ export function Header() {
 							</NavLink>
 						</>
 					)}
+					<ThemeToggle />
 				</nav>
 			</div>
 		</header>

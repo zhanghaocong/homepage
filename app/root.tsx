@@ -13,6 +13,7 @@ import type { Route } from "./+types/root";
 import { Footer } from "~/components/Footer";
 import { Header } from "~/components/Header";
 import { site } from "~/data/site";
+import { themeBootScript } from "~/lib/theme";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -29,10 +30,11 @@ export function meta({}: Route.MetaArgs) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" className="is-js is-load__before l-light">
+		<html lang="en" className="is-js is-load__before">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
 				<Meta />
 				<Links />
 			</head>
@@ -59,7 +61,7 @@ export default function App() {
 	}
 
 	return (
-		<div className="site-shell flex min-h-screen flex-col bg-white text-zinc-900">
+		<div className="site-shell flex min-h-screen flex-col">
 			<Header />
 			<main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
 				<Outlet />
@@ -90,16 +92,16 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 			<Header />
 			<main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
 				<div className="space-y-4 text-center">
-					<h1 className="text-3xl font-semibold">{message}</h1>
-					<p className="text-zinc-600">{details}</p>
+					<h1 className="site-page-title text-3xl">{message}</h1>
+					<p className="site-prose">{details}</p>
 					<Link
 						to="/"
-						className="inline-block text-sm font-medium underline underline-offset-4"
+						className="site-header__link inline-block text-sm font-medium underline underline-offset-4"
 					>
 						Back to home
 					</Link>
 					{stack && (
-						<pre className="mt-6 w-full overflow-x-auto rounded-lg bg-zinc-100 p-4 text-left text-sm">
+						<pre className="site-card mt-6 w-full overflow-x-auto p-4 text-left text-sm">
 							<code>{stack}</code>
 						</pre>
 					)}

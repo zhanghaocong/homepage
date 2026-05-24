@@ -8,15 +8,11 @@ export function meta({}: Route.MetaArgs) {
 export default function NotFound() {
 	return (
 		<div className="space-y-4 text-center">
-			<h1 className="text-3xl font-semibold text-zinc-900 dark:text-zinc-50">
-				404
-			</h1>
-			<p className="text-zinc-600 dark:text-zinc-300">
-				The page you&apos;re looking for doesn&apos;t exist.
-			</p>
+			<h1 className="site-page-title text-3xl">404</h1>
+			<p className="site-prose">The page you&apos;re looking for doesn&apos;t exist.</p>
 			<Link
 				to="/"
-				className="inline-block text-sm font-medium text-zinc-900 underline underline-offset-4 dark:text-zinc-100"
+				className="site-header__link inline-block text-sm font-medium underline underline-offset-4"
 			>
 				Back to home
 			</Link>

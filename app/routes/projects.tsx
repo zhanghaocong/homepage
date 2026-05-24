@@ -15,28 +15,22 @@ export function meta({}: Route.MetaArgs) {
 export default function Projects() {
 	return (
 		<div className="space-y-8">
-			<header className="space-y-2 border-b border-zinc-200 pb-8">
-				<h1 className="text-[2.5rem] font-semibold tracking-tight text-zinc-900">
-					Projects
-				</h1>
-				<p className="text-lg text-zinc-500">
+			<header className="site-page-header space-y-2">
+				<h1 className="site-page-title">Projects</h1>
+				<p className="site-page-lead">
 					A selection of things I&apos;ve built recently.
 				</p>
 			</header>
 
 			<ul className="space-y-6">
 				{projects.map((project) => (
-					<li
-						key={project.slug}
-						className="rounded-lg border border-zinc-200 p-6"
-					>
+					<li key={project.slug} className="site-card">
 						<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 							<div className="space-y-2">
-								<h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
+								<h2 className="site-card-title">
 									{project.href ? (
 										<a
 											href={project.href}
-											className="transition hover:text-zinc-600 dark:hover:text-zinc-300"
 											target="_blank"
 											rel="noopener noreferrer"
 										>
@@ -46,17 +40,12 @@ export default function Projects() {
 										project.title
 									)}
 								</h2>
-								<p className="leading-relaxed text-zinc-600 dark:text-zinc-300">
-									{project.description}
-								</p>
+								<p className="site-prose">{project.description}</p>
 							</div>
 						</div>
 						<ul className="mt-4 flex flex-wrap gap-2">
 							{project.tags.map((tag) => (
-								<li
-									key={tag}
-									className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
-								>
+								<li key={tag} className="site-tag">
 									{tag}
 								</li>
 							))}

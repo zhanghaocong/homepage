@@ -54,7 +54,7 @@ export function PhotoGallery() {
 		if (!shell || !wrap || !body || !content || !canvasWrap) return;
 
 		initGalleryMode();
-		document.documentElement.classList.add("l-light", "is-load__before");
+		document.documentElement.classList.add("is-load__before");
 
 		const stopViewport = initViewport();
 		buildGallerySections(content);
