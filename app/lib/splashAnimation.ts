@@ -1,5 +1,8 @@
 import gsap from "gsap";
-import { galleryParams } from "~/lib/galleryParams";
+import {
+	applyGalleryGsapTarget,
+	galleryGsapTarget,
+} from "~/lib/galleryStore";
 import type { JsScroll } from "~/lib/jsScroll";
 
 function killAllTweens(elements: NodeListOf<Element> | Element[]) {
@@ -108,9 +111,19 @@ export function runHomeSplash(
 			gsap
 				.timeline()
 				.fromTo(
-					galleryParams,
-					{ modeChangePow: 1, duration: 1, ease: "power1.out" },
-					{ modeChangePow: 0, duration: 1.2, ease: "power1.out" },
+					galleryGsapTarget,
+					{
+						modeChangePow: 1,
+						duration: 1,
+						ease: "power1.out",
+						onUpdate: applyGalleryGsapTarget,
+					},
+					{
+						modeChangePow: 0,
+						duration: 1.2,
+						ease: "power1.out",
+						onUpdate: applyGalleryGsapTarget,
+					},
 				);
 		};
 

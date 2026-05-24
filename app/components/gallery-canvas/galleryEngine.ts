@@ -63,6 +63,3 @@ export function attachGalleryRuntime({
 
 	return { homeScene, tick, warmupRender, onResize, destroy };
 }
-
-/** @deprecated Use attachGalleryRuntime */
-export const attachGalleryEngine = attachGalleryRuntime;

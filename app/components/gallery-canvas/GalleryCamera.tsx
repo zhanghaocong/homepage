@@ -3,7 +3,7 @@ import { useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "three";
 import { applyGalleryCamera, getViewportSize } from "~/components/gallery-canvas/cameraUtils";
 
-/** Matches photoyoshi / CanvasEngine perspective camera setup. */
+/** Matches photoyoshi perspective camera setup. */
 export function GalleryCamera() {
 	const camera = useThree((state) => state.camera);
 

@@ -9,7 +9,10 @@ import {
 	TextureLoader,
 } from "three";
 import { createGalleryPhotoMaterial } from "~/components/gallery-canvas/materials";
-import { galleryParams } from "~/lib/galleryParams";
+import {
+	getGalleryMode,
+	getGalleryModeChangePow,
+} from "~/lib/galleryStore";
 import type { ScrollPower } from "~/lib/jsScroll";
 
 type MeshEntry = {
@@ -123,8 +126,8 @@ export class GalleryMeshRegistry {
 		}
 
 		this.effectUniforms.scroll_pow.value = power.pow1.value ?? 0;
-		this.effectUniforms.modeChangePow.value = galleryParams.modeChangePow;
-		this.effectUniforms.mode.value = galleryParams.mode;
+		this.effectUniforms.modeChangePow.value = getGalleryModeChangePow();
+		this.effectUniforms.mode.value = getGalleryMode();
 	}
 
 	onResize() {
@@ -271,8 +274,8 @@ export class GalleryMeshRegistry {
 			frameAspect > imgAspect ? 1 : frameAspect / imgAspect,
 			frameAspect > imgAspect ? imgAspect / frameAspect : 1,
 		);
-		u.pw.value = (power.pow2.value ?? 0) * this.pm.value * galleryParams.mode;
-		u.mode.value = galleryParams.mode;
+		u.pw.value = (power.pow2.value ?? 0) * this.pm.value * getGalleryMode();
+		u.mode.value = getGalleryMode();
 		mesh.scale.set(scaleX, scaleY, 1);
 
 		const rect = frame.getBoundingClientRect();

@@ -11,7 +11,7 @@ import { initKoalaLoader } from "~/lib/koalaLoader";
 import { createJsScroll, type JsScroll } from "~/lib/jsScroll";
 import { runHomeSplash } from "~/lib/splashAnimation";
 import { initViewport } from "~/lib/viewport";
-import { initGalleryMode } from "~/lib/galleryParams";
+import { initGalleryMode } from "~/lib/galleryStore";
 import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
 
 const GalleryCanvas = lazy(() =>
