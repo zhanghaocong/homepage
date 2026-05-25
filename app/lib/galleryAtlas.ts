@@ -34,6 +34,7 @@ const manifest = galleryAtlasManifest as GalleryAtlasManifest;
 
 let atlasTexture: Texture | null = null;
 let loadPromise: Promise<Texture> | null = null;
+let atlasDisposed = false;
 
 const loader = new TextureLoader();
 loader.setCrossOrigin("anonymous");
@@ -72,14 +73,17 @@ export function getGalleryAtlasSprite(key: string): GalleryAtlasSprite | null {
 }
 
 export function loadGalleryAtlasTexture(): Promise<Texture> {
-	if (atlasTexture) return Promise.resolve(atlasTexture);
-	if (loadPromise) return loadPromise;
+	if (atlasTexture && !atlasDisposed) return Promise.resolve(atlasTexture);
+	atlasTexture = null;
+	atlasDisposed = false;
+	loadPromise = null;
 
 	loadPromise = new Promise((resolve, reject) => {
 		loader.load(
 			manifest.image,
 			(tex) => {
 				atlasTexture = configureAtlasTexture(tex);
+				atlasDisposed = false;
 				resolve(atlasTexture);
 			},
 			undefined,
@@ -91,7 +95,7 @@ export function loadGalleryAtlasTexture(): Promise<Texture> {
 }
 
 export function getGalleryAtlasTexture(): Texture | null {
-	return atlasTexture;
+	return atlasTexture && !atlasDisposed ? atlasTexture : null;
 }
 
 export function spriteToUvRect(sprite: GalleryAtlasSprite): Vector4 {
@@ -103,5 +107,6 @@ export function disposeGalleryAtlas() {
 		atlasTexture.dispose();
 		atlasTexture = null;
 	}
+	atlasDisposed = true;
 	loadPromise = null;
 }

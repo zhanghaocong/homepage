@@ -1,7 +1,17 @@
-import { Group, Mesh, PlaneGeometry, Scene, ShaderMaterial, Vector4 } from "three";
+import {
+	Group,
+	Mesh,
+	PlaneGeometry,
+	Raycaster,
+	Scene,
+	ShaderMaterial,
+	Vector2,
+	Vector4,
+	type Camera,
+	type Intersection,
+} from "three";
 import { createGalleryPhotoMaterial } from "~/components/gallery-canvas/materials";
 import {
-	disposeGalleryAtlas,
 	galleryAtlasKeyFromSrc,
 	getGalleryAtlasSprite,
 	getGalleryAtlasTexture,
@@ -14,14 +24,14 @@ import {
 } from "~/lib/galleryStore";
 import type { ScrollPower } from "~/lib/jsScroll";
 
-type MeshEntry = {
+export type GalleryMeshEntry = {
 	element: HTMLElement;
 	mesh: Mesh;
 };
 
 type CategoryGroup = {
 	group: Group;
-	elements: MeshEntry[];
+	elements: GalleryMeshEntry[];
 };
 
 const MESH_BATCH_SIZE = 8;
@@ -66,6 +76,8 @@ export class GalleryMeshRegistry {
 	};
 	private initRaf = 0;
 	private time = 0;
+	private wallHiddenForPhotoView = false;
+	private lastScrollPower: ScrollPower | null = null;
 
 	constructor({ scene, isMobile, pm }: GalleryMeshRegistryOptions) {
 		this.scene = scene;
@@ -115,7 +127,7 @@ export class GalleryMeshRegistry {
 
 	syncMeshes(root: HTMLElement) {
 		for (const g of Object.values(this.groups)) {
-			const kept: MeshEntry[] = [];
+			const kept: GalleryMeshEntry[] = [];
 			for (const entry of g.elements) {
 				if (!entry.element.isConnected) {
 					g.group.remove(entry.mesh);
@@ -135,6 +147,7 @@ export class GalleryMeshRegistry {
 	}
 
 	effectTick(power: ScrollPower) {
+		this.lastScrollPower = power;
 		for (const g of Object.values(this.groups)) {
 			for (const { element, mesh } of g.elements) {
 				this.updateMesh(element, mesh, power);
@@ -166,6 +179,63 @@ export class GalleryMeshRegistry {
 		}
 	}
 
+	findEntryByFrame(frame: HTMLElement): GalleryMeshEntry | null {
+		for (const g of Object.values(this.groups)) {
+			for (const entry of g.elements) {
+				if (entry.element === frame) return entry;
+			}
+		}
+		return null;
+	}
+
+	pickWallMesh(ndcX: number, ndcY: number, camera: Camera) {
+		const raycaster = new Raycaster();
+		raycaster.setFromCamera(new Vector2(ndcX, ndcY), camera);
+		const meshes: Mesh[] = [];
+		const map = new Map<Mesh, GalleryMeshEntry>();
+		for (const g of Object.values(this.groups)) {
+			for (const entry of g.elements) {
+				if (!entry.mesh.visible) continue;
+				meshes.push(entry.mesh);
+				map.set(entry.mesh, entry);
+			}
+		}
+		const hits = raycaster.intersectObjects(meshes, false);
+		if (hits.length === 0) return null;
+		const mesh = hits[0].object as Mesh;
+		return { entry: map.get(mesh)!, hit: hits[0] as Intersection };
+	}
+
+	setWallMeshesHidden(hidden: boolean) {
+		if (hidden) {
+			this.wallHiddenForPhotoView = true;
+			this.effectUniforms.u_type.value = 0;
+			for (const g of Object.values(this.groups)) {
+				for (const { mesh } of g.elements) {
+					mesh.visible = false;
+				}
+			}
+			return;
+		}
+		this.restoreWallMeshes();
+	}
+
+	/** Re-show wall meshes and sync layout after photo view. */
+	restoreWallMeshes(power?: ScrollPower) {
+		this.wallHiddenForPhotoView = false;
+		this.effectUniforms.u_type.value = 1;
+		this.onResize();
+		for (const g of Object.values(this.groups)) {
+			for (const { mesh } of g.elements) {
+				mesh.visible = true;
+			}
+		}
+		const tickPower = power ?? this.lastScrollPower;
+		if (tickPower) {
+			this.effectTick(tickPower);
+		}
+	}
+
 	destroy() {
 		cancelAnimationFrame(this.initRaf);
 		for (const g of Object.values(this.groups)) {
@@ -177,7 +247,6 @@ export class GalleryMeshRegistry {
 			});
 			this.scene.remove(g.group);
 		}
-		disposeGalleryAtlas();
 		this.atlasReady = false;
 		this.pendingFrames.length = 0;
 	}
@@ -270,6 +339,11 @@ export class GalleryMeshRegistry {
 	}
 
 	private updateMesh(frame: HTMLElement, mesh: Mesh, power: ScrollPower) {
+		if (this.wallHiddenForPhotoView) {
+			mesh.visible = false;
+			return;
+		}
+
 		const img = frame.querySelector<HTMLImageElement>(".gl-i");
 		if (!img) return;
 

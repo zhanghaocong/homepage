@@ -9,6 +9,7 @@ import type { JsScroll } from "~/lib/jsScroll";
 
 export type GalleryCanvasProps = {
 	contentRef: React.RefObject<HTMLElement | null>;
+	wrapRef: React.RefObject<HTMLElement | null>;
 	engineRef: React.MutableRefObject<GalleryEngineHandle | null>;
 	scrollRef: React.MutableRefObject<JsScroll | null>;
 	onEngineReady?: () => void;
@@ -20,6 +21,7 @@ export type GalleryCanvasProps = {
  */
 export function GalleryCanvas({
 	contentRef,
+	wrapRef,
 	engineRef,
 	scrollRef,
 	onEngineReady,
@@ -27,13 +29,34 @@ export function GalleryCanvas({
 	return (
 		<Canvas
 			frameloop="always"
-			gl={{ antialias: true, alpha: true }}
+			gl={{
+				antialias: true,
+				alpha: true,
+				powerPreference: "high-performance",
+			}}
 			dpr={[1, 2]}
 			style={{ display: "block", width: "100%", height: "100%" }}
 			onCreated={({ gl, size }) => {
 				// photoyoshi.com: transparent clear so CSS page bg shows through meshes
 				gl.setClearColor(0, 0);
 				gl.setSize(size.width, size.height, false);
+
+				const canvas = gl.domElement;
+				const onContextLost = (event: Event) => {
+					event.preventDefault();
+				};
+				const onContextRestored = () => {
+					void loadGalleryAtlasTexture().then(() => {
+						tuneGalleryAtlasForRenderer(gl);
+					});
+				};
+				canvas.addEventListener("webglcontextlost", onContextLost, false);
+				canvas.addEventListener(
+					"webglcontextrestored",
+					onContextRestored,
+					false,
+				);
+
 				void loadGalleryAtlasTexture().then(() => {
 					tuneGalleryAtlasForRenderer(gl);
 				});
@@ -41,6 +64,7 @@ export function GalleryCanvas({
 		>
 			<GalleryScene
 				contentRef={contentRef}
+				wrapRef={wrapRef}
 				engineRef={engineRef}
 				scrollRef={scrollRef}
 				onEngineReady={onEngineReady}

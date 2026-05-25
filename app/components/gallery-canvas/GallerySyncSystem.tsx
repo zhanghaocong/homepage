@@ -1,7 +1,6 @@
 import { useFrame } from "@react-three/fiber";
 import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
 import type { JsScroll } from "~/lib/jsScroll";
-
 type GallerySyncSystemProps = {
 	engineRef: React.MutableRefObject<GalleryEngineHandle | null>;
 	scrollRef: React.MutableRefObject<JsScroll | null>;
@@ -18,8 +17,9 @@ export function GallerySyncSystem({
 		const engine = engineRef.current;
 		const scroll = scrollRef.current;
 		if (!engine || !scroll) return;
+		// Keep syncing while photo view is open so wall layout is current on close.
 		engine.tick(scroll.power, scroll.currentCategory);
-	}, 0);
+	}, 1);
 
 	return null;
 }

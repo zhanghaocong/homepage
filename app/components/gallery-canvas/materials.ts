@@ -40,6 +40,21 @@ export function createGalleryPhotoMaterial(
 	return material;
 }
 
+/** Flat photo planes for photo-view overlay (no scroll curve). */
+export function createPhotoViewMaterial(
+	texture: Texture,
+	uvRect = new Vector4(0, 0, 1, 1),
+): GalleryPhotoMaterialImpl {
+	const material = createGalleryPhotoMaterial(texture, uvRect);
+	material.u_type = 0;
+	material.mode = 1;
+	material.opacityN = 0;
+	material.pw = 0;
+	material.depthTest = false;
+	material.depthWrite = false;
+	return material;
+}
+
 export {
 	photoFragmentShader,
 	photoVertexShader,
