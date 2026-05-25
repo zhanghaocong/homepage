@@ -40,6 +40,7 @@ export type JsScroll = {
 	onScrollTo: (target: number, duration?: number, delay?: number, ease?: string) => void;
 	jumpToCategory: (category: string) => void;
 	remeasure: () => void;
+	setInputEnabled: (enabled: boolean) => void;
 	destroy: () => void;
 };
 
@@ -200,6 +201,7 @@ export function createJsScroll({
 	let scrollX = 0;
 	let scrollLeft = 0;
 	let ready = false;
+	let inputEnabled = true;
 	let currentCategory = "interior";
 	let scrollToTween: gsap.core.Tween | null = null;
 	const sections: SectionEntry[] = [];
@@ -324,6 +326,10 @@ export function createJsScroll({
 	};
 
 	const onWheel = (event: WheelEvent) => {
+		if (!inputEnabled) {
+			event.preventDefault();
+			return;
+		}
 		event.preventDefault();
 		resetScrollTo();
 		clearScrollTimers();
@@ -337,6 +343,7 @@ export function createJsScroll({
 	let dragStartDelta = 0;
 
 	const onPointerDown = (event: PointerEvent) => {
+		if (!inputEnabled) return;
 		if ((event.target as Element).closest("a, button, input, label")) return;
 		dragging = true;
 		dragStartX = event.clientX;
@@ -542,6 +549,14 @@ export function createJsScroll({
 		scrollToTween?.kill();
 	};
 
+	const setInputEnabled = (enabled: boolean) => {
+		inputEnabled = enabled;
+		if (!enabled) {
+			dragging = false;
+			resetScrollTo();
+		}
+	};
+
 	return {
 		power,
 		get delta1() {
@@ -554,6 +569,7 @@ export function createJsScroll({
 		onScrollTo,
 		jumpToCategory,
 		remeasure,
+		setInputEnabled,
 		destroy,
 	};
 }

@@ -1,9 +1,13 @@
+import { useAtomValue } from "jotai/react";
 import { Link, NavLink, useLocation } from "react-router";
 import { ThemeToggle } from "~/components/ThemeToggle";
+import { closePhotoView } from "~/lib/photoViewController";
+import { photoViewAtom, photoViewStore } from "~/lib/photoViewStore";
 
 export function Header() {
 	const { pathname } = useLocation();
-	const isSubpage = pathname !== "/";
+	const photoViewOpen = useAtomValue(photoViewAtom, { store: photoViewStore }).open;
+	const showClose = pathname !== "/" || photoViewOpen;
 
 	return (
 		<header className="l-header site-header">
@@ -14,10 +18,20 @@ export function Header() {
 					</Link>
 				</h1>
 				<nav className="site-header__nav">
-					{isSubpage ? (
-						<NavLink to="/" className="site-header__link site-header__link--close">
-							Close
-						</NavLink>
+					{showClose ? (
+						photoViewOpen ? (
+							<button
+								type="button"
+								className="site-header__link site-header__link--close"
+								onClick={() => closePhotoView()}
+							>
+								Close
+							</button>
+						) : (
+							<NavLink to="/" className="site-header__link site-header__link--close">
+								Close
+							</NavLink>
+						)
 					) : (
 						<>
 							<NavLink to="/" end className="site-header__link">

@@ -11,7 +11,14 @@ import { initKoalaLoader } from "~/lib/koalaLoader";
 import { createJsScroll, type JsScroll } from "~/lib/jsScroll";
 import { runHomeSplash } from "~/lib/splashAnimation";
 import { initViewport } from "~/lib/viewport";
+import { PhotoView } from "~/components/PhotoView";
 import { initGalleryMode } from "~/lib/galleryStore";
+import {
+	bindWallPhotoClicks,
+	closePhotoView,
+	registerPhotoViewContext,
+	unregisterPhotoViewContext,
+} from "~/lib/photoViewController";
 import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
 
 const GalleryCanvas = lazy(() =>
@@ -40,6 +47,7 @@ export function PhotoGallery() {
 	const canvasEngineRef = useRef<GalleryEngineHandle | null>(null);
 	const scrollRef = useRef<JsScroll | null>(null);
 	const [canvasReady, setCanvasReady] = useState(false);
+	const [photoViewOpen, setPhotoViewOpen] = useState(false);
 	const enginesRef = useRef<{
 		scroll: JsScroll;
 		canvas: GalleryEngineHandle | null;
@@ -91,6 +99,8 @@ export function PhotoGallery() {
 
 		scrollRef.current = scroll;
 		enginesRef.current = { scroll, canvas: null };
+		registerPhotoViewContext(scroll, wrap, setPhotoViewOpen);
+		const unbindPhotoClicks = bindWallPhotoClicks(content, wrap);
 		setCanvasReady(true);
 
 		const scrollLoop = () => {
@@ -103,9 +113,20 @@ export function PhotoGallery() {
 			if (!destroyed) runHomeSplash(shell, scroll);
 		});
 
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+				closePhotoView();
+			}
+		};
+		window.addEventListener("keydown", onKeyDown);
+
 		return () => {
 			destroyed = true;
+			window.removeEventListener("keydown", onKeyDown);
+			unbindPhotoClicks();
+			unregisterPhotoViewContext();
 			setCanvasReady(false);
+			setPhotoViewOpen(false);
 			stopLoader();
 			cancelAnimationFrame(raf);
 			stopViewport();
@@ -131,7 +152,12 @@ export function PhotoGallery() {
 	};
 
 	return (
-		<div className="xhr-wrap" data-xhr-namespace="home" ref={shellRef}>
+		<div
+			className={`xhr-wrap${photoViewOpen ? " is-photo-view-open" : ""}`}
+			data-xhr-namespace="home"
+			ref={shellRef}
+		>
+			<PhotoView />
 			<div className="js-wrapper p-home" ref={wrapRef}>
 				<div className="js-page__cover" />
 				<div className="js-page">

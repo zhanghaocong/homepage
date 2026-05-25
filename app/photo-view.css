@@ -1,0 +1,145 @@
+/* Photo view overlay — layout complements photoyoshi p-cate rules */
+
+/* photoyoshi.com: canvas is visual-only; DOM/grid receives clicks */
+.js-canvas__wrap,
+.js-canvas__wrap canvas {
+	pointer-events: none;
+}
+
+html:not(.is-load):not(.is-load__before) .l-splash {
+	pointer-events: none;
+}
+
+.is-photo-view-locked .js-wrapper.p-home,
+.is-photo-view-locked .js-body,
+.is-photo-view-locked .js-page,
+.is-photo-view-locked .c-content {
+	pointer-events: none !important;
+}
+
+html.l-photo-view .p-home__fixed,
+html.l-photo-view .p-home__category,
+html.l-photo-view .p-home__category--all,
+html.l-photo-view .p-home__category--title,
+html.l-photo-view .p-home__category--item {
+	opacity: 0 !important;
+	pointer-events: none !important;
+	visibility: hidden !important;
+}
+
+/* Flying layer: wall .gl-i is hidden; this img is the visible zoom target */
+.p-photo-view__fly {
+	box-sizing: border-box;
+	pointer-events: none;
+}
+
+.p-photo-view__fly-img {
+	display: block;
+	height: 100%;
+	object-fit: cover;
+	opacity: 1;
+	visibility: visible;
+	width: 100%;
+}
+
+.p-photo-view {
+	inset: 0;
+	opacity: 1;
+	pointer-events: none;
+	position: fixed;
+	z-index: 160;
+}
+
+.p-photo-view:not(.is-ui-ready) .p-photo-view__fixed,
+.p-photo-view:not(.is-ui-ready) .p-photo-view__rail {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.p-photo-view__backdrop {
+	background: transparent;
+	border: 0;
+	cursor: default;
+	inset: 0;
+	pointer-events: auto;
+	position: absolute;
+	z-index: 0;
+}
+
+.p-photo-view__fixed {
+	align-items: center;
+	display: flex;
+	height: 100vh;
+	justify-content: flex-start;
+	pointer-events: none;
+	position: fixed;
+	width: 100vw;
+	z-index: 170;
+}
+
+.p-photo-view__category {
+	align-items: flex-start;
+	display: flex;
+	flex-direction: column;
+	height: auto;
+	justify-content: center;
+	margin-left: calc(var(--grid) * 1);
+	pointer-events: none;
+}
+
+.p-photo-view__rail {
+	bottom: 0;
+	display: flex;
+	justify-content: flex-end;
+	left: 0;
+	pointer-events: none;
+	position: fixed;
+	right: 0;
+	top: 0;
+	z-index: 175;
+}
+
+.p-photo-view__scroll {
+	height: 100vh;
+	margin-right: calc(var(--grid) * 4);
+	max-height: calc(var(--vh, 1vh) * 100);
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	pointer-events: auto;
+	scrollbar-width: none;
+	width: calc(var(--grid) * 2.5 + var(--grid) * 2);
+}
+
+.p-photo-view__scroll::-webkit-scrollbar {
+	display: none;
+}
+
+.p-photo-view__lists {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	margin-right: 0;
+	min-width: calc(var(--grid) * 2.5);
+	padding: 50vh 0;
+	position: relative;
+}
+
+.p-photo-view__lists .p-cate__tmb-wrap {
+	position: relative;
+}
+
+.p-home .gl-img,
+.p-home .gl-img_w {
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.p-photo-view__border {
+	pointer-events: none;
+}
+
+html.l-photo-view .c-scrollbar {
+	opacity: 0;
+	pointer-events: none;
+}

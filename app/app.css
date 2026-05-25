@@ -1,4 +1,5 @@
 @import "tailwindcss" source(".");
+@import "./photo-view.css";
 
 :root {
 	--site-bg: #fff;
