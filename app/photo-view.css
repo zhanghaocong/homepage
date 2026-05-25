@@ -56,10 +56,6 @@ html.l-photo-view .p-home__category--item {
 	visibility: hidden !important;
 }
 
-.p-home .js-canvas__wrap canvas {
-	cursor: pointer;
-}
-
 /* photoyoshi groups .c-content with .p-cate — override flex-end for home scroll wall. */
 .p-home .js-body[data-dir="hr"] .c-content {
 	justify-content: flex-start !important;
