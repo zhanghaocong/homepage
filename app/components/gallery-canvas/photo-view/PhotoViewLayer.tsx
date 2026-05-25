@@ -41,11 +41,19 @@ import {
 	thumbScrollBounds,
 	scrollOffsetForThumbCenter,
 } from "~/lib/photoViewLayout";
+import { getFrameSpecById } from "~/lib/galleryLayoutStore";
 import {
 	createPhotoViewPlane,
 	disposePhotoViewPlane,
+	meshFrameAspect,
+	setPhotoViewPlaneTexture,
 	setPhotoViewPlaneUv,
 } from "~/lib/photoViewMeshes";
+import {
+	aspectFromTexture,
+	loadPhotoViewTexture,
+	tunePhotoViewTextureForRenderer,
+} from "~/lib/photoViewTextures";
 import {
 	galleryAtlasKeyFromSrc,
 	getGalleryAtlasSprite,
@@ -67,13 +75,6 @@ function uvRectForPath(path: string) {
 	return spriteToUvRect(sprite);
 }
 
-function heroUvRect(heroPath: string, clickedSrc?: string) {
-	return (
-		uvRectForPath(heroPath) ??
-		(clickedSrc ? uvRectForPath(clickedSrc) : null)
-	);
-}
-
 export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 	const state = useAtomValue(photoViewAtom, { store: photoViewStore });
 	const { scene, camera, gl, invalidate } = useThree();
@@ -84,6 +85,29 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 	const flyTweenRef = useRef<gsap.core.Tween | null>(null);
 	const closingAnimRef = useRef(false);
 	const openedRef = useRef(false);
+	const heroFullLoadRef = useRef(0);
+
+	const applyHeroFullTexture = (path: string, loadId: number) => {
+		void loadPhotoViewTexture(path)
+			.then((tex) => {
+				if (loadId !== heroFullLoadRef.current) return;
+				const hero = heroRef.current;
+				if (!hero || !getPhotoViewState().open) return;
+				tunePhotoViewTextureForRenderer(tex, gl);
+				const texAspect = aspectFromTexture(tex);
+				if (texAspect != null) {
+					const frameAspect = meshFrameAspect(hero);
+					if (Math.abs(texAspect - frameAspect) > 0.005) {
+						applyMeshRect(hero, heroCenterRect(texAspect));
+					}
+				}
+				setPhotoViewPlaneTexture(hero, tex);
+				invalidate();
+			})
+			.catch(() => {
+				/* keep atlas fallback */
+			});
+	};
 
 	useEffect(() => {
 		const group = new Group();
@@ -180,8 +204,9 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 		const hero = images[view.activeIndex] ?? images[0];
 		if (!hero) return false;
 
-		const clickedSrc = hero.medium;
-		const uvRect = heroUvRect(hero["2048x2048"], clickedSrc);
+		const frameSpec = getFrameSpecById(view.sourceLayoutId);
+		const clickedSrc = frameSpec?.jsSrc ?? hero.medium;
+		const uvRect = uvRectForPath(clickedSrc) ?? uvRectForPath(hero.medium);
 		if (!uvRect) return false;
 
 		if (heroRef.current) {
@@ -195,6 +220,8 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 		heroRef.current = heroMesh;
 		group.add(heroMesh);
 		meshRegistry.setWallMeshesHidden(true);
+		const loadId = ++heroFullLoadRef.current;
+		applyHeroFullTexture(hero["2048x2048"], loadId);
 		invalidate();
 
 		const target = heroCenterRect(aspect);
@@ -289,6 +316,7 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 
 	useEffect(() => {
 		if (!state.open) {
+			heroFullLoadRef.current += 1;
 			openedRef.current = false;
 			flyTweenRef.current?.kill();
 			clearThumbs();
@@ -360,18 +388,42 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 
 	const swapHero = (path: string, aspect: number) => {
 		const hero = heroRef.current;
-		const atlas = getGalleryAtlasTexture();
-		if (!hero || !atlas) return;
-		const uvRect = uvRectForPath(path);
-		if (!uvRect) return;
+		if (!hero) return;
 		const mat = hero.material as { opacity: number };
+		const loadId = ++heroFullLoadRef.current;
 		gsap.to(mat, {
 			opacity: 0,
 			duration: 0.15,
 			onComplete: () => {
-				setPhotoViewPlaneUv(hero, uvRect, aspect);
-				mat.opacity = 1;
-				gsap.fromTo(mat, { opacity: 0 }, { opacity: 1, duration: 0.25 });
+				void loadPhotoViewTexture(path)
+					.then((tex) => {
+						if (loadId !== heroFullLoadRef.current || !heroRef.current) return;
+						tunePhotoViewTextureForRenderer(tex, gl);
+						const heroMesh = heroRef.current;
+						const texAspect = aspectFromTexture(tex);
+						if (texAspect != null) {
+							const frameAspect = meshFrameAspect(heroMesh);
+							if (Math.abs(texAspect - frameAspect) > 0.005) {
+								applyMeshRect(heroMesh, heroCenterRect(texAspect));
+							}
+						}
+						setPhotoViewPlaneTexture(heroMesh, tex);
+						const m = heroMesh.material as { opacity: number };
+						m.opacity = 1;
+						gsap.fromTo(m, { opacity: 0 }, { opacity: 1, duration: 0.25 });
+						invalidate();
+					})
+					.catch(() => {
+						const atlas = getGalleryAtlasTexture();
+						const uvRect = atlas ? uvRectForPath(path) : null;
+						if (!atlas || !uvRect || !heroRef.current) {
+							mat.opacity = 1;
+							return;
+						}
+						setPhotoViewPlaneUv(heroRef.current, uvRect, aspect);
+						mat.opacity = 1;
+						gsap.fromTo(mat, { opacity: 0 }, { opacity: 1, duration: 0.25 });
+					});
 			},
 		});
 	};

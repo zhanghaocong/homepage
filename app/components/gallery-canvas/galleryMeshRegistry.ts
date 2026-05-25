@@ -364,7 +364,7 @@ export class GalleryMeshRegistry {
 			frameAspect > imgAspect ? imgAspect / frameAspect : 1,
 		);
 		u.pw.value = (power.pow2.value ?? 0) * this.pm.value * getGalleryMode();
-		u.mode.value = getGalleryMode();
+		u.mode.value = 1;
 		entry.mesh.scale.set(scaleX, scaleY, 1);
 		entry.mesh.position.set(world.x, world.y, 0);
 		entry.mesh.visible = visible;

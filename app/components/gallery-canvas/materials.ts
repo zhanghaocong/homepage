@@ -3,15 +3,13 @@ import { shaderMaterial } from "@react-three/drei";
 import { DoubleSide, Texture, Vector2, Vector4 } from "three";
 import photoFragmentShader from "~/components/gallery-canvas/shaders/photo.frag.glsl?raw";
 import photoVertexShader from "~/components/gallery-canvas/shaders/photo.vert.glsl?raw";
-import { getGalleryMode } from "~/lib/galleryStore";
-
 export const GalleryPhotoMaterial = shaderMaterial(
 	{
 		tA: null as Texture | null,
 		vUvScale: new Vector2(1, 1),
 		vUvRect: new Vector4(0, 0, 1, 1),
-		opacityN: 0.2,
-		mode: 0,
+		opacityN: 0,
+		mode: 1,
 		u_type: 1,
 		pw: 0,
 	},
@@ -31,8 +29,8 @@ export function createGalleryPhotoMaterial(
 	material.tA = texture;
 	material.vUvScale = new Vector2(1, 1);
 	material.vUvRect = uvRect.clone();
-	material.opacityN = 0.2;
-	material.mode = getGalleryMode();
+	material.opacityN = 0;
+	material.mode = 1;
 	material.u_type = 1;
 	material.pw = 0;
 	material.side = DoubleSide;
