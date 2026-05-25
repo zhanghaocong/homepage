@@ -18,7 +18,6 @@ export type PhotoViewState = {
 	activeIndex: number;
 	heroSrc: string;
 	sourceFrame: HTMLElement | null;
-	fromRect: PhotoViewRect | null;
 };
 
 const initialState: PhotoViewState = {
@@ -28,7 +27,6 @@ const initialState: PhotoViewState = {
 	activeIndex: 0,
 	heroSrc: "",
 	sourceFrame: null,
-	fromRect: null,
 };
 
 export const photoViewStore = createStore();

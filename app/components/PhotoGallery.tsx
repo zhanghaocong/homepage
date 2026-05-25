@@ -11,10 +11,8 @@ import { initKoalaLoader } from "~/lib/koalaLoader";
 import { createJsScroll, type JsScroll } from "~/lib/jsScroll";
 import { runHomeSplash } from "~/lib/splashAnimation";
 import { initViewport } from "~/lib/viewport";
-import { PhotoView } from "~/components/PhotoView";
 import { initGalleryMode } from "~/lib/galleryStore";
 import {
-	bindWallPhotoClicks,
 	closePhotoView,
 	registerPhotoViewContext,
 	unregisterPhotoViewContext,
@@ -100,7 +98,6 @@ export function PhotoGallery() {
 		scrollRef.current = scroll;
 		enginesRef.current = { scroll, canvas: null };
 		registerPhotoViewContext(scroll, wrap, setPhotoViewOpen);
-		const unbindPhotoClicks = bindWallPhotoClicks(content, wrap);
 		setCanvasReady(true);
 
 		const scrollLoop = () => {
@@ -123,7 +120,6 @@ export function PhotoGallery() {
 		return () => {
 			destroyed = true;
 			window.removeEventListener("keydown", onKeyDown);
-			unbindPhotoClicks();
 			unregisterPhotoViewContext();
 			setCanvasReady(false);
 			setPhotoViewOpen(false);
@@ -157,7 +153,6 @@ export function PhotoGallery() {
 			data-xhr-namespace="home"
 			ref={shellRef}
 		>
-			<PhotoView />
 			<div className="js-wrapper p-home" ref={wrapRef}>
 				<div className="js-page__cover" />
 				<div className="js-page">
@@ -199,6 +194,7 @@ export function PhotoGallery() {
 						<Suspense fallback={null}>
 							<GalleryCanvas
 								contentRef={contentRef}
+								wrapRef={wrapRef}
 								engineRef={canvasEngineRef}
 								scrollRef={scrollRef}
 								onEngineReady={handleEngineReady}
