@@ -9,10 +9,7 @@ type GalleryPhotoMeshesProps = {
 	onMeshesReady?: () => void;
 };
 
-/**
- * R3F component that owns gallery photo mesh lifecycle.
- * Creates a GalleryMeshRegistry bound to the R3F scene and batch-inits from DOM.
- */
+/** Owns gallery wall meshes; positions come from galleryLayoutStore. */
 export function GalleryPhotoMeshes({
 	contentRef,
 	isMobile,
@@ -25,8 +22,7 @@ export function GalleryPhotoMeshes({
 	readyRef.current = onMeshesReady;
 
 	useEffect(() => {
-		const content = contentRef.current;
-		if (!content) return;
+		if (!contentRef.current) return;
 
 		const registry = new GalleryMeshRegistry({
 			scene,
@@ -35,7 +31,7 @@ export function GalleryPhotoMeshes({
 		});
 
 		onRegistry(registry);
-		registry.init(content, () => readyRef.current?.());
+		registry.init(() => readyRef.current?.());
 
 		return () => {
 			registry.destroy();

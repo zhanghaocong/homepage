@@ -63,7 +63,7 @@ function buildSectionSpec(
 	};
 }
 
-/** Scroll skeleton only — photos live in layout store + WebGL meshes. */
+/** Horizontal scroll strip: section width only; photos are layout store + WebGL. */
 function mountSectionDom(section: GallerySectionSpec) {
 	const sectionEl = document.createElement("div");
 	sectionEl.className = "c-section";
@@ -72,14 +72,7 @@ function mountSectionDom(section: GallerySectionSpec) {
 
 	const wrap = document.createElement("div");
 	wrap.className = "c-inner gl-wrap";
-
-	for (let col = 0; col < COLUMNS; col++) {
-		const column = document.createElement("div");
-		column.className = "gl-inner";
-		column.setAttribute("aria-hidden", "true");
-		wrap.appendChild(column);
-	}
-
+	wrap.setAttribute("aria-hidden", "true");
 	sectionEl.appendChild(wrap);
 	return sectionEl;
 }

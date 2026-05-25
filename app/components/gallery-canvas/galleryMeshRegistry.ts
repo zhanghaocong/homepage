@@ -96,12 +96,11 @@ export class GalleryMeshRegistry {
 		this.effectUniforms.device.value = isMobile ? 0.5 : 0;
 	}
 
-	init(root: HTMLElement, onReady?: () => void) {
+	init(onReady?: () => void) {
 		for (const g of Object.values(this.groups)) {
 			this.scene.add(g.group);
 		}
 
-		void root;
 		const queue = listAllFrameSpecs().map((spec) => spec.id);
 		let index = 0;
 
@@ -130,7 +129,7 @@ export class GalleryMeshRegistry {
 		});
 	}
 
-	syncMeshes(_root?: HTMLElement) {
+	syncMeshes() {
 		recomputeGalleryMetrics();
 
 		const liveIds = new Set(listAllFrameSpecs().map((s) => s.id));

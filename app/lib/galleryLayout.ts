@@ -9,12 +9,12 @@ const GRID_VW_MOBILE = 4.97512437811;
 const MOBILE_MAX_WIDTH = 680;
 const CELLS_PER_COLUMN = 5;
 /** Vertical gap between stacked cells (photoyoshi flex `row-gap`; tuned above default). */
-const ROW_GAP_GRID_MULT = 0.9;
+const ROW_GAP_GRID_MULT = 2;
 /** Extra viewport width of scroll content beyond minimum loop length. */
 export const GALLERY_CONTENT_MIN_VW = 2.5;
 /** Mesh visibility padding beyond viewport edges (per side, in viewport widths). */
 export const GALLERY_MESH_OVERSCAN_VW = 1;
-/** `.p-home .c-inner .gl-inner` on max-width:680px (photoyoshi style.css). */
+/** Mobile column width (photoyoshi `.gl-inner` width). */
 const MOBILE_COL_WIDTH_VW = 19.9004975124;
 const MOBILE_COL_MARGIN_VW = 2.4875621891;
 
@@ -155,12 +155,12 @@ function getColumnStride(
 	return grid * cellMult + grid * marginMult * 2;
 }
 
-/** `.p-home .c-inner .gl-inner { top: … }` — 1.25g desktop, 1.55g on max-width 680px. */
+/** Column block top offset (photoyoshi `.gl-inner { top }`). */
 export function getColumnInnerTopMult(mobile: boolean) {
 	return mobile ? 1.55 : 1.25;
 }
 
-/** `.p-home .gl-inner` height — `100vh - 4g` or `100vh - 7.5g` (mobile / large cells). */
+/** Column block height — `100vh - 4g` or `100vh - 7.5g` (mobile / large cells). */
 export function getColumnInnerHeight(
 	viewport: GalleryViewport,
 	grid: number,
@@ -198,7 +198,9 @@ export function getGalleryGridMetrics(
 	const columnInnerHeight = getColumnInnerHeight(viewport, grid, useLargeCells);
 	const stackHeight =
 		cell * CELLS_PER_COLUMN + rowGap * (CELLS_PER_COLUMN - 1);
-	const columnStackOffset = Math.max(0, (columnInnerHeight - stackHeight) / 2);
+	// Center the 5-row stack in the viewport (photoyoshi `align-content: center`).
+	const stackTop = Math.max(0, (h - stackHeight) / 2);
+	const columnStackOffset = stackTop - columnTop;
 
 	return {
 		grid,

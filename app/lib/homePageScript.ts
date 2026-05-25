@@ -14,9 +14,6 @@ export function initHomePageScript(container: HTMLElement) {
 	root = container;
 }
 
-/** Parallax is applied in layout store scrollPow → mesh positions (no DOM cells). */
-export function resetGridParallax(_container: HTMLElement) {}
-
 export function homePageOnUpdateAfter(_scroll: JsScroll) {
 	if (!root) return;
 

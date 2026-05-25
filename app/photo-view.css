@@ -60,13 +60,6 @@ html.l-photo-view .p-home__category--item {
 	cursor: pointer;
 }
 
-/* Match photoyoshi: multi-line flex — align-content centers rows vertically (上下聚拢). */
-.p-home .gl-inner {
-	align-content: center !important;
-	justify-content: center !important;
-	row-gap: calc(var(--grid) * 0.9) !important;
-}
-
 /* photoyoshi groups .c-content with .p-cate — override flex-end for home scroll wall. */
 .p-home .js-body[data-dir="hr"] .c-content {
 	justify-content: flex-start !important;

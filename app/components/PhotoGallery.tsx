@@ -5,7 +5,6 @@ import {
 	destroyHomePageScript,
 	homePageOnUpdateAfter,
 	initHomePageScript,
-	resetGridParallax,
 } from "~/lib/homePageScript";
 import { initKoalaLoader } from "~/lib/koalaLoader";
 import { createJsScroll, type JsScroll } from "~/lib/jsScroll";
@@ -75,11 +74,10 @@ export function PhotoGallery() {
 		const getCanvas = () => canvasEngineRef.current;
 
 		const syncCanvasAfterResize = () => {
-			resetGridParallax(shell);
 			const canvas = getCanvas();
 			if (!canvas) return;
 			const apply = () => {
-				canvas.homeScene.syncMeshes(content);
+				canvas.homeScene.syncMeshes();
 				canvas.onResize();
 				canvas.warmupRender();
 			};
@@ -102,9 +100,8 @@ export function PhotoGallery() {
 		enginesRef.current = { scroll, canvas: null };
 		registerPhotoViewContext(scroll, wrap, setPhotoViewOpen, () => {
 			const canvas = canvasEngineRef.current;
-			const content = contentRef.current;
-			if (!canvas || !content) return;
-			canvas.homeScene.syncMeshes(content);
+			if (!canvas) return;
+			canvas.homeScene.syncMeshes();
 			canvas.onResize();
 			canvas.warmupRender();
 			requestAnimationFrame(() => {
@@ -127,7 +124,7 @@ export function PhotoGallery() {
 						const canvas = canvasEngineRef.current;
 						const content = contentRef.current;
 						if (canvas && content) {
-							canvas.homeScene.syncMeshes(content);
+							canvas.homeScene.syncMeshes();
 							canvas.warmupRender();
 						}
 					},
@@ -135,7 +132,7 @@ export function PhotoGallery() {
 						const canvas = canvasEngineRef.current;
 						const content = contentRef.current;
 						if (canvas && content) {
-							canvas.homeScene.syncMeshes(content);
+							canvas.homeScene.syncMeshes();
 							canvas.warmupRender();
 						}
 					},

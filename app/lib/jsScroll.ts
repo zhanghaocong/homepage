@@ -195,14 +195,6 @@ function cloneSectionsUntilWideEnough(content: HTMLElement) {
 	ensureContentWideEnough(content);
 }
 
-function resetCellTransforms(_content: HTMLElement) {}
-
-function clearSectionMeasureStyles(content: HTMLElement) {
-	for (const el of content.querySelectorAll<HTMLElement>(".c-section")) {
-		el.style.height = "";
-	}
-}
-
 export function createJsScroll({
 	wrap,
 	body: _body,
@@ -288,8 +280,6 @@ export function createJsScroll({
 			measure();
 			guard++;
 		}
-		clearSectionMeasureStyles(content);
-		resetCellTransforms(content);
 	};
 
 	layoutInit();
@@ -464,8 +454,6 @@ export function createJsScroll({
 	const remeasure = () => {
 		syncViewportGlobals();
 
-		resetCellTransforms(content);
-
 		const nowWide = isWideAspect();
 		if (nowWide !== lastWideAspect) {
 			cloneSectionsUntilWideEnough(content);
@@ -473,8 +461,6 @@ export function createJsScroll({
 		} else {
 			ensureContentWideEnough(content);
 		}
-		resetCellTransforms(content);
-
 		syncSectionsFromDom();
 		measure();
 
@@ -485,9 +471,6 @@ export function createJsScroll({
 			measure();
 			guard++;
 		}
-
-		clearSectionMeasureStyles(content);
-		resetCellTransforms(content);
 
 		scrollX = delta1;
 		raf();

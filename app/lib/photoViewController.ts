@@ -20,7 +20,6 @@ let onAfterClose: (() => void) | null = null;
 let closing = false;
 
 /**
- * DOM gallery scroll content only.
  * Do NOT fade `.js-page__cover` — it is a #222 fullscreen layer at z-index 150;
  * setting opacity to 1 after photo view covers the WebGL canvas and looks like a black screen.
  */

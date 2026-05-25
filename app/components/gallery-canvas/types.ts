@@ -1,8 +1,8 @@
 import type { ScrollPower } from "~/lib/jsScroll";
 
 export type GalleryHomeScene = {
-	init: (root: HTMLElement, onReady?: () => void) => void;
-	syncMeshes: (root: HTMLElement) => void;
+	init: (onReady?: () => void) => void;
+	syncMeshes: () => void;
 	destroy: () => void;
 };
 

@@ -4,13 +4,6 @@ import type { PhotoViewWorldRect } from "~/lib/photoViewLayout";
 
 export type PhotoViewCategory = "interior" | "portrait" | "landscape";
 
-export type PhotoViewRect = {
-	left: number;
-	top: number;
-	width: number;
-	height: number;
-};
-
 export type PhotoViewState = {
 	open: boolean;
 	/** Side panels (thumbs, category) visible after fly-to-center completes. */
@@ -74,13 +67,4 @@ export function findImageIndex(images: CateImage[], src: string) {
 			large.includes(srcFile)
 		);
 	});
-}
-
-export function rectFromDomRect(rect: DOMRect): PhotoViewRect {
-	return {
-		left: rect.left,
-		top: rect.top,
-		width: rect.width,
-		height: rect.height,
-	};
 }
