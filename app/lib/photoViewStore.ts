@@ -6,6 +6,8 @@ export type PhotoViewCategory = "interior" | "portrait" | "landscape";
 
 export type PhotoViewState = {
 	open: boolean;
+	/** Fly-out + wall reveal in progress. */
+	closing: boolean;
 	/** Side panels (thumbs, category) visible after fly-to-center completes. */
 	uiReady: boolean;
 	category: PhotoViewCategory;
@@ -17,6 +19,7 @@ export type PhotoViewState = {
 
 const initialState: PhotoViewState = {
 	open: false,
+	closing: false,
 	uiReady: false,
 	category: "interior",
 	activeIndex: 0,

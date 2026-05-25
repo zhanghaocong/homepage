@@ -26,8 +26,21 @@
 	pointer-events: none !important;
 }
 
-html:not(.is-load):not(.is-load__before) .l-splash {
+html:not(.is-load):not(.is-load__before):not(.is-photo-view-exit) .l-splash {
 	pointer-events: none;
+}
+
+html.is-photo-view-exit .l-splash {
+	pointer-events: auto;
+	z-index: 220;
+}
+
+html.is-photo-view-exit .js-canvas__wrap {
+	z-index: 160;
+}
+
+html.is-photo-view-exit .js-canvas__wrap canvas {
+	z-index: 160;
 }
 
 .is-photo-view-locked .js-body,

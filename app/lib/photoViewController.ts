@@ -15,9 +15,9 @@ import type { JsScroll } from "~/lib/jsScroll";
 
 let scrollRef: JsScroll | null = null;
 let wallWrap: HTMLElement | null = null;
+let shellRef: HTMLElement | null = null;
 let onOpenChange: ((open: boolean) => void) | null = null;
 let onAfterClose: (() => void) | null = null;
-let closing = false;
 
 /**
  * Do NOT fade `.js-page__cover` — it is a #222 fullscreen layer at z-index 150;
@@ -31,9 +31,11 @@ export function registerPhotoViewContext(
 	wrap: HTMLElement,
 	onOpen: (open: boolean) => void,
 	afterClose?: () => void,
+	shell?: HTMLElement | null,
 ) {
 	scrollRef = scroll;
 	wallWrap = wrap;
+	shellRef = shell ?? null;
 	onOpenChange = onOpen;
 	onAfterClose = afterClose ?? null;
 }
@@ -42,8 +44,13 @@ export function unregisterPhotoViewContext() {
 	scrollRef?.setInputEnabled(true);
 	scrollRef = null;
 	wallWrap = null;
+	shellRef = null;
 	onOpenChange = null;
 	onAfterClose = null;
+}
+
+export function getPhotoViewShell() {
+	return shellRef;
 }
 
 export function getPhotoViewOpen() {
@@ -51,7 +58,11 @@ export function getPhotoViewOpen() {
 }
 
 export function isPhotoViewClosing() {
-	return closing;
+	return getPhotoViewState().closing;
+}
+
+export function getPhotoViewScroll() {
+	return scrollRef;
 }
 
 function lockWallScroll(locked: boolean) {
@@ -86,7 +97,7 @@ function ensureGalleryCanvasVisible() {
 }
 
 export function requestOpenPhotoView(entry: GalleryMeshEntry) {
-	if (closing || getPhotoViewOpen()) return;
+	if (isPhotoViewClosing() || getPhotoViewOpen()) return;
 	openPhotoViewFromMesh(entry);
 }
 
@@ -107,6 +118,7 @@ export function openPhotoViewFromMesh(entry: GalleryMeshEntry) {
 
 	setPhotoViewState({
 		open: true,
+		closing: false,
 		uiReady: false,
 		category,
 		activeIndex,
@@ -128,10 +140,15 @@ export function markPhotoViewUiReady() {
 }
 
 export function closePhotoView() {
-	if (closing || !getPhotoViewOpen()) return;
-	closing = true;
+	if (isPhotoViewClosing() || !getPhotoViewOpen()) return;
 	document.documentElement.classList.remove("l-photo-view-ui");
-	setPhotoViewState({ uiReady: false });
+	setPhotoViewState({ uiReady: false, closing: true });
+}
+
+/** Fade scroll wall back in before homepage-style gather/reveal. */
+export function preparePhotoViewWallReveal() {
+	ensureGalleryCanvasVisible();
+	fadeWallDom(false);
 }
 
 export function completeClosePhotoView() {
@@ -143,5 +160,4 @@ export function completeClosePhotoView() {
 	fadeWallDom(false);
 	onOpenChange?.(false);
 	onAfterClose?.();
-	closing = false;
 }

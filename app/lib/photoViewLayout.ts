@@ -2,7 +2,10 @@ import type { Mesh } from "three";
 import { PlaneGeometry } from "three";
 import type { CateImage } from "~/data/gallery";
 import { getGridUnit as layoutGridUnit } from "~/lib/galleryLayout";
-import { getFrameWorldRect } from "~/lib/galleryLayoutStore";
+import {
+	getFrameSplashHandoffWorldRect,
+	getFrameWorldRect,
+} from "~/lib/galleryLayoutStore";
 
 export type PhotoViewWorldRect = {
 	x: number;
@@ -63,6 +66,19 @@ export function getHeroTargetSize(aspect: number) {
 export function heroCenterRect(aspect: number): PhotoViewWorldRect {
 	const { width, height } = getHeroTargetSize(aspect);
 	return { x: 0, y: 0, width, height };
+}
+
+/** Photo view close → splash gather hero slot (same as homepage `splashHeroFrameSize`). */
+export function heroSplashHandoffRect(layoutId: string | null): PhotoViewWorldRect | null {
+	if (!layoutId) return null;
+	const world = getFrameSplashHandoffWorldRect(layoutId);
+	if (!world) return null;
+	return {
+		x: world.x,
+		y: world.y,
+		width: world.width,
+		height: world.height,
+	};
 }
 
 export function thumbRailX() {

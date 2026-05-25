@@ -6,6 +6,7 @@ import {
 	frameWorldRectForSplash,
 	getGalleryGridMetrics,
 	getViewport,
+	splashHeroFrameSize,
 	type GalleryFrameRect,
 	type GalleryFrameSpec,
 	type GalleryGridMetrics,
@@ -109,6 +110,37 @@ export function getFrameSpecById(id: string): GalleryFrameSpec | null {
 		if (frame) return frame;
 	}
 	return null;
+}
+
+/** Row 2 (splash hero row) in the same column as `frameId`. */
+export function getColumnCenterFrameSpec(frameId: string): GalleryFrameSpec | null {
+	const spec = getFrameSpecById(frameId);
+	if (!spec || !layoutDoc) return spec;
+	if (spec.row === 2) return spec;
+	for (const section of layoutDoc.sections) {
+		if (section.index !== spec.sectionIndex) continue;
+		const center = section.frames.find((f) => f.col === spec.col && f.row === 2);
+		if (center) return center;
+	}
+	return spec;
+}
+
+/** Splash gather hero pose in world space (photoyoshi handoff target on photo-view close). */
+export function getFrameSplashHandoffWorldRect(
+	frameId: string,
+): GalleryWorldRect | null {
+	const center = getColumnCenterFrameSpec(frameId);
+	if (!center) return null;
+	const metrics = ensureMetrics();
+	const hero = splashHeroFrameSize(metrics);
+	return frameWorldRectForSplash(
+		center,
+		sectionLeft(center.sectionIndex),
+		sectionScrollX(center.sectionIndex),
+		metrics,
+		{ y: 0, width: hero.width, height: hero.height },
+		scrollPow,
+	);
 }
 
 function sectionScrollX(sectionIndex: number) {

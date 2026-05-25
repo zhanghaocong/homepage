@@ -98,17 +98,23 @@ export function PhotoGallery() {
 
 		scrollRef.current = scroll;
 		enginesRef.current = { scroll, canvas: null };
-		registerPhotoViewContext(scroll, wrap, setPhotoViewOpen, () => {
-			const canvas = canvasEngineRef.current;
-			if (!canvas) return;
-			canvas.homeScene.syncMeshes();
-			canvas.onResize();
-			canvas.warmupRender();
-			requestAnimationFrame(() => {
-				canvas.warmupRender();
+		registerPhotoViewContext(
+			scroll,
+			wrap,
+			setPhotoViewOpen,
+			() => {
+				const canvas = canvasEngineRef.current;
+				if (!canvas) return;
+				canvas.homeScene.syncMeshes();
 				canvas.onResize();
-			});
-		});
+				canvas.warmupRender();
+				requestAnimationFrame(() => {
+					canvas.warmupRender();
+					canvas.onResize();
+				});
+			},
+			shell,
+		);
 		setCanvasReady(true);
 
 		const scrollLoop = () => {

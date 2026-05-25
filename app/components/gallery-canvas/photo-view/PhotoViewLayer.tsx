@@ -16,10 +16,14 @@ import type { GalleryMeshRegistry } from "~/components/gallery-canvas/galleryMes
 import {
 	completeClosePhotoView,
 	closePhotoView,
+	getPhotoViewScroll,
+	getPhotoViewShell,
 	isPhotoViewClosing,
 	markPhotoViewUiReady,
+	preparePhotoViewWallReveal,
 	requestOpenPhotoView,
 } from "~/lib/photoViewController";
+import { runPhotoViewSplashExit } from "~/lib/splashAnimation";
 import {
 	CATE_ID_TO_KEY,
 	getPhotoViewState,
@@ -33,6 +37,7 @@ import {
 	getImageAspect,
 	getViewport,
 	heroCenterRect,
+	heroSplashHandoffRect,
 	meshWorldRect,
 	nearestThumbIndex,
 	rectFromLayoutId,
@@ -251,27 +256,52 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 		return true;
 	};
 
-	const runFlyOut = () => {
+	const startSplashExit = () => {
 		const view = getPhotoViewState();
-		const group = overlayRef.current;
-		const hero = heroRef.current;
-		if (!group || !hero || !view.sourceLayoutId) {
-			meshRegistry.restoreWallMeshes();
+		const shell = getPhotoViewShell();
+		const scroll = getPhotoViewScroll();
+
+		preparePhotoViewWallReveal();
+		meshRegistry.restoreWallMeshes();
+		meshRegistry.onResize();
+		meshRegistry.effectUniforms.u_type.value = 1;
+
+		if (!shell || !scroll) {
 			completeClosePhotoView();
+			closingAnimRef.current = false;
 			invalidate();
 			return;
 		}
 
-		const entry = meshRegistry.findEntryByLayoutId(view.sourceLayoutId);
-		const target =
-			(entry ? meshWorldRect(entry.mesh) : null) ??
-			rectFromLayoutId(view.sourceLayoutId);
-		if (!target) {
-			meshRegistry.restoreWallMeshes();
-			completeClosePhotoView();
-			invalidate();
+		runPhotoViewSplashExit(shell, scroll, view.heroSrc, {
+			onReveal: () => {
+				meshRegistry.onResize();
+				invalidate();
+			},
+			onLayoutTick: () => {
+				meshRegistry.onResize();
+				invalidate();
+			},
+			onComplete: () => {
+				completeClosePhotoView();
+				closingAnimRef.current = false;
+				invalidate();
+				requestAnimationFrame(() => invalidate());
+			},
+		});
+	};
+
+	const runFlyOut = () => {
+		const view = getPhotoViewState();
+		const group = overlayRef.current;
+		const hero = heroRef.current;
+		if (!group || !hero) {
+			startSplashExit();
 			return;
 		}
+
+		const exitTarget = heroSplashHandoffRect(view.sourceLayoutId);
+
 		const proxy = {
 			x: hero.position.x,
 			y: hero.position.y,
@@ -284,35 +314,40 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 		clearThumbs();
 		closingAnimRef.current = true;
 		flyTweenRef.current?.kill();
+
+		const finishHandoff = () => {
+			if (heroRef.current) {
+				group.remove(heroRef.current);
+				disposePhotoViewPlane(heroRef.current);
+				heroRef.current = null;
+			}
+			startSplashExit();
+		};
+
+		if (!exitTarget) {
+			finishHandoff();
+			return;
+		}
+
 		flyTweenRef.current = gsap.to(proxy, {
-			x: target.x,
-			y: target.y,
-			width: target.width,
-			height: target.height,
-			duration: 0.9,
+			x: exitTarget.x,
+			y: exitTarget.y,
+			width: exitTarget.width,
+			height: exitTarget.height,
+			duration: 1.2,
 			ease: "power4.inOut",
 			onUpdate: () => {
 				if (!heroRef.current) return;
 				applyMeshRect(heroRef.current, proxy);
 			},
-			onComplete: () => {
-				if (heroRef.current) {
-					group.remove(heroRef.current);
-					disposePhotoViewPlane(heroRef.current);
-					heroRef.current = null;
-				}
-				meshRegistry.restoreWallMeshes();
-				completeClosePhotoView();
-				closingAnimRef.current = false;
-				invalidate();
-				requestAnimationFrame(() => invalidate());
-			},
+			onComplete: finishHandoff,
 		});
 	};
 
 	useEffect(() => {
-		meshRegistry.effectUniforms.u_type.value = state.open ? 0 : 1;
-	}, [state.open, meshRegistry]);
+		const passthrough = state.open && !state.closing;
+		meshRegistry.effectUniforms.u_type.value = passthrough ? 0 : 1;
+	}, [state.open, state.closing, meshRegistry]);
 
 	useEffect(() => {
 		if (!state.open) {
@@ -382,9 +417,9 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 
 	useEffect(() => {
 		if (!state.open || state.uiReady) return;
-		if (!isPhotoViewClosing() || closingAnimRef.current) return;
+		if (!state.closing || closingAnimRef.current) return;
 		runFlyOut();
-	}, [state.uiReady, state.open]);
+	}, [state.uiReady, state.open, state.closing]);
 
 	const swapHero = (path: string, aspect: number) => {
 		const hero = heroRef.current;
