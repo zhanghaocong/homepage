@@ -1,5 +1,6 @@
 import { atom, createStore } from "jotai";
 import type { CateImage, CateKey } from "~/data/gallery";
+import type { PhotoViewWorldRect } from "~/lib/photoViewLayout";
 
 export type PhotoViewCategory = "interior" | "portrait" | "landscape";
 
@@ -17,8 +18,8 @@ export type PhotoViewState = {
 	category: PhotoViewCategory;
 	activeIndex: number;
 	heroSrc: string;
-	sourceFrame: HTMLElement | null;
-	fromRect: PhotoViewRect | null;
+	sourceLayoutId: string | null;
+	fromRect: PhotoViewWorldRect | null;
 };
 
 const initialState: PhotoViewState = {
@@ -27,7 +28,7 @@ const initialState: PhotoViewState = {
 	category: "interior",
 	activeIndex: 0,
 	heroSrc: "",
-	sourceFrame: null,
+	sourceLayoutId: null,
 	fromRect: null,
 };
 

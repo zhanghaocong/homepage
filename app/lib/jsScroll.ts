@@ -1,4 +1,18 @@
 import gsap from "gsap";
+import {
+	GALLERY_CONTENT_MIN_VW,
+	GALLERY_MESH_OVERSCAN_VW,
+	isGalleryWideAspect,
+} from "~/lib/galleryLayout";
+import {
+	appendGalleryLayoutCloneRound,
+	clearGalleryLayoutClones,
+	getGalleryLayoutDocument,
+	getGalleryMetrics,
+	getGallerySectionWidth,
+	recomputeGalleryMetrics,
+	syncGalleryLayoutScroll,
+} from "~/lib/galleryLayoutStore";
 import { syncViewportGlobals } from "~/lib/viewport";
 
 export type ScrollPower = {
@@ -23,6 +37,7 @@ export type ScrollPower = {
 
 type SectionEntry = {
 	el: HTMLElement;
+	index: number;
 	left: number;
 	width: number;
 	x: number;
@@ -123,23 +138,24 @@ function getWindowSpan() {
 }
 
 function minContentWidth() {
-	return getWindowSpan() * 1.5;
+	return getWindowSpan() * GALLERY_CONTENT_MIN_VW;
 }
 
-/** Matches photoyoshi CSS: grid*6 below ~1.35 aspect, grid*4 above. */
 function isWideAspect() {
 	const w = window._w ?? window.innerWidth;
 	const h = window._h ?? window.innerHeight;
-	return w / h > 3039929748475085 / 2251799813685248;
+	return isGalleryWideAspect(w, h);
 }
 
-function sectionTotalWidth(content: HTMLElement) {
-	const windowSpan = getWindowSpan();
-	let totalWidth = 0;
-	for (const section of content.querySelectorAll<HTMLElement>(".c-section")) {
-		totalWidth += section.offsetWidth || windowSpan;
-	}
-	return totalWidth;
+function sectionTotalWidth() {
+	const doc = getGalleryLayoutDocument();
+	if (!doc) return getWindowSpan();
+	return doc.sections.length * getGallerySectionWidth();
+}
+
+function patchCloneSectionDom(cloneEl: HTMLElement, spec: { index: number }) {
+	cloneEl.classList.add("c-clone");
+	cloneEl.dataset.sectionIndex = String(spec.index);
 }
 
 function appendCloneRound(content: HTMLElement) {
@@ -147,10 +163,15 @@ function appendCloneRound(content: HTMLElement) {
 		".c-section:not(.c-clone)",
 	);
 	if (originals.length === 0) return false;
+	if (!appendGalleryLayoutCloneRound()) return false;
 
-	for (const section of originals) {
-		const clone = section.cloneNode(true) as HTMLElement;
-		clone.classList.add("c-clone");
+	const doc = getGalleryLayoutDocument();
+	if (!doc) return false;
+
+	const newClones = doc.sections.filter((s) => s.isClone).slice(-originals.length);
+	for (let i = 0; i < originals.length; i++) {
+		const clone = originals[i].cloneNode(true) as HTMLElement;
+		patchCloneSectionDom(clone, { index: newClones[i].index });
 		content.appendChild(clone);
 	}
 	return true;
@@ -159,7 +180,7 @@ function appendCloneRound(content: HTMLElement) {
 function ensureContentWideEnough(content: HTMLElement) {
 	const target = minContentWidth();
 	let guard = 0;
-	while (sectionTotalWidth(content) <= target && guard < 24) {
+	while (sectionTotalWidth() <= target && guard < 24) {
 		if (!appendCloneRound(content)) break;
 		guard++;
 	}
@@ -170,20 +191,15 @@ function cloneSectionsUntilWideEnough(content: HTMLElement) {
 	for (const section of content.querySelectorAll(".c-section.c-clone")) {
 		section.remove();
 	}
+	clearGalleryLayoutClones();
 	ensureContentWideEnough(content);
 }
 
-function resetCellTransforms(content: HTMLElement) {
-	for (const cell of content.querySelectorAll<HTMLElement>(".gl-img_w")) {
-		cell.style.transform = "";
-	}
-}
+function resetCellTransforms(_content: HTMLElement) {}
 
 function clearSectionMeasureStyles(content: HTMLElement) {
 	for (const el of content.querySelectorAll<HTMLElement>(".c-section")) {
-		el.style.width = "";
 		el.style.height = "";
-		el.style.flexShrink = "";
 	}
 }
 
@@ -213,16 +229,16 @@ export function createJsScroll({
 
 	if (scrollbar) scrollbar.dataset.dir = "hr";
 
-	const MEASURE_CONTENT_WIDTH = "99999px";
-
 	let lastWideAspect = isWideAspect();
 
 	const syncSectionsFromDom = () => {
 		const els = content.querySelectorAll<HTMLElement>(".c-section");
 		sections.length = 0;
 		for (const el of els) {
+			const index = Number(el.dataset.sectionIndex);
 			sections.push({
 				el,
+				index: Number.isFinite(index) ? index : sections.length,
 				left: 0,
 				width: 0,
 				x: 0,
@@ -234,39 +250,30 @@ export function createJsScroll({
 		}
 	};
 
-	/** Mirrors photoyoshi scroll onResize measure (in-place, viewport rects). */
+	/** Layout widths from galleryLayout (no DOM measure). */
 	const measure = () => {
+		recomputeGalleryMetrics();
+		const sectionWidth = getGallerySectionWidth();
+		let left = 0;
+
 		for (const entry of sections) {
-			entry.el.style.width = "auto";
-			entry.el.style.height = "auto";
 			entry.el.style.flexShrink = "0";
+			entry.el.style.width = `${sectionWidth}px`;
+			entry.width = sectionWidth;
+			entry.left = left;
 			entry.el.style.transform = "translate3d(0px, 0px, 0px)";
-		}
-		content.style.width = MEASURE_CONTENT_WIDTH;
-
-		let totalWidth = 0;
-		for (const entry of sections) {
-			const rect = entry.el.getBoundingClientRect();
-			entry.width = entry.el.offsetWidth || rect.width;
-			entry.left = rect.left;
-			totalWidth += entry.width;
-		}
-		content.style.width = `${totalWidth}px`;
-
-		for (const entry of sections) {
-			entry.el.style.transform = "translate3d(0px, 0px, 0px)";
-			const rect = entry.el.getBoundingClientRect();
-			entry.width = entry.el.offsetWidth || rect.width;
-			entry.left = rect.left;
+			left += sectionWidth;
 		}
 
+		const marginRight = getGalleryMetrics().contentMarginRight;
+		content.style.width = `${left + marginRight}px`;
 		ready = sections.length > 0;
 	};
 
 	const contentWidth = () => {
 		let total = 0;
 		for (const entry of sections) total += entry.width;
-		return total || content.scrollWidth;
+		return total || sectionTotalWidth();
 	};
 
 	const layoutInit = () => {
@@ -289,7 +296,8 @@ export function createJsScroll({
 
 	const getThreshold = () => {
 		const w = getWindowSpan();
-		return w < 768 ? w * 0.5 : w / 2;
+		const overscan = w * GALLERY_MESH_OVERSCAN_VW;
+		return w < 768 ? w * 0.5 + overscan : w / 2 + overscan;
 	};
 
 	let completeTimer: ReturnType<typeof window.setTimeout> | null = null;
@@ -435,18 +443,26 @@ export function createJsScroll({
 		}
 
 		if (scrollbar && thumb && thumbBefore && thumbAfter) {
-			const trackWidth = scrollbar.getBoundingClientRect().width;
+			const trackWidth = getWindowSpan();
 			const progressPx = position * trackWidth;
 			thumbBefore.style.transform = `translate3d(${progressPx - trackWidth}px, 0, 0)`;
 			thumbAfter.style.transform = `translate3d(${progressPx}px, 0, 0)`;
 		}
+
+		syncGalleryLayoutScroll(
+			sections.map((entry) => ({
+				index: entry.index,
+				left: entry.left,
+				scrollX: entry.x,
+			})),
+			power.pow1.value ?? 0,
+		);
 
 		onUpdateAfter?.();
 	};
 
 	const remeasure = () => {
 		syncViewportGlobals();
-		void content.offsetWidth;
 
 		resetCellTransforms(content);
 

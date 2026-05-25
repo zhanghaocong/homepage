@@ -12,6 +12,7 @@ import { createJsScroll, type JsScroll } from "~/lib/jsScroll";
 import { runHomeSplash } from "~/lib/splashAnimation";
 import { initViewport } from "~/lib/viewport";
 import { disposeGalleryAtlas } from "~/lib/galleryAtlas";
+import { resetGalleryLayoutStore } from "~/lib/galleryLayoutStore";
 import { initGalleryMode } from "~/lib/galleryStore";
 import {
 	closePhotoView,
@@ -120,7 +121,30 @@ export function PhotoGallery() {
 		raf = requestAnimationFrame(scrollLoop);
 
 		const stopLoader = initKoalaLoader(shell, () => {
-			if (!destroyed) runHomeSplash(shell, scroll);
+			if (!destroyed) {
+				runHomeSplash(shell, scroll, {
+					onGatherSet: () => {
+						const canvas = canvasEngineRef.current;
+						const content = contentRef.current;
+						if (canvas && content) {
+							canvas.homeScene.syncMeshes(content);
+							canvas.warmupRender();
+						}
+					},
+					onReveal: () => {
+						const canvas = canvasEngineRef.current;
+						const content = contentRef.current;
+						if (canvas && content) {
+							canvas.homeScene.syncMeshes(content);
+							canvas.warmupRender();
+						}
+					},
+					onGatherComplete: () => {
+						scroll.remeasure();
+						syncCanvasAfterResize();
+					},
+				});
+			}
 		});
 
 		const onKeyDown = (event: KeyboardEvent) => {
@@ -143,6 +167,7 @@ export function PhotoGallery() {
 			scrollRef.current = null;
 			canvasEngineRef.current = null;
 			destroyHomePageScript();
+			resetGalleryLayoutStore();
 			disposeGalleryAtlas();
 			enginesRef.current = null;
 		};

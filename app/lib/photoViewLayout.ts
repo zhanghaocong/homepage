@@ -1,6 +1,8 @@
 import type { Mesh } from "three";
 import { PlaneGeometry } from "three";
 import type { CateImage } from "~/data/gallery";
+import { getGridUnit as layoutGridUnit } from "~/lib/galleryLayout";
+import { getFrameWorldRect } from "~/lib/galleryLayoutStore";
 
 export type PhotoViewWorldRect = {
 	x: number;
@@ -16,14 +18,9 @@ export function getViewport() {
 	};
 }
 
-/** photoyoshi grid column width; falls back to vw/6 when --grid is unset. */
+/** photoyoshi grid column width from viewport (no DOM read). */
 export function getGridUnit() {
-	const raw = getComputedStyle(document.documentElement)
-		.getPropertyValue("--grid")
-		.trim();
-	const parsed = Number.parseFloat(raw);
-	if (Number.isFinite(parsed) && parsed > 0) return parsed;
-	return getViewport().w / 6;
+	return layoutGridUnit();
 }
 
 export function getImageAspect(img: {
@@ -46,15 +43,8 @@ export function meshWorldRect(mesh: Mesh): PhotoViewWorldRect {
 	};
 }
 
-export function rectFromDomFrame(frame: HTMLElement): PhotoViewWorldRect {
-	const rect = frame.getBoundingClientRect();
-	const { w: vw, h: vh } = getViewport();
-	return {
-		x: rect.left + rect.width / 2 - vw / 2,
-		y: vh / 2 - rect.top - rect.height / 2,
-		width: Math.max(rect.width, 1),
-		height: Math.max(rect.height, 1),
-	};
+export function rectFromLayoutId(layoutId: string): PhotoViewWorldRect | null {
+	return getFrameWorldRect(layoutId);
 }
 
 export function getHeroTargetSize(aspect: number) {

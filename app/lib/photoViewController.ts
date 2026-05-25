@@ -9,6 +9,8 @@ import {
 } from "~/lib/photoViewStore";
 import { galleryImages, imageUrl } from "~/data/gallery";
 import type { GalleryMeshEntry } from "~/components/gallery-canvas/galleryMeshRegistry";
+import { getFrameSpecById } from "~/lib/galleryLayoutStore";
+import { meshWorldRect } from "~/lib/photoViewLayout";
 import type { JsScroll } from "~/lib/jsScroll";
 
 let scrollRef: JsScroll | null = null;
@@ -86,17 +88,17 @@ function ensureGalleryCanvasVisible() {
 
 export function requestOpenPhotoView(entry: GalleryMeshEntry) {
 	if (closing || getPhotoViewOpen()) return;
-	openPhotoViewFromFrame(entry.element);
+	openPhotoViewFromMesh(entry);
 }
 
-export function openPhotoViewFromFrame(frame: HTMLElement) {
-	const img = frame.querySelector<HTMLImageElement>(".gl-i");
-	if (!img?.dataset.jsSrc) return;
+export function openPhotoViewFromMesh(entry: GalleryMeshEntry) {
+	const spec = getFrameSpecById(entry.layoutId);
+	if (!spec) return;
 
-	const category = normalizePhotoCategory(img.dataset.category);
+	const category = normalizePhotoCategory(spec.category);
 	const cateKey = CATE_ID_TO_KEY[category];
 	const images = galleryImages[cateKey];
-	const clickedSrc = img.dataset.jsSrc;
+	const clickedSrc = spec.jsSrc;
 	const foundIndex = findImageIndex(images, clickedSrc);
 	const activeIndex = foundIndex >= 0 ? foundIndex : 0;
 	const heroImage = images[activeIndex] ?? images[0];
@@ -110,7 +112,8 @@ export function openPhotoViewFromFrame(frame: HTMLElement) {
 		category,
 		activeIndex,
 		heroSrc,
-		sourceFrame: frame,
+		sourceLayoutId: entry.layoutId,
+		fromRect: meshWorldRect(entry.mesh),
 	});
 
 	setHtmlPhotoView(true);
@@ -133,8 +136,6 @@ export function closePhotoView() {
 }
 
 export function completeClosePhotoView() {
-	const { sourceFrame } = getPhotoViewState();
-	if (sourceFrame) gsap.set(sourceFrame, { opacity: 1 });
 	resetPhotoViewState();
 	setHtmlPhotoView(false);
 	lockWallScroll(false);

@@ -1,22 +1,44 @@
 import gsap from "gsap";
 import {
+	getGalleryMetrics,
+	listAllFrameSpecs,
+	recomputeGalleryMetrics,
+} from "~/lib/galleryLayoutStore";
+import {
 	applyGalleryGsapTarget,
 	galleryGsapTarget,
 } from "~/lib/galleryStore";
+import {
+	beginSplashGather,
+	endSplashGather,
+	getSplashFrameTween,
+	groupLayoutColumns,
+	initSplashColumn,
+	splashFinalFrameSize,
+} from "~/lib/splashGatherState";
 import type { JsScroll } from "~/lib/jsScroll";
 
-function killAllTweens(elements: NodeListOf<Element> | Element[]) {
-	for (const el of elements) gsap.killTweensOf(el);
+function killSplashTweens(columns: ReturnType<typeof groupLayoutColumns>) {
+	for (const column of columns) {
+		for (const spec of column) {
+			const tween = getSplashFrameTween(spec.id);
+			if (tween) gsap.killTweensOf(tween);
+		}
+	}
 }
 
 export function runHomeSplash(
 	root: HTMLElement,
 	scroll: JsScroll,
-	hooks?: { onReveal?: () => void },
+	hooks?: {
+		onGatherSet?: () => void;
+		onReveal?: () => void;
+		onGatherComplete?: () => void;
+	},
 ) {
 	const html = document.documentElement;
 	gsap.set("canvas", { opacity: 0 });
-	html.classList.add("is-load");
+	html.classList.add("is-load", "is-gather");
 	html.classList.remove("is-load__before");
 
 	gsap.to(root.querySelector(".l-splash__title"), { opacity: 1, duration: 0.4 });
@@ -38,38 +60,18 @@ export function runHomeSplash(
 	}
 
 	window.setTimeout(() => {
-		const glInner = root.querySelectorAll(".gl-inner");
-		const childElements = Array.from(glInner).map((inner) =>
-			inner.querySelectorAll(".gl-img"),
-		);
+		scroll.remeasure();
+		recomputeGalleryMetrics();
+		beginSplashGather();
 
-		childElements.forEach((items) => {
-			for (let i = 0; i < items.length; i++) {
-				const node = items[i] as HTMLElement;
-				gsap.killTweensOf(node);
-				if (i === 2) {
-					gsap.set(node, { width: "187%", height: "20vw" });
-				}
-			}
-			gsap.set(items[0], {
-				y: -1 * ((items[0] as HTMLElement).getBoundingClientRect().top +
-					(items[0] as HTMLElement).clientHeight),
-			});
-			gsap.set(items[1], {
-				y: -1 * ((items[1] as HTMLElement).getBoundingClientRect().top +
-					(items[1] as HTMLElement).clientHeight),
-			});
-			gsap.set(items[3], {
-				y: -1 * ((items[3] as HTMLElement).getBoundingClientRect().top -
-					window._h -
-					(items[3] as HTMLElement).clientHeight),
-			});
-			gsap.set(items[4], {
-				y: -1 * ((items[4] as HTMLElement).getBoundingClientRect().top -
-					window._h -
-					(items[4] as HTMLElement).clientHeight),
-			});
-		});
+		const metrics = getGalleryMetrics();
+		const columns = groupLayoutColumns(listAllFrameSpecs());
+
+		for (const column of columns) {
+			initSplashColumn(column, metrics);
+		}
+
+		hooks?.onGatherSet?.();
 
 		gsap.set(".to", { opacity: 0 });
 
@@ -79,33 +81,57 @@ export function runHomeSplash(
 			const distance = window.innerWidth < 680 ? 4.48 : 2.125;
 			scroll.onScrollTo(scroll.delta1 + window._w * distance, 2.5, 0, "power4.out");
 
-			childElements.forEach((items) => {
-				killAllTweens(items);
-				for (let i = 0; i < items.length; i++) {
-					const node = items[i] as HTMLElement;
-					const img = node.querySelector(".gl-i");
-					const rect = img?.getBoundingClientRect();
-					const landscape = rect ? rect.width / rect.height > 1 : true;
-					if (i === 2) {
-						gsap.to(node, {
-							width: landscape ? "100%" : "65%",
+			const gatherEndDelay = 0.7 + 1.35 + 0.2;
+			gsap.delayedCall(gatherEndDelay, () => {
+				html.classList.remove("is-gather");
+				endSplashGather();
+				hooks?.onGatherComplete?.();
+			});
+
+			killSplashTweens(columns);
+
+			for (const column of columns) {
+				const center = column.find((s) => s.row === 2);
+				if (center) {
+					const tween = getSplashFrameTween(center.id);
+					const final = splashFinalFrameSize(center, metrics);
+					if (tween) {
+						gsap.to(tween, {
+							width: final.width,
 							duration: 1.8,
 							ease: "power4.out",
 							delay: 0.35,
 						});
-						gsap.to(node, {
-							height: landscape ? "65%" : "100%",
+						gsap.to(tween, {
+							height: final.height,
 							duration: 1.4,
 							ease: "power4.out",
 						});
 					}
 				}
 
-				gsap.to(items[0], { y: 0, duration: 1.35, ease: "expo.out", delay: 0.7 });
-				gsap.to(items[1], { y: 0, duration: 1.35, ease: "expo.out", delay: 0.38 });
-				gsap.to(items[3], { y: 0, duration: 1.35, ease: "expo.out", delay: 0.38 });
-				gsap.to(items[4], { y: 0, duration: 1.35, ease: "expo.out", delay: 0.7 });
-			});
+				const row0 = column.find((s) => s.row === 0);
+				const row1 = column.find((s) => s.row === 1);
+				const row3 = column.find((s) => s.row === 3);
+				const row4 = column.find((s) => s.row === 4);
+
+				if (row0) {
+					const t = getSplashFrameTween(row0.id);
+					if (t) gsap.to(t, { y: 0, duration: 1.35, ease: "expo.out", delay: 0.7 });
+				}
+				if (row1) {
+					const t = getSplashFrameTween(row1.id);
+					if (t) gsap.to(t, { y: 0, duration: 1.35, ease: "expo.out", delay: 0.38 });
+				}
+				if (row3) {
+					const t = getSplashFrameTween(row3.id);
+					if (t) gsap.to(t, { y: 0, duration: 1.35, ease: "expo.out", delay: 0.38 });
+				}
+				if (row4) {
+					const t = getSplashFrameTween(row4.id);
+					if (t) gsap.to(t, { y: 0, duration: 1.35, ease: "expo.out", delay: 0.7 });
+				}
+			}
 
 			gsap.fromTo(".to", { opacity: 0 }, { opacity: 1, duration: 0.45, delay: 1.2 });
 			gsap

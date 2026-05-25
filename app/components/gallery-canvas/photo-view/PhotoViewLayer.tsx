@@ -35,7 +35,7 @@ import {
 	heroCenterRect,
 	meshWorldRect,
 	nearestThumbIndex,
-	rectFromDomFrame,
+	rectFromLayoutId,
 	thumbLayoutForIndex,
 	thumbRailX,
 	thumbScrollBounds,
@@ -166,27 +166,23 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 		const view = getPhotoViewState();
 		const atlas = getGalleryAtlasTexture();
 		const group = overlayRef.current;
-		if (!atlas || !group || !view.sourceFrame) return false;
+		if (!atlas || !group || !view.sourceLayoutId) return false;
 
-		const frame = view.sourceFrame;
-		const img = frame.querySelector<HTMLImageElement>(".gl-i");
-		if (!img) return false;
-
-		const entry = meshRegistry.findEntryByFrame(frame);
-		const fromRect = entry
-			? meshWorldRect(entry.mesh)
-			: rectFromDomFrame(frame);
+		const entry = meshRegistry.findEntryByLayoutId(view.sourceLayoutId);
+		const fromRect =
+			view.fromRect ??
+			(entry ? meshWorldRect(entry.mesh) : null) ??
+			rectFromLayoutId(view.sourceLayoutId);
+		if (!fromRect) return false;
 
 		const cateKey = CATE_ID_TO_KEY[view.category];
 		const images = galleryImages[cateKey];
 		const hero = images[view.activeIndex] ?? images[0];
 		if (!hero) return false;
 
-		const clickedSrc = img.dataset.jsSrc;
+		const clickedSrc = hero.medium;
 		const uvRect = heroUvRect(hero["2048x2048"], clickedSrc);
 		if (!uvRect) return false;
-
-		gsap.set(frame, { opacity: 0 });
 
 		if (heroRef.current) {
 			group.remove(heroRef.current);
@@ -232,16 +228,23 @@ export function PhotoViewLayer({ meshRegistry, wrapRef }: PhotoViewLayerProps) {
 		const view = getPhotoViewState();
 		const group = overlayRef.current;
 		const hero = heroRef.current;
-		const frame = view.sourceFrame;
-		if (!group || !hero || !frame) {
+		if (!group || !hero || !view.sourceLayoutId) {
 			meshRegistry.restoreWallMeshes();
 			completeClosePhotoView();
 			invalidate();
 			return;
 		}
 
-		const entry = meshRegistry.findEntryByFrame(frame);
-		const target = entry ? meshWorldRect(entry.mesh) : rectFromDomFrame(frame);
+		const entry = meshRegistry.findEntryByLayoutId(view.sourceLayoutId);
+		const target =
+			(entry ? meshWorldRect(entry.mesh) : null) ??
+			rectFromLayoutId(view.sourceLayoutId);
+		if (!target) {
+			meshRegistry.restoreWallMeshes();
+			completeClosePhotoView();
+			invalidate();
+			return;
+		}
 		const proxy = {
 			x: hero.position.x,
 			y: hero.position.y,

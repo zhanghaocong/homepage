@@ -5,6 +5,11 @@
 	pointer-events: none;
 }
 
+.p-home .js-canvas__wrap,
+.p-home .js-canvas__wrap canvas {
+	pointer-events: auto;
+}
+
 /* WebGL gallery must sit above .js-page__cover (z-index 150 in photoyoshi CSS). */
 .p-home .js-canvas__wrap {
 	position: relative;
@@ -51,10 +56,21 @@ html.l-photo-view .p-home__category--item {
 	visibility: hidden !important;
 }
 
-.p-home .gl-img,
-.p-home .gl-img_w {
+.p-home .js-canvas__wrap canvas {
 	cursor: pointer;
-	pointer-events: auto;
+}
+
+/* Match photoyoshi: multi-line flex — align-content centers rows vertically (上下聚拢). */
+.p-home .gl-inner {
+	align-content: center !important;
+	justify-content: center !important;
+	row-gap: calc(var(--grid) * 0.9) !important;
+}
+
+/* photoyoshi groups .c-content with .p-cate — override flex-end for home scroll wall. */
+.p-home .js-body[data-dir="hr"] .c-content {
+	justify-content: flex-start !important;
+	width: auto !important;
 }
 
 html.l-photo-view .c-scrollbar {
