@@ -8,7 +8,8 @@ import {
 	useState,
 	type RefObject,
 } from "react";
-import { galleryImages, imageUrl, type CateImage } from "~/data/gallery";
+import { CATEGORY_UI, galleryImages, imageUrl } from "~/data/gallery";
+import { PhotoViewBgImage } from "~/components/PhotoViewImage";
 import { pickWallLayoutIdAt } from "~/lib/galleryWallPick";
 import { getGalleryMeshRegistry } from "~/lib/galleryRegistryBridge";
 import {
@@ -26,13 +27,10 @@ import {
 	getImageAspect,
 	heroCenterRect,
 	heroSplashHandoffRect,
-	nearestThumbIndex,
-	scrollOffsetForThumbCenter,
-	thumbLayoutForIndex,
-	thumbScrollBounds,
 	worldRectToScreen,
 	type PhotoViewScreenRect,
 } from "~/lib/photoViewLayout";
+import { PhotoViewThumbList } from "~/lib/photoViewThumbList";
 import {
 	CATE_ID_TO_KEY,
 	getPhotoViewState,
@@ -70,24 +68,38 @@ function animateScreenRect(
 
 export function PhotoView({ wrapRef }: PhotoViewProps) {
 	const state = useAtomValue(photoViewAtom, { store: photoViewStore });
+	const rootRef = useRef<HTMLDivElement>(null);
 	const heroWrapRef = useRef<HTMLDivElement>(null);
-	const heroImgRef = useRef<HTMLImageElement>(null);
-	const thumbRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
+	const heroImgRef = useRef<HTMLDivElement>(null);
+	const thumbListRef = useRef<PhotoViewThumbList | null>(null);
 	const flyTweenRef = useRef<gsap.core.Tween | null>(null);
 	const closingAnimRef = useRef(false);
 	const openedRef = useRef(false);
-	const scrollOffsetRef = useRef(0);
 	const [showLayer, setShowLayer] = useState(false);
 
 	const cateKey = CATE_ID_TO_KEY[state.category];
 	const images = galleryImages[cateKey];
 	const activeImage = images[state.activeIndex];
+	const categoryLabel =
+		CATEGORY_UI.find((c) => c.id === state.category)?.label ?? state.category;
 
 	const setHeroRect = useCallback((rect: PhotoViewScreenRect) => {
 		const el = heroWrapRef.current;
 		if (!el) return;
 		Object.assign(el.style, screenStyle(rect));
 	}, []);
+
+	const applyHeroSrc = useCallback(
+		(src: string, img = activeImage) => {
+			const node = heroImgRef.current;
+			if (!node || !img) return;
+			const medium = imageUrl(img.medium);
+			node.setAttribute("src", src);
+			node.style.backgroundImage = `url("${src === medium ? medium : src}")`;
+			node.style.aspectRatio = `${img.width} / ${img.height}`;
+		},
+		[activeImage],
+	);
 
 	const runFlyIn = useCallback(() => {
 		const view = getPhotoViewState();
@@ -103,6 +115,7 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		const from = worldRectToScreen(view.fromRect);
 		const target = worldRectToScreen(heroCenterRect(aspect));
 
+		applyHeroSrc(imageUrl(hero.medium), hero);
 		setHeroRect(from);
 		registry.setWallMeshesHidden(true);
 		registry.effectUniforms.u_type.value = 0;
@@ -112,10 +125,13 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		flyTweenRef.current = animateScreenRect(heroEl, target, {
 			duration: 1.2,
 			ease: "power4.inOut",
-			onComplete: () => markPhotoViewUiReady(),
+			onComplete: () => {
+				applyHeroSrc(view.heroSrc, hero);
+				markPhotoViewUiReady();
+			},
 		});
 		return true;
-	}, [setHeroRect]);
+	}, [applyHeroSrc, setHeroRect]);
 
 	const startSplashExit = useCallback(() => {
 		const view = getPhotoViewState();
@@ -176,37 +192,6 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		});
 	}, [startSplashExit]);
 
-	const layoutThumbs = useCallback(
-		(cateImages: CateImage[], activeIndex: number) => {
-			const scrollOffset = scrollOffsetRef.current;
-			for (const [index, el] of thumbRefs.current) {
-				const layout = thumbLayoutForIndex(cateImages, index, scrollOffset);
-				const screen = worldRectToScreen(layout);
-				Object.assign(el.style, screenStyle(screen));
-				el.style.opacity = index === activeIndex ? "1" : "0.55";
-			}
-		},
-		[],
-	);
-
-	const rebuildThumbs = useCallback(
-		(cateImages: CateImage[], activeIndex: number) => {
-			scrollOffsetRef.current = scrollOffsetForThumbCenter(
-				cateImages,
-				activeIndex,
-			);
-			layoutThumbs(cateImages, activeIndex);
-			const materials = [...thumbRefs.current.values()].map((el) => el);
-			gsap.from(materials, {
-				duration: 1.2,
-				opacity: 0,
-				stagger: 0.04,
-				ease: "power4.out",
-			});
-		},
-		[layoutThumbs],
-	);
-
 	useEffect(() => {
 		const registry = getGalleryMeshRegistry();
 		if (!registry) return;
@@ -218,7 +203,8 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		if (!state.open) {
 			openedRef.current = false;
 			flyTweenRef.current?.kill();
-			scrollOffsetRef.current = 0;
+			thumbListRef.current?.destroy();
+			thumbListRef.current = null;
 			const registry = getGalleryMeshRegistry();
 			registry?.restoreWallMeshes();
 			registry?.onResize();
@@ -241,19 +227,42 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		}
 	}, [state.open, runFlyIn]);
 
-	useLayoutEffect(() => {
-		if (!state.open || !state.uiReady) return;
-		rebuildThumbs(images, state.activeIndex);
-	}, [state.open, state.uiReady, state.category, rebuildThumbs, images]);
+	useEffect(() => {
+		if (!state.open || !state.uiReady) {
+			thumbListRef.current?.destroy();
+			thumbListRef.current = null;
+			return;
+		}
+
+		const root = rootRef.current;
+		if (!root) return;
+
+		const cateImages = galleryImages[CATE_ID_TO_KEY[state.category]];
+		thumbListRef.current?.destroy();
+		thumbListRef.current = new PhotoViewThumbList(
+			root,
+			cateImages,
+			state.activeIndex,
+			(index) => {
+				const next = cateImages[index];
+				if (!next) return;
+				setPhotoViewState({
+					activeIndex: index,
+					heroSrc: imageUrl(next["2048x2048"]),
+				});
+			},
+		);
+
+		return () => {
+			thumbListRef.current?.destroy();
+			thumbListRef.current = null;
+		};
+	}, [state.open, state.uiReady, state.category]);
 
 	useEffect(() => {
-		if (!state.open || !state.uiReady) return;
-		scrollOffsetRef.current = scrollOffsetForThumbCenter(
-			images,
-			state.activeIndex,
-		);
-		layoutThumbs(images, state.activeIndex);
-	}, [state.activeIndex, state.uiReady, state.open, layoutThumbs, images]);
+		if (!state.open || !state.uiReady || !thumbListRef.current) return;
+		thumbListRef.current.scrollToIndex(state.activeIndex, false);
+	}, [state.activeIndex, state.open, state.uiReady]);
 
 	useEffect(() => {
 		if (!state.open || state.uiReady) return;
@@ -262,29 +271,25 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 	}, [state.uiReady, state.open, state.closing, runFlyOut]);
 
 	useLayoutEffect(() => {
-		const heroImg = heroImgRef.current;
-		if (!heroImg || !state.open) return;
-		const nextSrc = state.heroSrc;
-		if (heroImg.src === nextSrc || heroImg.getAttribute("src") === nextSrc) return;
+		if (!state.open || !heroImgRef.current) return;
+		const img = images[state.activeIndex];
+		if (!img) return;
 
 		if (!state.uiReady) {
-			heroImg.src = nextSrc;
+			applyHeroSrc(imageUrl(img.medium), img);
 			return;
 		}
 
-		gsap.to(heroImg, {
+		const node = heroImgRef.current;
+		gsap.to(node, {
 			opacity: 0,
 			duration: 0.15,
 			onComplete: () => {
-				heroImg.src = nextSrc;
-				gsap.fromTo(
-					heroImg,
-					{ opacity: 0 },
-					{ opacity: 1, duration: 0.25 },
-				);
+				applyHeroSrc(state.heroSrc, img);
+				gsap.fromTo(node, { opacity: 0 }, { opacity: 1, duration: 0.25 });
 			},
 		});
-	}, [state.heroSrc, state.open, state.uiReady]);
+	}, [state.heroSrc, state.open, state.uiReady, state.activeIndex, images, applyHeroSrc]);
 
 	useEffect(() => {
 		const wrap = wrapRef.current;
@@ -301,74 +306,12 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 				event.preventDefault();
 				event.stopPropagation();
 				openPhotoViewFromLayoutId(layoutId);
-				return;
-			}
-
-			if (!current.uiReady) return;
-
-			const target = event.target as HTMLElement;
-			const thumbBtn = target.closest<HTMLButtonElement>(
-				"[data-photo-view-thumb]",
-			);
-			if (thumbBtn) {
-				const index = Number(thumbBtn.dataset.photoViewThumb);
-				if (Number.isNaN(index)) return;
-				event.preventDefault();
-				event.stopPropagation();
-				const cateImages = galleryImages[CATE_ID_TO_KEY[current.category]];
-				const next = cateImages[index];
-				if (!next) return;
-				scrollOffsetRef.current = scrollOffsetForThumbCenter(
-					cateImages,
-					index,
-				);
-				setPhotoViewState({
-					activeIndex: index,
-					heroSrc: imageUrl(next["2048x2048"]),
-				});
-				return;
-			}
-
-			const heroEl = heroWrapRef.current;
-			if (heroEl?.contains(target)) return;
-
-			event.preventDefault();
-			closePhotoView();
-		};
-
-		const onWheel = (event: WheelEvent) => {
-			const current = getPhotoViewState();
-			if (!current.open || !current.uiReady) return;
-			event.preventDefault();
-			const cateImages = galleryImages[CATE_ID_TO_KEY[current.category]];
-			const bounds = thumbScrollBounds(cateImages);
-			scrollOffsetRef.current = Math.min(
-				bounds.max,
-				Math.max(bounds.min, scrollOffsetRef.current - event.deltaY * 0.35),
-			);
-			layoutThumbs(cateImages, current.activeIndex);
-			const nextIndex = nearestThumbIndex(
-				cateImages,
-				scrollOffsetRef.current,
-			);
-			if (nextIndex !== current.activeIndex) {
-				const next = cateImages[nextIndex];
-				if (next) {
-					setPhotoViewState({
-						activeIndex: nextIndex,
-						heroSrc: imageUrl(next["2048x2048"]),
-					});
-				}
 			}
 		};
 
 		wrap.addEventListener("pointerdown", onPointerDown, true);
-		wrap.addEventListener("wheel", onWheel, { passive: false, capture: true });
-		return () => {
-			wrap.removeEventListener("pointerdown", onPointerDown, true);
-			wrap.removeEventListener("wheel", onWheel, true);
-		};
-	}, [layoutThumbs, wrapRef]);
+		return () => wrap.removeEventListener("pointerdown", onPointerDown, true);
+	}, [wrapRef]);
 
 	useEffect(() => {
 		return () => {
@@ -380,63 +323,59 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 
 	const heroMedium =
 		activeImage != null ? imageUrl(activeImage.medium) : state.heroSrc;
+	const heroW = activeImage?.width ?? 1;
+	const heroH = activeImage?.height ?? 1;
+	const heroSrc = state.uiReady ? state.heroSrc : heroMedium;
 
 	return (
 		<div
-			className="photo-view"
+			ref={rootRef}
+			className={`p-photo-view${state.uiReady ? " is-ui-ready" : ""}`}
+			role="dialog"
+			aria-modal="true"
+			aria-label={`${categoryLabel} gallery`}
 			aria-hidden={!state.open}
-			data-ui-ready={state.uiReady ? "" : undefined}
 		>
 			<div
 				ref={heroWrapRef}
-				className="photo-view__hero"
-				style={state.fromRect ? screenStyle(worldRectToScreen(state.fromRect)) : undefined}
+				className="p-photo-view__fly js-img__wrap js-img__bg"
+				style={
+					state.fromRect
+						? screenStyle(worldRectToScreen(state.fromRect))
+						: undefined
+				}
 			>
-				<img
+				<PhotoViewBgImage
 					ref={heroImgRef}
-					className="photo-view__hero-img"
-					src={state.uiReady ? state.heroSrc : heroMedium}
-					alt=""
-					draggable={false}
+					src={heroSrc}
+					width={heroW}
+					height={heroH}
+					className="js-img js-bg u-br p-photo-view__fly-img is-loaded"
 				/>
 			</div>
 
-			{state.uiReady ? (
-				<div className="photo-view__thumbs" aria-hidden>
-					{images.map((img, index) => (
-						<button
-							key={`${img.medium}-${index}`}
-							type="button"
-							ref={(node) => {
-								if (node) thumbRefs.current.set(index, node);
-								else thumbRefs.current.delete(index);
-							}}
-							className="photo-view__thumb"
-							data-photo-view-thumb={index}
-							style={{
-								...screenStyle(
-									worldRectToScreen(
-										thumbLayoutForIndex(
-											images,
-											index,
-											scrollOffsetRef.current,
-										),
-									),
-								),
-								opacity: index === state.activeIndex ? 1 : 0.55,
-							}}
-							tabIndex={-1}
-						>
-							<img
-								src={imageUrl(img.medium)}
-								alt=""
-								draggable={false}
-								className="photo-view__thumb-img"
-							/>
-						</button>
-					))}
+			<div className="p-cate__fixed p-photo-view__fixed">
+				<div className="p-photo-view__border p-cate__border to" aria-hidden />
+				<div className="p-cate__category p-photo-view__category">
+					<p className="fs-s u-upper u-sub to">
+						<span>Category</span>
+					</p>
+					<h2 className="fs-xl to">{categoryLabel}</h2>
 				</div>
-			) : null}
+			</div>
+
+			<div className="p-photo-view__rail">
+				<div className="p-photo-view__scroll">
+					<div className="p-cate__lists p-photo-view__lists" />
+				</div>
+			</div>
+
+			<button
+				type="button"
+				className="p-photo-view__backdrop"
+				aria-label="Close gallery view"
+				onClick={() => closePhotoView()}
+			/>
 		</div>
 	);
 }

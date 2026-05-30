@@ -19,7 +19,6 @@ import {
 	unregisterPhotoViewContext,
 } from "~/lib/photoViewController";
 import { PhotoView } from "~/components/PhotoView";
-import { PhotoViewChrome } from "~/components/PhotoViewChrome";
 import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
 
 const GalleryCanvas = lazy(() =>
@@ -196,7 +195,6 @@ export function PhotoGallery() {
 			data-xhr-namespace="home"
 			ref={shellRef}
 		>
-			<PhotoViewChrome />
 			<PhotoView wrapRef={wrapRef} />
 			<div className="js-wrapper p-home" ref={wrapRef}>
 				<div className="js-page__cover" />
