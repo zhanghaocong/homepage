@@ -1,4 +1,4 @@
-/* Photo view — R3F overlay; only page chrome / scroll lock rules remain here */
+/* Photo view — React DOM overlay on top of WebGL wall */
 
 .js-canvas__wrap,
 .js-canvas__wrap canvas {
@@ -100,4 +100,46 @@ html.l-photo-view .c-scrollbar {
 	margin: 0;
 	font-weight: 500;
 	line-height: 1.1;
+}
+
+.photo-view {
+	position: fixed;
+	inset: 0;
+	z-index: 205;
+	pointer-events: none;
+}
+
+html.l-photo-view .photo-view {
+	pointer-events: auto;
+}
+
+.photo-view__hero,
+.photo-view__thumb {
+	position: fixed;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	border: none;
+	background: transparent;
+	pointer-events: auto;
+}
+
+.photo-view__hero-img,
+.photo-view__thumb-img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.photo-view__thumbs {
+	pointer-events: none;
+}
+
+.photo-view__thumb {
+	cursor: pointer;
+}
+
+.photo-view[data-ui-ready] .photo-view__thumbs {
+	pointer-events: auto;
 }

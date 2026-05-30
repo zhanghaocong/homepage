@@ -1,7 +1,10 @@
 import type { Mesh } from "three";
 import { PlaneGeometry } from "three";
 import type { CateImage } from "~/data/gallery";
-import { getGridUnit as layoutGridUnit } from "~/lib/galleryLayout";
+import {
+	getGridUnit as layoutGridUnit,
+	type GalleryFrameRect,
+} from "~/lib/galleryLayout";
 import {
 	getFrameSplashHandoffWorldRect,
 	getFrameWorldRect,
@@ -13,6 +16,21 @@ export type PhotoViewWorldRect = {
 	width: number;
 	height: number;
 };
+
+/** Screen-space rect (px, top-left origin) for DOM photo view. */
+export type PhotoViewScreenRect = GalleryFrameRect;
+
+export function worldRectToScreen(
+	rect: PhotoViewWorldRect,
+): PhotoViewScreenRect {
+	const { w: vw, h: vh } = getViewport();
+	return {
+		left: rect.x + vw / 2 - rect.width / 2,
+		top: vh / 2 - rect.y - rect.height / 2,
+		width: rect.width,
+		height: rect.height,
+	};
+}
 
 export function getViewport() {
 	return {

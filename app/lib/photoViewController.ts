@@ -10,7 +10,7 @@ import {
 import { galleryImages, imageUrl } from "~/data/gallery";
 import type { GalleryMeshEntry } from "~/components/gallery-canvas/galleryMeshRegistry";
 import { getFrameSpecById } from "~/lib/galleryLayoutStore";
-import { meshWorldRect } from "~/lib/photoViewLayout";
+import { rectFromLayoutId } from "~/lib/photoViewLayout";
 import type { JsScroll } from "~/lib/jsScroll";
 
 let scrollRef: JsScroll | null = null;
@@ -96,13 +96,18 @@ function ensureGalleryCanvasVisible() {
 	gsap.set(".js-canvas__wrap canvas", { opacity: 1 });
 }
 
-export function requestOpenPhotoView(entry: GalleryMeshEntry) {
+export function requestOpenPhotoView(layoutId: string) {
 	if (isPhotoViewClosing() || getPhotoViewOpen()) return;
-	openPhotoViewFromMesh(entry);
+	openPhotoViewFromLayoutId(layoutId);
 }
 
+/** @deprecated Use `openPhotoViewFromLayoutId` — mesh only supplies layout id. */
 export function openPhotoViewFromMesh(entry: GalleryMeshEntry) {
-	const spec = getFrameSpecById(entry.layoutId);
+	openPhotoViewFromLayoutId(entry.layoutId);
+}
+
+export function openPhotoViewFromLayoutId(layoutId: string) {
+	const spec = getFrameSpecById(layoutId);
 	if (!spec) return;
 
 	const category = normalizePhotoCategory(spec.category);
@@ -123,8 +128,8 @@ export function openPhotoViewFromMesh(entry: GalleryMeshEntry) {
 		category,
 		activeIndex,
 		heroSrc,
-		sourceLayoutId: entry.layoutId,
-		fromRect: meshWorldRect(entry.mesh),
+		sourceLayoutId: layoutId,
+		fromRect: rectFromLayoutId(layoutId),
 	});
 
 	setHtmlPhotoView(true);

@@ -18,6 +18,7 @@ import {
 	registerPhotoViewContext,
 	unregisterPhotoViewContext,
 } from "~/lib/photoViewController";
+import { PhotoView } from "~/components/PhotoView";
 import { PhotoViewChrome } from "~/components/PhotoViewChrome";
 import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
 
@@ -196,6 +197,7 @@ export function PhotoGallery() {
 			ref={shellRef}
 		>
 			<PhotoViewChrome />
+			<PhotoView wrapRef={wrapRef} />
 			<div className="js-wrapper p-home" ref={wrapRef}>
 				<div className="js-page__cover" />
 				<div className="js-page">
@@ -237,7 +239,6 @@ export function PhotoGallery() {
 						<Suspense fallback={null}>
 							<GalleryCanvas
 								contentRef={contentRef}
-								wrapRef={wrapRef}
 								engineRef={canvasEngineRef}
 								scrollRef={scrollRef}
 								onEngineReady={handleEngineReady}
