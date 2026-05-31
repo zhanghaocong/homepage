@@ -98,6 +98,13 @@ function hideWallDomImmediately() {
 	gsap.set(WALL_FADE_SEL, { opacity: 0 });
 }
 
+function showWallDomImmediately() {
+	gsap.killTweensOf(PAGE_COVER_SEL);
+	gsap.killTweensOf(WALL_FADE_SEL);
+	gsap.set(PAGE_COVER_SEL, { opacity: 0 });
+	gsap.set(WALL_FADE_SEL, { opacity: 1 });
+}
+
 /** Keep the fixed R3F canvas visible (splash / fades must not leave it at opacity 0). */
 function ensureGalleryCanvasVisible() {
 	gsap.set(".js-canvas__wrap canvas", { opacity: 1 });
@@ -154,7 +161,7 @@ export function markPhotoViewUiReady() {
 export function closePhotoView() {
 	if (isPhotoViewClosing() || !getPhotoViewOpen()) return;
 	document.documentElement.classList.remove("l-photo-view-ui");
-	setPhotoViewState({ uiReady: false, closing: true });
+	completeClosePhotoView();
 }
 
 /** Fade scroll wall back in before homepage-style gather/reveal. */
@@ -169,7 +176,7 @@ export function completeClosePhotoView() {
 	lockWallScroll(false);
 	gsap.set(PAGE_COVER_SEL, { opacity: 0 });
 	ensureGalleryCanvasVisible();
-	fadeWallDom(false);
+	showWallDomImmediately();
 	onOpenChange?.(false);
 	onAfterClose?.();
 }

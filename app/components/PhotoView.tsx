@@ -1,5 +1,4 @@
 import { useAtomValue } from "jotai/react";
-import gsap from "gsap";
 import {
 	useCallback,
 	useEffect,
@@ -13,20 +12,14 @@ import { PhotoViewBgImage } from "~/components/PhotoViewImage";
 import { pickWallLayoutIdAt } from "~/lib/galleryWallPick";
 import { getGalleryMeshRegistry } from "~/lib/galleryRegistryBridge";
 import {
-	completeClosePhotoView,
 	closePhotoView,
-	getPhotoViewScroll,
-	getPhotoViewShell,
 	isPhotoViewClosing,
 	markPhotoViewUiReady,
 	openPhotoViewFromLayoutId,
-	preparePhotoViewWallReveal,
 } from "~/lib/photoViewController";
-import { runPhotoViewSplashExit } from "~/lib/splashAnimation";
 import {
 	getImageAspect,
 	heroCenterRect,
-	heroSplashHandoffRect,
 	worldRectToScreen,
 	type PhotoViewScreenRect,
 } from "~/lib/photoViewLayout";
@@ -52,29 +45,14 @@ function screenStyle(rect: PhotoViewScreenRect): React.CSSProperties {
 	};
 }
 
-function animateScreenRect(
-	el: HTMLElement,
-	to: PhotoViewScreenRect,
-	opts: gsap.TweenVars,
-) {
-	return gsap.to(el, {
-		left: to.left,
-		top: to.top,
-		width: to.width,
-		height: to.height,
-		...opts,
-	});
-}
-
 export function PhotoView({ wrapRef }: PhotoViewProps) {
 	const state = useAtomValue(photoViewAtom, { store: photoViewStore });
 	const rootRef = useRef<HTMLDivElement>(null);
 	const heroWrapRef = useRef<HTMLDivElement>(null);
 	const heroImgRef = useRef<HTMLDivElement>(null);
 	const thumbListRef = useRef<PhotoViewThumbList | null>(null);
-	const flyTweenRef = useRef<gsap.core.Tween | null>(null);
-	const closingAnimRef = useRef(false);
 	const openedRef = useRef(false);
+	const lastWheelAtRef = useRef(0);
 	const [showLayer, setShowLayer] = useState(false);
 
 	const cateKey = CATE_ID_TO_KEY[state.category];
@@ -114,7 +92,6 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		const aspect = getImageAspect(hero);
 		const target = worldRectToScreen(heroCenterRect(aspect));
 
-		flyTweenRef.current?.kill();
 		applyHeroSrc(view.heroSrc, hero);
 		setHeroRect(target);
 		registry.setWallMeshesHidden(true);
@@ -124,65 +101,6 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		return true;
 	}, [applyHeroSrc, setHeroRect]);
 
-	const startSplashExit = useCallback(() => {
-		const view = getPhotoViewState();
-		const shell = getPhotoViewShell();
-		const scroll = getPhotoViewScroll();
-		const registry = getGalleryMeshRegistry();
-
-		preparePhotoViewWallReveal();
-		registry?.restoreWallMeshes();
-		registry?.onResize();
-		if (registry) registry.effectUniforms.u_type.value = 1;
-
-		if (!shell || !scroll) {
-			completeClosePhotoView();
-			closingAnimRef.current = false;
-			setShowLayer(false);
-			return;
-		}
-
-		runPhotoViewSplashExit(shell, scroll, view.heroSrc, {
-			onReveal: () => registry?.onResize(),
-			onLayoutTick: () => registry?.onResize(),
-			onComplete: () => {
-				completeClosePhotoView();
-				closingAnimRef.current = false;
-				setShowLayer(false);
-			},
-		});
-	}, []);
-
-	const runFlyOut = useCallback(() => {
-		const view = getPhotoViewState();
-		const heroEl = heroWrapRef.current;
-		if (!heroEl) {
-			startSplashExit();
-			return;
-		}
-
-		const exitWorld = heroSplashHandoffRect(view.sourceLayoutId);
-		closingAnimRef.current = true;
-		flyTweenRef.current?.kill();
-
-		const finishHandoff = () => {
-			setShowLayer(false);
-			startSplashExit();
-		};
-
-		if (!exitWorld) {
-			finishHandoff();
-			return;
-		}
-
-		const exit = worldRectToScreen(exitWorld);
-		flyTweenRef.current = animateScreenRect(heroEl, exit, {
-			duration: 1.2,
-			ease: "power4.inOut",
-			onComplete: finishHandoff,
-		});
-	}, [startSplashExit]);
-
 	useEffect(() => {
 		const registry = getGalleryMeshRegistry();
 		if (!registry) return;
@@ -190,10 +108,9 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		registry.effectUniforms.u_type.value = passthrough ? 0 : 1;
 	}, [state.open, state.closing]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!state.open) {
 			openedRef.current = false;
-			flyTweenRef.current?.kill();
 			thumbListRef.current?.destroy();
 			thumbListRef.current = null;
 			const registry = getGalleryMeshRegistry();
@@ -206,7 +123,6 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		if (
 			!openedRef.current &&
 			!state.uiReady &&
-			!closingAnimRef.current &&
 			!isPhotoViewClosing()
 		) {
 			openedRef.current = true;
@@ -255,12 +171,6 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		thumbListRef.current.scrollToIndex(state.activeIndex, false);
 	}, [state.activeIndex, state.open, state.uiReady]);
 
-	useEffect(() => {
-		if (!state.open || state.uiReady) return;
-		if (!state.closing || closingAnimRef.current) return;
-		runFlyOut();
-	}, [state.uiReady, state.open, state.closing, runFlyOut]);
-
 	useLayoutEffect(() => {
 		if (!state.open || !heroImgRef.current) return;
 		const img = images[state.activeIndex];
@@ -271,15 +181,7 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 			return;
 		}
 
-		const node = heroImgRef.current;
-		gsap.to(node, {
-			opacity: 0,
-			duration: 0.15,
-			onComplete: () => {
-				applyHeroSrc(state.heroSrc, img);
-				gsap.fromTo(node, { opacity: 0 }, { opacity: 1, duration: 0.25 });
-			},
-		});
+		applyHeroSrc(state.heroSrc, img);
 	}, [state.heroSrc, state.open, state.uiReady, state.activeIndex, images, applyHeroSrc]);
 
 	useEffect(() => {
@@ -288,7 +190,7 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 
 		const onPointerDown = (event: PointerEvent) => {
 			if (event.button !== 0) return;
-			if (closingAnimRef.current || isPhotoViewClosing()) return;
+			if (isPhotoViewClosing()) return;
 			const current = getPhotoViewState();
 
 			if (!current.open) {
@@ -305,10 +207,36 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 	}, [wrapRef]);
 
 	useEffect(() => {
-		return () => {
-			flyTweenRef.current?.kill();
+		const root = rootRef.current;
+		if (!root || !state.open || !state.uiReady) return;
+
+		const onWheel = (event: WheelEvent) => {
+			const direction = Math.sign(event.deltaY);
+			if (direction === 0 || Math.abs(event.deltaY) < 10) return;
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const now = performance.now();
+			if (now - lastWheelAtRef.current < 140) return;
+			lastWheelAtRef.current = now;
+
+			const nextIndex = Math.min(
+				Math.max(state.activeIndex + direction, 0),
+				images.length - 1,
+			);
+			const next = images[nextIndex];
+			if (!next || nextIndex === state.activeIndex) return;
+
+			setPhotoViewState({
+				activeIndex: nextIndex,
+				heroSrc: imageUrl(next["2048x2048"]),
+			});
 		};
-	}, []);
+
+		root.addEventListener("wheel", onWheel, { passive: false });
+		return () => root.removeEventListener("wheel", onWheel);
+	}, [state.open, state.uiReady, state.activeIndex, images]);
 
 	if (!showLayer && !state.open) return null;
 

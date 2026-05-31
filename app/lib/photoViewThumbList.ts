@@ -23,7 +23,6 @@ export class PhotoViewThumbList {
 		this.wraps = this.buildThumbs(images);
 		this.setActive(activeIndex, false);
 		this.bindScroll();
-		this.playEnterAnimation();
 		requestAnimationFrame(() => this.scrollToIndex(activeIndex, false));
 	}
 
@@ -112,14 +111,4 @@ export class PhotoViewThumbList {
 		if (notify) this.onActiveChange(index);
 	}
 
-	/** Desktop entrance — photoyoshi WorkToCate / portrait page. */
-	private playEnterAnimation() {
-		gsap.from(this.wraps, {
-			duration: 1.5,
-			ease: "power4.out",
-			left: "50%",
-			clipPath: "inset(0 70% 0 30%)",
-			stagger: 0.06,
-		});
-	}
 }
