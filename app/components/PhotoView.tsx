@@ -101,35 +101,26 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		[activeImage],
 	);
 
-	const runFlyIn = useCallback(() => {
+	const openPhotoListImmediately = useCallback(() => {
 		const view = getPhotoViewState();
 		const registry = getGalleryMeshRegistry();
 		const heroEl = heroWrapRef.current;
-		if (!registry || !heroEl || !view.fromRect) return false;
+		if (!registry || !heroEl) return false;
 
 		const cateImages = galleryImages[CATE_ID_TO_KEY[view.category]];
 		const hero = cateImages[view.activeIndex] ?? cateImages[0];
 		if (!hero) return false;
 
 		const aspect = getImageAspect(hero);
-		const from = worldRectToScreen(view.fromRect);
 		const target = worldRectToScreen(heroCenterRect(aspect));
 
-		applyHeroSrc(imageUrl(hero.medium), hero);
-		setHeroRect(from);
+		flyTweenRef.current?.kill();
+		applyHeroSrc(view.heroSrc, hero);
+		setHeroRect(target);
 		registry.setWallMeshesHidden(true);
 		registry.effectUniforms.u_type.value = 0;
 		setShowLayer(true);
-
-		flyTweenRef.current?.kill();
-		flyTweenRef.current = animateScreenRect(heroEl, target, {
-			duration: 1.2,
-			ease: "power4.inOut",
-			onComplete: () => {
-				applyHeroSrc(view.heroSrc, hero);
-				markPhotoViewUiReady();
-			},
-		});
+		markPhotoViewUiReady();
 		return true;
 	}, [applyHeroSrc, setHeroRect]);
 
@@ -219,13 +210,13 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 			!isPhotoViewClosing()
 		) {
 			openedRef.current = true;
-			if (!runFlyIn()) {
+			if (!openPhotoListImmediately()) {
 				openedRef.current = false;
 				getGalleryMeshRegistry()?.restoreWallMeshes();
 				closePhotoView();
 			}
 		}
-	}, [state.open, runFlyIn]);
+	}, [state.open, openPhotoListImmediately]);
 
 	useEffect(() => {
 		if (!state.open || !state.uiReady) {

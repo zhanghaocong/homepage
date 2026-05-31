@@ -91,6 +91,13 @@ function fadeWallDom(hide: boolean) {
 	});
 }
 
+function hideWallDomImmediately() {
+	gsap.killTweensOf(PAGE_COVER_SEL);
+	gsap.killTweensOf(WALL_FADE_SEL);
+	gsap.set(PAGE_COVER_SEL, { opacity: 0 });
+	gsap.set(WALL_FADE_SEL, { opacity: 0 });
+}
+
 /** Keep the fixed R3F canvas visible (splash / fades must not leave it at opacity 0). */
 function ensureGalleryCanvasVisible() {
 	gsap.set(".js-canvas__wrap canvas", { opacity: 1 });
@@ -135,7 +142,7 @@ export function openPhotoViewFromLayoutId(layoutId: string) {
 	setHtmlPhotoView(true);
 	lockWallScroll(true);
 	ensureGalleryCanvasVisible();
-	fadeWallDom(true);
+	hideWallDomImmediately();
 	onOpenChange?.(true);
 }
 
