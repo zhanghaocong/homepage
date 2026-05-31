@@ -50,6 +50,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
 	const location = useLocation();
 	const isHome = location.pathname === "/";
+	const isPhotoListRoute =
+		location.pathname.startsWith("/albums/") ||
+		location.pathname.startsWith("/tags/");
 
 	if (isHome) {
 		return (
@@ -63,7 +66,11 @@ export default function App() {
 	return (
 		<div className="site-shell flex min-h-screen flex-col">
 			<Header />
-			<main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+			<main
+				className={`mx-auto w-full flex-1 px-6 py-12 ${
+					isPhotoListRoute ? "max-w-5xl" : "max-w-3xl"
+				}`}
+			>
 				<Outlet />
 			</main>
 			<Footer />

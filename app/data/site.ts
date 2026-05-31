@@ -1,13 +1,13 @@
+type SiteLink = {
+	label: string;
+	href: string;
+};
+
 export const site = {
-	name: "Your Name",
-	title: "Your Name — Developer",
+	name: "Photo Archive",
+	title: "Photo Archive",
 	description:
-		"Personal homepage showcasing projects, writing, and contact links.",
-	tagline: "Building thoughtful software at the edge.",
-	email: "hello@example.com",
-	links: [
-		{ label: "GitHub", href: "https://github.com" },
-		{ label: "LinkedIn", href: "https://linkedin.com" },
-		{ label: "Email", href: "mailto:hello@example.com" },
-	],
+		"A personal photo archive organized by albums, tags, and a living photo wall.",
+	tagline: "Albums, tags, and moments from the wall.",
+	links: [] as SiteLink[],
 } as const;
