@@ -1,44 +1,41 @@
-import { useEffect } from "react";
-import { useThree } from "@react-three/fiber";
-import { PerspectiveCamera } from "three";
-import { attachGalleryRuntime } from "~/components/gallery-canvas/galleryEngine";
-import type { GalleryMeshRegistry } from "~/components/gallery-canvas/galleryMeshRegistry";
-import type { GalleryEngineHandle } from "~/components/gallery-canvas/types";
+import { useThree } from '@react-three/fiber'
+import { useEffect } from 'react'
+import { PerspectiveCamera } from 'three'
+import { attachGalleryRuntime } from '~/components/gallery-canvas/galleryEngine'
+import type { GalleryMeshRegistry } from '~/components/gallery-canvas/galleryMeshRegistry'
+import type { GalleryEngineHandle } from '~/components/gallery-canvas/types'
 
 type GalleryEngineBridgeProps = {
-	engineRef: React.MutableRefObject<GalleryEngineHandle | null>;
-	meshRegistry: GalleryMeshRegistry;
-};
+  engineRef: React.MutableRefObject<GalleryEngineHandle | null>
+  meshRegistry: GalleryMeshRegistry
+}
 
 /**
  * Attaches scroll-direction state and resize handling for the gallery runtime.
  * Post-processing rendering is owned by GalleryPostProcessing.
  */
-export function GalleryEngineBridge({
-	engineRef,
-	meshRegistry,
-}: GalleryEngineBridgeProps) {
-	const { gl, camera } = useThree();
+export function GalleryEngineBridge({ engineRef, meshRegistry }: GalleryEngineBridgeProps) {
+  const { gl, camera } = useThree()
 
-	useEffect(() => {
-		if (!(camera instanceof PerspectiveCamera)) return;
+  useEffect(() => {
+    if (!(camera instanceof PerspectiveCamera)) return
 
-		const engine = attachGalleryRuntime({
-			gl,
-			camera,
-			canvas: gl.domElement,
-			meshRegistry,
-		});
+    const engine = attachGalleryRuntime({
+      gl,
+      camera,
+      canvas: gl.domElement,
+      meshRegistry,
+    })
 
-		engineRef.current = engine;
+    engineRef.current = engine
 
-		return () => {
-			engine.destroy();
-			if (engineRef.current === engine) {
-				engineRef.current = null;
-			}
-		};
-	}, [camera, engineRef, gl, meshRegistry]);
+    return () => {
+      engine.destroy()
+      if (engineRef.current === engine) {
+        engineRef.current = null
+      }
+    }
+  }, [camera, engineRef, gl, meshRegistry])
 
-	return null;
+  return null
 }

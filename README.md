@@ -93,12 +93,12 @@ Pushes to `main` trigger [Workers Builds](https://developers.cloudflare.com/work
 
 **Build settings reference**
 
-| Setting | Value |
-|---|---|
-| Git repository | `zhanghaocong/homepage` |
-| Production branch | `main` |
-| Build command | `npm run build` |
-| Deploy command | `npx wrangler deploy` |
+| Setting           | Value                   |
+| ----------------- | ----------------------- |
+| Git repository    | `zhanghaocong/homepage` |
+| Production branch | `main`                  |
+| Build command     | `npm run build`         |
+| Deploy command    | `npx wrangler deploy`   |
 
 ### Manual deploy
 

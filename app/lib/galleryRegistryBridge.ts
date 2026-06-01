@@ -1,15 +1,15 @@
-import type { GalleryMeshRegistry } from "~/components/gallery-canvas/galleryMeshRegistry";
+import type { GalleryMeshRegistry } from '~/components/gallery-canvas/galleryMeshRegistry'
 
-let meshRegistry: GalleryMeshRegistry | null = null;
+let meshRegistry: GalleryMeshRegistry | null = null
 
 export function registerGalleryMeshRegistry(registry: GalleryMeshRegistry) {
-	meshRegistry = registry;
+  meshRegistry = registry
 }
 
 export function unregisterGalleryMeshRegistry() {
-	meshRegistry = null;
+  meshRegistry = null
 }
 
 export function getGalleryMeshRegistry() {
-	return meshRegistry;
+  return meshRegistry
 }
