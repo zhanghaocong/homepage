@@ -4,11 +4,11 @@ import {
 	useEffect,
 	useLayoutEffect,
 	useRef,
-	useState,
 	type RefObject,
+	type WheelEvent,
 } from "react";
 import { CATEGORY_UI, galleryImages, imageUrl } from "~/data/gallery";
-import { PhotoViewBgImage } from "~/components/PhotoViewImage";
+import { PhotoViewBgImage, thumbWrapClass } from "~/components/PhotoViewImage";
 import { pickWallLayoutIdAt } from "~/lib/galleryWallPick";
 import { getGalleryMeshRegistry } from "~/lib/galleryRegistryBridge";
 import {
@@ -23,7 +23,6 @@ import {
 	worldRectToScreen,
 	type PhotoViewScreenRect,
 } from "~/lib/photoViewLayout";
-import { PhotoViewThumbList } from "~/lib/photoViewThumbList";
 import {
 	CATE_ID_TO_KEY,
 	getPhotoViewState,
@@ -47,13 +46,9 @@ function screenStyle(rect: PhotoViewScreenRect): React.CSSProperties {
 
 export function PhotoView({ wrapRef }: PhotoViewProps) {
 	const state = useAtomValue(photoViewAtom, { store: photoViewStore });
-	const rootRef = useRef<HTMLDivElement>(null);
-	const heroWrapRef = useRef<HTMLDivElement>(null);
-	const heroImgRef = useRef<HTMLDivElement>(null);
-	const thumbListRef = useRef<PhotoViewThumbList | null>(null);
+	const thumbRefs = useRef<Array<HTMLButtonElement | null>>([]);
 	const openedRef = useRef(false);
 	const lastWheelAtRef = useRef(0);
-	const [showLayer, setShowLayer] = useState(false);
 
 	const cateKey = CATE_ID_TO_KEY[state.category];
 	const images = galleryImages[cateKey];
@@ -61,45 +56,50 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 	const categoryLabel =
 		CATEGORY_UI.find((c) => c.id === state.category)?.label ?? state.category;
 
-	const setHeroRect = useCallback((rect: PhotoViewScreenRect) => {
-		const el = heroWrapRef.current;
-		if (!el) return;
-		Object.assign(el.style, screenStyle(rect));
-	}, []);
-
-	const applyHeroSrc = useCallback(
-		(src: string, img = activeImage) => {
-			const node = heroImgRef.current;
-			if (!node || !img) return;
-			const medium = imageUrl(img.medium);
-			node.setAttribute("src", src);
-			node.style.backgroundImage = `url("${src === medium ? medium : src}")`;
-			node.style.aspectRatio = `${img.width} / ${img.height}`;
-		},
-		[activeImage],
-	);
-
 	const openPhotoListImmediately = useCallback(() => {
-		const view = getPhotoViewState();
 		const registry = getGalleryMeshRegistry();
-		const heroEl = heroWrapRef.current;
-		if (!registry || !heroEl) return false;
+		if (!registry) return false;
 
-		const cateImages = galleryImages[CATE_ID_TO_KEY[view.category]];
-		const hero = cateImages[view.activeIndex] ?? cateImages[0];
-		if (!hero) return false;
-
-		const aspect = getImageAspect(hero);
-		const target = worldRectToScreen(heroCenterRect(aspect));
-
-		applyHeroSrc(view.heroSrc, hero);
-		setHeroRect(target);
 		registry.setWallMeshesHidden(true);
 		registry.effectUniforms.u_type.value = 0;
-		setShowLayer(true);
 		markPhotoViewUiReady();
 		return true;
-	}, [applyHeroSrc, setHeroRect]);
+	}, []);
+
+	const setActivePhoto = useCallback(
+		(index: number) => {
+			const next = images[index];
+			if (!next || index === state.activeIndex) return;
+			setPhotoViewState({
+				activeIndex: index,
+				heroSrc: imageUrl(next["2048x2048"]),
+			});
+		},
+		[images, state.activeIndex],
+	);
+
+	const handleWheel = useCallback(
+		(event: WheelEvent<HTMLDivElement>) => {
+			if (!state.open || !state.uiReady) return;
+
+			const direction = Math.sign(event.deltaY);
+			if (direction === 0 || Math.abs(event.deltaY) < 10) return;
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const now = performance.now();
+			if (now - lastWheelAtRef.current < 140) return;
+			lastWheelAtRef.current = now;
+
+			const nextIndex = Math.min(
+				Math.max(state.activeIndex + direction, 0),
+				images.length - 1,
+			);
+			setActivePhoto(nextIndex);
+		},
+		[images.length, setActivePhoto, state.activeIndex, state.open, state.uiReady],
+	);
 
 	useEffect(() => {
 		const registry = getGalleryMeshRegistry();
@@ -111,12 +111,10 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 	useLayoutEffect(() => {
 		if (!state.open) {
 			openedRef.current = false;
-			thumbListRef.current?.destroy();
-			thumbListRef.current = null;
+			thumbRefs.current = [];
 			const registry = getGalleryMeshRegistry();
 			registry?.restoreWallMeshes();
 			registry?.onResize();
-			setShowLayer(false);
 			return;
 		}
 
@@ -134,55 +132,13 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		}
 	}, [state.open, openPhotoListImmediately]);
 
-	useEffect(() => {
-		if (!state.open || !state.uiReady) {
-			thumbListRef.current?.destroy();
-			thumbListRef.current = null;
-			return;
-		}
-
-		const root = rootRef.current;
-		if (!root) return;
-
-		const cateImages = galleryImages[CATE_ID_TO_KEY[state.category]];
-		thumbListRef.current?.destroy();
-		thumbListRef.current = new PhotoViewThumbList(
-			root,
-			cateImages,
-			state.activeIndex,
-			(index) => {
-				const next = cateImages[index];
-				if (!next) return;
-				setPhotoViewState({
-					activeIndex: index,
-					heroSrc: imageUrl(next["2048x2048"]),
-				});
-			},
-		);
-
-		return () => {
-			thumbListRef.current?.destroy();
-			thumbListRef.current = null;
-		};
-	}, [state.open, state.uiReady, state.category]);
-
-	useEffect(() => {
-		if (!state.open || !state.uiReady || !thumbListRef.current) return;
-		thumbListRef.current.scrollToIndex(state.activeIndex, false);
-	}, [state.activeIndex, state.open, state.uiReady]);
-
 	useLayoutEffect(() => {
-		if (!state.open || !heroImgRef.current) return;
-		const img = images[state.activeIndex];
-		if (!img) return;
-
-		if (!state.uiReady) {
-			applyHeroSrc(imageUrl(img.medium), img);
-			return;
-		}
-
-		applyHeroSrc(state.heroSrc, img);
-	}, [state.heroSrc, state.open, state.uiReady, state.activeIndex, images, applyHeroSrc]);
+		if (!state.open || !state.uiReady) return;
+		thumbRefs.current[state.activeIndex]?.scrollIntoView({
+			block: "center",
+			behavior: "auto",
+		});
+	}, [state.activeIndex, state.open, state.uiReady]);
 
 	useEffect(() => {
 		const wrap = wrapRef.current;
@@ -206,66 +162,31 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 		return () => wrap.removeEventListener("pointerdown", onPointerDown, true);
 	}, [wrapRef]);
 
-	useEffect(() => {
-		const root = rootRef.current;
-		if (!root || !state.open || !state.uiReady) return;
-
-		const onWheel = (event: WheelEvent) => {
-			const direction = Math.sign(event.deltaY);
-			if (direction === 0 || Math.abs(event.deltaY) < 10) return;
-
-			event.preventDefault();
-			event.stopPropagation();
-
-			const now = performance.now();
-			if (now - lastWheelAtRef.current < 140) return;
-			lastWheelAtRef.current = now;
-
-			const nextIndex = Math.min(
-				Math.max(state.activeIndex + direction, 0),
-				images.length - 1,
-			);
-			const next = images[nextIndex];
-			if (!next || nextIndex === state.activeIndex) return;
-
-			setPhotoViewState({
-				activeIndex: nextIndex,
-				heroSrc: imageUrl(next["2048x2048"]),
-			});
-		};
-
-		root.addEventListener("wheel", onWheel, { passive: false });
-		return () => root.removeEventListener("wheel", onWheel);
-	}, [state.open, state.uiReady, state.activeIndex, images]);
-
-	if (!showLayer && !state.open) return null;
+	if (!state.open) return null;
 
 	const heroMedium =
 		activeImage != null ? imageUrl(activeImage.medium) : state.heroSrc;
 	const heroW = activeImage?.width ?? 1;
 	const heroH = activeImage?.height ?? 1;
 	const heroSrc = state.uiReady ? state.heroSrc : heroMedium;
+	const heroStyle = activeImage
+		? screenStyle(worldRectToScreen(heroCenterRect(getImageAspect(activeImage))))
+		: undefined;
 
 	return (
 		<div
-			ref={rootRef}
 			className={`p-photo-view${state.uiReady ? " is-ui-ready" : ""}`}
 			role="dialog"
 			aria-modal="true"
 			aria-label={`${categoryLabel} gallery`}
 			aria-hidden={!state.open}
+			onWheel={handleWheel}
 		>
 			<div
-				ref={heroWrapRef}
 				className="p-photo-view__fly js-img__wrap js-img__bg"
-				style={
-					state.fromRect
-						? screenStyle(worldRectToScreen(state.fromRect))
-						: undefined
-				}
+				style={heroStyle}
 			>
 				<PhotoViewBgImage
-					ref={heroImgRef}
 					src={heroSrc}
 					width={heroW}
 					height={heroH}
@@ -285,7 +206,34 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 
 			<div className="p-photo-view__rail">
 				<div className="p-photo-view__scroll">
-					<div className="p-cate__lists p-photo-view__lists" />
+					<div className="p-cate__lists p-photo-view__lists">
+						{images.map((image, index) => {
+							const thumbSrc = imageUrl(image.medium);
+							return (
+								<button
+									key={`${state.category}-${index}-${thumbSrc}`}
+									ref={(node) => {
+										thumbRefs.current[index] = node;
+									}}
+									type="button"
+									className={`${thumbWrapClass(image.width, image.height)} ${
+										index === state.activeIndex ? "active" : ""
+									}`}
+									style={{ aspectRatio: `${image.width} / ${image.height}` }}
+									aria-label={`Show photo ${index + 1}`}
+									aria-current={index === state.activeIndex}
+									onClick={() => setActivePhoto(index)}
+								>
+									<PhotoViewBgImage
+										src={thumbSrc}
+										width={image.width}
+										height={image.height}
+										className="js-img js-bg u-br p-cate__tmb-img is-loaded"
+									/>
+								</button>
+							);
+						})}
+					</div>
 				</div>
 			</div>
 

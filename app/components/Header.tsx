@@ -1,15 +1,12 @@
 import { useAtomValue } from "jotai/react";
-import { Link, NavLink, useLocation } from "react-router";
+import { Link, NavLink } from "react-router";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { site } from "~/data/site";
 import { closePhotoView } from "~/lib/photoViewController";
 import { photoViewAtom, photoViewStore } from "~/lib/photoViewStore";
 
 export function Header() {
-	const { pathname } = useLocation();
 	const photoViewOpen = useAtomValue(photoViewAtom, { store: photoViewStore }).open;
-	const isAlbums = pathname.startsWith("/albums/");
-	const isTags = pathname.startsWith("/tags/");
 
 	return (
 		<header className="l-header site-header">
@@ -33,18 +30,6 @@ export function Header() {
 							<NavLink to="/" end className="site-header__link">
 								Wall
 							</NavLink>
-							<Link
-								to="/albums/interior"
-								className={`site-header__link${isAlbums ? " active" : ""}`}
-							>
-								Albums
-							</Link>
-							<Link
-								to="/tags/interior"
-								className={`site-header__link${isTags ? " active" : ""}`}
-							>
-								Tags
-							</Link>
 							<NavLink to="/about" className="site-header__link">
 								About
 							</NavLink>

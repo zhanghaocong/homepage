@@ -197,10 +197,13 @@ html.l-photo-view .p-photo-view {
 	pointer-events: none;
 }
 
-/* Thumbnail tiles — photoyoshi p-cate (see photoViewThumbList) */
+/* Thumbnail tiles — photoyoshi p-cate, rendered by React in PhotoView. */
 .p-photo-view .p-cate__tmb-wrap {
+	background: none;
+	border: 0;
 	display: block;
 	margin: 10px 0;
+	padding: 0;
 	width: calc(var(--grid) * 2.5);
 }
 
