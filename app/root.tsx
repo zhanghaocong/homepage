@@ -6,11 +6,7 @@ import { site } from '~/data/site'
 import { themeBootScript } from '~/lib/theme'
 import type { Route } from './+types/root'
 import './app.css'
-
-export const links: Route.LinksFunction = () => [
-  { rel: 'stylesheet', href: 'https://use.typekit.net/oqy1tlz.css' },
-  { rel: 'stylesheet', href: 'https://photoyoshi.com/assets/css/style.css' },
-]
+import './photoyoshi-style.css'
 
 export function meta() {
   return [{ title: site.title }, { name: 'description', content: site.description }]
@@ -40,22 +36,17 @@ export default function App() {
   const isHome = location.pathname === '/'
   const isPhotoListRoute = location.pathname.startsWith('/albums/') || location.pathname.startsWith('/tags/')
 
-  if (isHome) {
-    return (
-      <>
-        <Header />
-        <Outlet />
-      </>
-    )
-  }
+  const mainClassName = isHome
+    ? 'flex min-h-0 flex-1 flex-col'
+    : `mx-auto w-full flex-1 px-6 py-12 ${isPhotoListRoute ? 'max-w-5xl' : 'max-w-3xl'}`
 
   return (
     <div className="site-shell flex min-h-screen flex-col">
       <Header />
-      <main className={`mx-auto w-full flex-1 px-6 py-12 ${isPhotoListRoute ? 'max-w-5xl' : 'max-w-3xl'}`}>
+      <main className={mainClassName}>
         <Outlet />
       </main>
-      <Footer />
+      {!isHome ? <Footer /> : null}
     </div>
   )
 }

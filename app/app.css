@@ -1,6 +1,11 @@
 @import 'tailwindcss' source('.');
 @import './photo-view.css';
 
+@theme {
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: ui-monospace, monospace;
+}
+
 :root {
   /* photoyoshi grid unit — used by gallery layout + p-photo-view rail */
   --grid: 1.6667vw;
@@ -10,8 +15,12 @@
   --site-selection: rgba(0, 0, 0, 0.08);
   --site-tag-bg: #f4f4f5;
   --site-header-h: 3rem;
-  --site-font:
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --site-font: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --site-font-mono: ui-monospace, monospace;
+}
+
+html {
+  font-family: var(--site-font);
 }
 
 html.theme-dark {
