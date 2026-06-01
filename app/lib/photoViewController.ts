@@ -10,7 +10,7 @@ import {
 import { galleryImages, imageUrl } from "~/data/gallery";
 import type { GalleryMeshEntry } from "~/components/gallery-canvas/galleryMeshRegistry";
 import { getFrameSpecById } from "~/lib/galleryLayoutStore";
-import { meshWorldRect } from "~/lib/photoViewLayout";
+import { rectFromLayoutId } from "~/lib/photoViewLayout";
 import type { JsScroll } from "~/lib/jsScroll";
 
 let scrollRef: JsScroll | null = null;
@@ -91,18 +91,37 @@ function fadeWallDom(hide: boolean) {
 	});
 }
 
+function hideWallDomImmediately() {
+	gsap.killTweensOf(PAGE_COVER_SEL);
+	gsap.killTweensOf(WALL_FADE_SEL);
+	gsap.set(PAGE_COVER_SEL, { opacity: 0 });
+	gsap.set(WALL_FADE_SEL, { opacity: 0 });
+}
+
+function showWallDomImmediately() {
+	gsap.killTweensOf(PAGE_COVER_SEL);
+	gsap.killTweensOf(WALL_FADE_SEL);
+	gsap.set(PAGE_COVER_SEL, { opacity: 0 });
+	gsap.set(WALL_FADE_SEL, { opacity: 1 });
+}
+
 /** Keep the fixed R3F canvas visible (splash / fades must not leave it at opacity 0). */
 function ensureGalleryCanvasVisible() {
 	gsap.set(".js-canvas__wrap canvas", { opacity: 1 });
 }
 
-export function requestOpenPhotoView(entry: GalleryMeshEntry) {
+export function requestOpenPhotoView(layoutId: string) {
 	if (isPhotoViewClosing() || getPhotoViewOpen()) return;
-	openPhotoViewFromMesh(entry);
+	openPhotoViewFromLayoutId(layoutId);
 }
 
+/** @deprecated Use `openPhotoViewFromLayoutId` — mesh only supplies layout id. */
 export function openPhotoViewFromMesh(entry: GalleryMeshEntry) {
-	const spec = getFrameSpecById(entry.layoutId);
+	openPhotoViewFromLayoutId(entry.layoutId);
+}
+
+export function openPhotoViewFromLayoutId(layoutId: string) {
+	const spec = getFrameSpecById(layoutId);
 	if (!spec) return;
 
 	const category = normalizePhotoCategory(spec.category);
@@ -123,14 +142,14 @@ export function openPhotoViewFromMesh(entry: GalleryMeshEntry) {
 		category,
 		activeIndex,
 		heroSrc,
-		sourceLayoutId: entry.layoutId,
-		fromRect: meshWorldRect(entry.mesh),
+		sourceLayoutId: layoutId,
+		fromRect: rectFromLayoutId(layoutId),
 	});
 
 	setHtmlPhotoView(true);
 	lockWallScroll(true);
 	ensureGalleryCanvasVisible();
-	fadeWallDom(true);
+	hideWallDomImmediately();
 	onOpenChange?.(true);
 }
 
@@ -142,7 +161,7 @@ export function markPhotoViewUiReady() {
 export function closePhotoView() {
 	if (isPhotoViewClosing() || !getPhotoViewOpen()) return;
 	document.documentElement.classList.remove("l-photo-view-ui");
-	setPhotoViewState({ uiReady: false, closing: true });
+	completeClosePhotoView();
 }
 
 /** Fade scroll wall back in before homepage-style gather/reveal. */
@@ -157,7 +176,7 @@ export function completeClosePhotoView() {
 	lockWallScroll(false);
 	gsap.set(PAGE_COVER_SEL, { opacity: 0 });
 	ensureGalleryCanvasVisible();
-	fadeWallDom(false);
+	showWallDomImmediately();
 	onOpenChange?.(false);
 	onAfterClose?.();
 }

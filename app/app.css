@@ -2,8 +2,9 @@
 @import "./photo-view.css";
 
 :root {
+	/* photoyoshi grid unit — used by gallery layout + p-photo-view rail */
+	--grid: 1.6667vw;
 	--site-bg: #fff;
-	--site-fg: #171717;
 	--site-fg-muted: #737373;
 	--site-border: rgba(0, 0, 0, 0.08);
 	--site-selection: rgba(0, 0, 0, 0.08);
@@ -244,4 +245,10 @@ body.page {
 	font-size: 0.75rem;
 	font-weight: 500;
 	padding: 0.25rem 0.75rem;
+}
+
+@media screen and (max-width: 680px) {
+	:root {
+		--grid: 4.97512437811vw;
+	}
 }

@@ -7,23 +7,25 @@ export function Footer() {
 				<p>
 					&copy; {new Date().getFullYear()} {site.name}
 				</p>
-				<div className="flex flex-wrap gap-4">
-					{site.links.map((link) => (
-						<a
-							key={link.label}
-							href={link.href}
-							className="site-footer__link"
-							target={link.href.startsWith("mailto:") ? undefined : "_blank"}
-							rel={
-								link.href.startsWith("mailto:")
-									? undefined
-									: "noopener noreferrer"
-							}
-						>
-							{link.label}
-						</a>
-					))}
-				</div>
+				{site.links.length > 0 ? (
+					<div className="flex flex-wrap gap-4">
+						{site.links.map((link) => (
+							<a
+								key={link.label}
+								href={link.href}
+								className="site-footer__link"
+								target={link.href.startsWith("mailto:") ? undefined : "_blank"}
+								rel={
+									link.href.startsWith("mailto:")
+										? undefined
+										: "noopener noreferrer"
+								}
+							>
+								{link.label}
+							</a>
+						))}
+					</div>
+				) : null}
 			</div>
 		</footer>
 	);

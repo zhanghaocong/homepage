@@ -1,4 +1,4 @@
-/* Photo view — R3F overlay; only page chrome / scroll lock rules remain here */
+/* Photo view — photoyoshi p-photo-view DOM + WebGL wall integration */
 
 .js-canvas__wrap,
 .js-canvas__wrap canvas {
@@ -10,7 +10,6 @@
 	pointer-events: auto;
 }
 
-/* WebGL gallery must sit above .js-page__cover (z-index 150 in photoyoshi CSS). */
 .p-home .js-canvas__wrap {
 	position: relative;
 	z-index: 160;
@@ -20,7 +19,6 @@
 	z-index: 160;
 }
 
-/* Transition overlay — never show after photo view (was mistaken for a black screen). */
 .p-home .js-page__cover {
 	opacity: 0 !important;
 	pointer-events: none !important;
@@ -69,7 +67,6 @@ html.l-photo-view .p-home__category--item {
 	visibility: hidden !important;
 }
 
-/* photoyoshi groups .c-content with .p-cate — override flex-end for home scroll wall. */
 .p-home .js-body[data-dir="hr"] .c-content {
 	justify-content: flex-start !important;
 	width: auto !important;
@@ -80,24 +77,157 @@ html.l-photo-view .c-scrollbar {
 	pointer-events: none;
 }
 
-.photo-view__chrome {
-	position: fixed;
-	top: 50%;
-	z-index: 210;
-	transform: translateY(-50%);
+/* —— photoyoshi p-photo-view overlay —— */
+
+.p-photo-view__fly {
+	box-sizing: border-box;
+	overflow: hidden;
 	pointer-events: none;
-	color: var(--site-fg, #171717);
+	position: fixed;
+	z-index: 210;
 }
 
-.photo-view__eyebrow {
-	margin: 0 0 0.35rem;
-	opacity: 0.55;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
+.p-photo-view__fly .js-img {
+	height: 100%;
+	opacity: 1;
+	width: 100%;
 }
 
-.photo-view__title {
-	margin: 0;
-	font-weight: 500;
-	line-height: 1.1;
+.p-photo-view__fly-img {
+	background-position: 50%;
+	background-size: cover;
+}
+
+.p-photo-view {
+	inset: 0;
+	opacity: 1;
+	pointer-events: none;
+	position: fixed;
+	z-index: 205;
+}
+
+html.l-photo-view .p-photo-view {
+	pointer-events: auto;
+}
+
+.p-photo-view:not(.is-ui-ready) .p-photo-view__fixed,
+.p-photo-view:not(.is-ui-ready) .p-photo-view__rail {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.p-photo-view__backdrop {
+	background: transparent;
+	border: 0;
+	cursor: default;
+	inset: 0;
+	pointer-events: auto;
+	position: absolute;
+	z-index: 0;
+}
+
+.p-photo-view__fixed {
+	align-items: center;
+	display: flex;
+	height: 100vh;
+	justify-content: flex-start;
+	pointer-events: none;
+	position: fixed;
+	width: 100vw;
+	z-index: 215;
+}
+
+.p-photo-view__category {
+	align-items: flex-start;
+	display: flex;
+	flex-direction: column;
+	height: auto;
+	justify-content: center;
+	margin-left: calc(var(--grid) * 1);
+	pointer-events: none;
+}
+
+.p-photo-view__rail {
+	bottom: 0;
+	display: flex;
+	justify-content: flex-end;
+	left: 0;
+	pointer-events: none;
+	position: fixed;
+	right: 0;
+	top: 0;
+	z-index: 216;
+}
+
+.p-photo-view.is-ui-ready .p-photo-view__rail {
+	pointer-events: auto;
+}
+
+.p-photo-view__scroll {
+	height: 100vh;
+	margin-right: calc(var(--grid) * 4);
+	max-height: calc(var(--vh, 1vh) * 100);
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	pointer-events: auto;
+	scrollbar-width: none;
+	width: calc(var(--grid) * 4.5);
+}
+
+.p-photo-view__scroll::-webkit-scrollbar {
+	display: none;
+}
+
+.p-photo-view__lists {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	margin-right: 0;
+	min-width: calc(var(--grid) * 2.5);
+	padding: 50vh 0;
+	position: relative;
+}
+
+.p-photo-view__lists .p-cate__tmb-wrap {
+	position: relative;
+}
+
+.p-photo-view__border {
+	pointer-events: none;
+}
+
+/* Thumbnail tiles — photoyoshi p-cate, rendered by React in PhotoView. */
+.p-photo-view .p-cate__tmb-wrap {
+	background: none;
+	border: 0;
+	display: block;
+	margin: 10px 0;
+	padding: 0;
+	width: calc(var(--grid) * 2.5);
+}
+
+.p-photo-view .p-cate__tmb-vr {
+	height: calc(var(--grid) * 1.66667);
+	margin: 10px auto;
+	width: calc(var(--grid) * 2.5);
+}
+
+.p-photo-view .p-cate__tmb-img {
+	background-position: 50%;
+	background-size: cover;
+	height: 100%;
+	opacity: 1;
+	width: 100%;
+}
+
+.p-photo-view .p-cate__tmb-wrap.active .p-cate__tmb-img.is-loaded {
+	opacity: 0.3;
+	pointer-events: none;
+}
+
+.p-photo-view .p-cate__tmb-wrap:hover {
+	cursor: pointer;
+	opacity: 0.5;
+	transition: opacity 0.3s;
 }

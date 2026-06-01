@@ -9,7 +9,6 @@ import type { JsScroll } from "~/lib/jsScroll";
 
 export type GalleryCanvasProps = {
 	contentRef: React.RefObject<HTMLElement | null>;
-	wrapRef: React.RefObject<HTMLElement | null>;
 	engineRef: React.MutableRefObject<GalleryEngineHandle | null>;
 	scrollRef: React.MutableRefObject<JsScroll | null>;
 	onEngineReady?: () => void;
@@ -21,7 +20,6 @@ export type GalleryCanvasProps = {
  */
 export function GalleryCanvas({
 	contentRef,
-	wrapRef,
 	engineRef,
 	scrollRef,
 	onEngineReady,
@@ -64,7 +62,6 @@ export function GalleryCanvas({
 		>
 			<GalleryScene
 				contentRef={contentRef}
-				wrapRef={wrapRef}
 				engineRef={engineRef}
 				scrollRef={scrollRef}
 				onEngineReady={onEngineReady}
