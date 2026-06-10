@@ -21,7 +21,15 @@ function SplashLetters({ text, phase }: { text: string; phase: 'in' | 'out' }) {
   )
 }
 
-export function GallerySplash() {
+type GallerySplashProps = {
+  loadProgress?: number
+}
+
+function formatLoaderProgress(progress: number) {
+  return String(Math.min(100, Math.max(0, progress))).padStart(3, '0')
+}
+
+export function GallerySplash({ loadProgress = 0 }: GallerySplashProps) {
   return (
     <div className="l-splash">
       <div className="l-splash__front">
@@ -51,7 +59,7 @@ export function GallerySplash() {
           </div>
           <p className="l-splash__text fs-s">{site.description}</p>
           <p className="l-splash__loader fs-l">
-            <span className="l-splash__num">000</span>
+            <span className="l-splash__num">{formatLoaderProgress(loadProgress)}</span>
           </p>
         </div>
       </div>

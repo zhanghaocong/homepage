@@ -2,6 +2,7 @@ import gsap from 'gsap'
 import { getGalleryMetrics, listAllFrameSpecs, recomputeGalleryMetrics } from '~/features/wall/lib/galleryLayoutStore'
 import { applyGalleryGsapTarget, galleryGsapTarget } from '~/features/wall/lib/galleryStore'
 import type { JsScroll } from '~/features/wall/lib/jsScroll'
+import { getViewportSize } from '~/features/wall/lib/viewport'
 import {
   beginSplashGather,
   endSplashGather,
@@ -50,7 +51,7 @@ export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallReveal
   killSplashTweens(columns)
 
   const distance = window.innerWidth < 680 ? 4.48 : 2.125
-  scroll.onScrollTo(scroll.delta1 + window._w * distance, 2.5, 0, 'power4.out')
+  scroll.onScrollTo(scroll.delta1 + getViewportSize().w * distance, 2.5, 0, 'power4.out')
 
   const layoutTick = () => hooks?.onLayoutTick?.()
   gsap.ticker.add(layoutTick)

@@ -1,10 +1,11 @@
 import { CATEGORY_UI, galleryCounts, galleryTotal } from '~/data/gallery'
 
 type GalleryCategoryNavProps = {
+  activeCategory: string
   onCategorySelect: (category: string) => void
 }
 
-export function GalleryCategoryNav({ onCategorySelect }: GalleryCategoryNavProps) {
+export function GalleryCategoryNav({ activeCategory, onCategorySelect }: GalleryCategoryNavProps) {
   return (
     <div className="p-home__fixed to">
       <div className="p-home__category to">
@@ -13,7 +14,7 @@ export function GalleryCategoryNav({ onCategorySelect }: GalleryCategoryNavProps
             <a
               key={id}
               href={`/${id}`}
-              className={`p-home__category--item ${id === 'interior' ? 'active' : ''}`}
+              className={`p-home__category--item ${id === activeCategory ? 'active' : ''}`}
               data-category={id}
               onClick={(event) => {
                 event.preventDefault()

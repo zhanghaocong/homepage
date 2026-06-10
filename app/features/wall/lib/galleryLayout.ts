@@ -1,4 +1,5 @@
 import type { CateImage, CateKey } from '~/data/gallery'
+import { getViewportSize, VIEWPORT_SSR_DEFAULT } from '~/features/wall/lib/viewport'
 
 /** photoyoshi `max-aspect-ratio` / jsScroll `isWideAspect` threshold (~1.35). */
 export const GALLERY_WIDE_ASPECT = 3039929748475085 / 2251799813685248
@@ -79,16 +80,13 @@ export type GalleryWorldRect = {
 }
 
 /** Desktop-ish default for SSR / module init (no window). */
-export const GALLERY_SSR_VIEWPORT: GalleryViewport = { w: 1440, h: 900 }
+export const GALLERY_SSR_VIEWPORT: GalleryViewport = VIEWPORT_SSR_DEFAULT
 
 export function getViewport(): GalleryViewport {
   if (typeof window === 'undefined') {
     return GALLERY_SSR_VIEWPORT
   }
-  return {
-    w: window._w ?? window.innerWidth,
-    h: window._h ?? window.innerHeight,
-  }
+  return getViewportSize()
 }
 
 export function isGalleryWideAspect(w: number, h: number) {

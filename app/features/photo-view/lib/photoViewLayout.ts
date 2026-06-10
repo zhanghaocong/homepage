@@ -3,6 +3,7 @@ import { PlaneGeometry } from 'three'
 import type { CateImage } from '~/data/gallery'
 import { getGridUnit as layoutGridUnit, type GalleryFrameRect } from '~/features/wall/lib/galleryLayout'
 import { getFrameSplashHandoffWorldRect, getFrameWorldRect } from '~/features/wall/lib/galleryLayoutStore'
+import { getViewportSize } from '~/features/wall/lib/viewport'
 
 export type PhotoViewWorldRect = {
   x: number
@@ -25,10 +26,7 @@ export function worldRectToScreen(rect: PhotoViewWorldRect): PhotoViewScreenRect
 }
 
 export function getViewport() {
-  return {
-    w: window._w ?? window.innerWidth,
-    h: window._h ?? window.innerHeight,
-  }
+  return getViewportSize()
 }
 
 /** photoyoshi grid column width from viewport (no DOM read). */

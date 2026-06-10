@@ -1,4 +1,5 @@
 import type { PerspectiveCamera } from 'three'
+import { getViewportSize as readViewportSize } from '~/features/wall/lib/viewport'
 
 export const GALLERY_FOV = 50
 
@@ -24,8 +25,5 @@ export function applyGalleryCamera(camera: PerspectiveCamera, w: number, h: numb
 }
 
 export function getViewportSize() {
-  return {
-    w: window._w ?? window.innerWidth,
-    h: window._h ?? window.innerHeight,
-  }
+  return readViewportSize()
 }

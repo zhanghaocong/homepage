@@ -9,7 +9,7 @@ import {
   recomputeGalleryMetrics,
   syncGalleryLayoutScroll,
 } from '~/features/wall/lib/galleryLayoutStore'
-import { syncViewportGlobals } from '~/features/wall/lib/viewport'
+import { getViewportSize, syncViewport } from '~/features/wall/lib/viewport'
 
 export type ScrollPower = {
   history: number[]
@@ -61,6 +61,7 @@ type JsScrollOptions = {
   content: HTMLElement
   speed?: number
   ease?: number
+  onCategoryChange?: (category: string) => void
   onUpdateAfter?: () => void
   onResizeAfter?: () => void
 }
@@ -124,7 +125,7 @@ function onScrollPowerComplete(power: ScrollPower) {
 }
 
 function getWindowSpan() {
-  return window._w ?? window.innerWidth
+  return getViewportSize().w
 }
 
 function minContentWidth() {
@@ -132,8 +133,7 @@ function minContentWidth() {
 }
 
 function isWideAspect() {
-  const w = window._w ?? window.innerWidth
-  const h = window._h ?? window.innerHeight
+  const { w, h } = getViewportSize()
   return isGalleryWideAspect(w, h)
 }
 
@@ -189,6 +189,7 @@ export function createJsScroll({
   content,
   speed = 80,
   ease = 0.125,
+  onCategoryChange,
   onUpdateAfter,
   onResizeAfter,
 }: JsScrollOptions): JsScroll {
@@ -394,7 +395,7 @@ export function createJsScroll({
         const cat = entry.el.dataset.category
         if (cat) {
           currentCategory = cat
-          ;(window as Window & { scrollCategory?: string }).scrollCategory = cat
+          onCategoryChange?.(cat)
         }
       } else {
         entry.selected = false
@@ -430,7 +431,7 @@ export function createJsScroll({
   }
 
   const remeasure = () => {
-    syncViewportGlobals()
+    syncViewport()
 
     const nowWide = isWideAspect()
     if (nowWide !== lastWideAspect) {
@@ -461,7 +462,7 @@ export function createJsScroll({
   }
 
   const scheduleRemeasure = () => {
-    syncViewportGlobals()
+    syncViewport()
     if (resizeRafId !== 0) return
     resizeRafId = requestAnimationFrame(() => {
       resizeRafId = 0

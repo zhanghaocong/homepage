@@ -3,6 +3,7 @@ import { getGalleryMetrics, listAllFrameSpecs, recomputeGalleryMetrics } from '~
 import { runGalleryWallReveal } from '~/features/wall/lib/galleryWallReveal'
 import type { JsScroll } from '~/features/wall/lib/jsScroll'
 import { beginSplashGather, groupLayoutColumns, initSplashColumn } from '~/features/wall/lib/splashGatherState'
+import { getViewportSize } from '~/features/wall/lib/viewport'
 
 export type SplashExitHooks = {
   onReveal?: () => void
@@ -68,7 +69,8 @@ export function runSplashClipTimeline(_root: HTMLElement, onReveal: () => void) 
   )
 
   if (window.innerWidth < 680) {
-    if (window._w > window._h) {
+    const { w, h } = getViewportSize()
+    if (w > h) {
       tl.to(
         '.l-splash__front-inner',
         {

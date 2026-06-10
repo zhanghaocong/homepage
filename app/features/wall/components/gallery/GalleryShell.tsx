@@ -24,7 +24,10 @@ export function GalleryShell({ runtime }: GalleryShellProps) {
           </div>
         </div>
 
-        <GalleryCategoryNav onCategorySelect={runtime.jumpToCategory} />
+        <GalleryCategoryNav
+          activeCategory={runtime.currentCategory}
+          onCategorySelect={runtime.jumpToCategory}
+        />
 
         <GalleryCanvasHost
           canvasReady={runtime.canvasReady}
@@ -43,7 +46,7 @@ export function GalleryShell({ runtime }: GalleryShellProps) {
         </div>
       </div>
 
-      <GallerySplash />
+      <GallerySplash loadProgress={runtime.loadProgress} />
     </div>
   )
 }
