@@ -5,7 +5,6 @@ import { loadGalleryAtlasTexture, tuneGalleryAtlasForRenderer } from '~/features
 import type { JsScroll } from '~/features/wall/lib/jsScroll'
 
 export type GalleryCanvasProps = {
-  contentRef: React.RefObject<HTMLElement | null>
   engineRef: React.MutableRefObject<GalleryEngineHandle | null>
   scrollRef: React.MutableRefObject<JsScroll | null>
   onEngineReady?: () => void
@@ -15,7 +14,7 @@ export type GalleryCanvasProps = {
  * R3F entry for the gallery WebGL layer.
  * Render loop is driven by GallerySyncSystem (useFrame), not gsap.ticker.
  */
-export function GalleryCanvas({ contentRef, engineRef, scrollRef, onEngineReady }: GalleryCanvasProps) {
+export function GalleryCanvas({ engineRef, scrollRef, onEngineReady }: GalleryCanvasProps) {
   return (
     <Canvas
       frameloop="always"
@@ -48,7 +47,7 @@ export function GalleryCanvas({ contentRef, engineRef, scrollRef, onEngineReady 
         })
       }}
     >
-      <GalleryScene contentRef={contentRef} engineRef={engineRef} scrollRef={scrollRef} onEngineReady={onEngineReady} />
+      <GalleryScene engineRef={engineRef} scrollRef={scrollRef} onEngineReady={onEngineReady} />
     </Canvas>
   )
 }

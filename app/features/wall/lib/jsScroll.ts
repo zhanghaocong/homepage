@@ -4,7 +4,6 @@ import {
   appendGalleryLayoutCloneRound,
   clearGalleryLayoutClones,
   getGalleryLayoutDocument,
-  getGalleryMetrics,
   getGallerySectionWidth,
   recomputeGalleryMetrics,
   syncGalleryLayoutScroll,
@@ -32,8 +31,9 @@ export type ScrollPower = {
 }
 
 type SectionEntry = {
-  el: HTMLElement
   index: number
+  category: string
+  isClone: boolean
   left: number
   width: number
   x: number
@@ -57,8 +57,6 @@ export type JsScroll = {
 
 type JsScrollOptions = {
   wrap: HTMLElement
-  body: HTMLElement
-  content: HTMLElement
   speed?: number
   ease?: number
   onCategoryChange?: (category: string) => void
@@ -143,50 +141,29 @@ function sectionTotalWidth() {
   return doc.sections.length * getGallerySectionWidth()
 }
 
-function patchCloneSectionDom(cloneEl: HTMLElement, spec: { index: number }) {
-  cloneEl.classList.add('c-clone')
-  cloneEl.dataset.sectionIndex = String(spec.index)
-}
-
-function appendCloneRound(content: HTMLElement) {
-  const originals = content.querySelectorAll<HTMLElement>('.c-section:not(.c-clone)')
-  if (originals.length === 0) return false
-  if (!appendGalleryLayoutCloneRound()) return false
-
+function appendCloneRound() {
   const doc = getGalleryLayoutDocument()
-  if (!doc) return false
-
-  const newClones = doc.sections.filter((s) => s.isClone).slice(-originals.length)
-  for (let i = 0; i < originals.length; i++) {
-    const clone = originals[i].cloneNode(true) as HTMLElement
-    patchCloneSectionDom(clone, { index: newClones[i].index })
-    content.appendChild(clone)
-  }
-  return true
+  if (!doc?.sections.some((s) => !s.isClone)) return false
+  return appendGalleryLayoutCloneRound()
 }
 
-function ensureContentWideEnough(content: HTMLElement) {
+function ensureContentWideEnough() {
   const target = minContentWidth()
   let guard = 0
   while (sectionTotalWidth() <= target && guard < 24) {
-    if (!appendCloneRound(content)) break
+    if (!appendCloneRound()) break
     guard++
   }
   return guard > 0
 }
 
-function cloneSectionsUntilWideEnough(content: HTMLElement) {
-  for (const section of content.querySelectorAll('.c-section.c-clone')) {
-    section.remove()
-  }
+function cloneSectionsUntilWideEnough() {
   clearGalleryLayoutClones()
-  ensureContentWideEnough(content)
+  ensureContentWideEnough()
 }
 
 export function createJsScroll({
   wrap,
-  body: _body,
-  content,
   speed = 80,
   ease = 0.125,
   onCategoryChange,
@@ -212,14 +189,16 @@ export function createJsScroll({
 
   let lastWideAspect = isWideAspect()
 
-  const syncSectionsFromDom = () => {
-    const els = content.querySelectorAll<HTMLElement>('.c-section')
+  const syncSectionsFromLayout = () => {
+    const doc = getGalleryLayoutDocument()
     sections.length = 0
-    for (const el of els) {
-      const index = Number(el.dataset.sectionIndex)
+    if (!doc) return
+
+    for (const spec of doc.sections) {
       sections.push({
-        el,
-        index: Number.isFinite(index) ? index : sections.length,
+        index: spec.index,
+        category: spec.category,
+        isClone: spec.isClone,
         left: 0,
         width: 0,
         x: 0,
@@ -231,23 +210,17 @@ export function createJsScroll({
     }
   }
 
-  /** Layout widths from galleryLayout (no DOM measure). */
   const measure = () => {
     recomputeGalleryMetrics()
     const sectionWidth = getGallerySectionWidth()
     let left = 0
 
     for (const entry of sections) {
-      entry.el.style.flexShrink = '0'
-      entry.el.style.width = `${sectionWidth}px`
       entry.width = sectionWidth
       entry.left = left
-      entry.el.style.transform = 'translate3d(0px, 0px, 0px)'
       left += sectionWidth
     }
 
-    const marginRight = getGalleryMetrics().contentMarginRight
-    content.style.width = `${left + marginRight}px`
     ready = sections.length > 0
   }
 
@@ -258,14 +231,13 @@ export function createJsScroll({
   }
 
   const layoutInit = () => {
-    syncSectionsFromDom()
-    cloneSectionsUntilWideEnough(content)
-    syncSectionsFromDom()
+    cloneSectionsUntilWideEnough()
+    syncSectionsFromLayout()
     measure()
     let guard = 0
     while (contentWidth() <= minContentWidth() && guard < 24) {
-      appendCloneRound(content)
-      syncSectionsFromDom()
+      appendCloneRound()
+      syncSectionsFromLayout()
       measure()
       guard++
     }
@@ -297,7 +269,6 @@ export function createJsScroll({
     }, completeWait)
   }
 
-  /** Mirrors photoyoshi jsScroll.onReset — kill auto-scroll so user input owns delta1. */
   const resetScrollTo = () => {
     if (!scrollToTween) return
     scrollToTween.kill()
@@ -392,21 +363,16 @@ export function createJsScroll({
       if (Math.abs(entry.cx) < 0.5 && !activeSet) {
         entry.selected = true
         activeSet = true
-        const cat = entry.el.dataset.category
-        if (cat) {
-          currentCategory = cat
-          onCategoryChange?.(cat)
-        }
+        currentCategory = entry.category
+        onCategoryChange?.(entry.category)
       } else {
         entry.selected = false
       }
 
       if (inView) {
         entry.progress = Math.abs(iLeft / viewportW) < 1e-3 ? 0 : roundToNearest(iLeft / viewportW)
-        entry.el.style.transform = `translate3d(${entry.x}px, 0px, 0px)`
         entry.visible = true
       } else {
-        entry.el.style.transform = 'translate3d(9999px, 0px, 0px)'
         entry.visible = false
       }
     }
@@ -435,18 +401,18 @@ export function createJsScroll({
 
     const nowWide = isWideAspect()
     if (nowWide !== lastWideAspect) {
-      cloneSectionsUntilWideEnough(content)
+      cloneSectionsUntilWideEnough()
       lastWideAspect = nowWide
     } else {
-      ensureContentWideEnough(content)
+      ensureContentWideEnough()
     }
-    syncSectionsFromDom()
+    syncSectionsFromLayout()
     measure()
 
     let guard = 0
     while (contentWidth() <= minContentWidth() && guard < 24) {
-      appendCloneRound(content)
-      syncSectionsFromDom()
+      appendCloneRound()
+      syncSectionsFromLayout()
       measure()
       guard++
     }
@@ -491,7 +457,7 @@ export function createJsScroll({
   }
 
   const jumpToCategory = (category: string) => {
-    const entry = sections.find((s) => !s.el.classList.contains('c-clone') && s.el.dataset.category === category)
+    const entry = sections.find((s) => !s.isClone && s.category === category)
     if (!entry) return
     const viewportW = getWindowSpan()
     onScrollTo(entry.left - (viewportW - entry.width) / 2, 2)

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type MutableRefObject, type R
 import type { GalleryEngineHandle } from '~/features/wall/canvas/gallery-canvas/types'
 import { syncCanvasAfterResize, useGalleryScroll } from '~/features/wall/hooks/useGalleryScroll'
 import { useGalleryLoader } from '~/features/wall/hooks/useGalleryLoader'
-import { buildGallerySections } from '~/features/wall/lib/buildGallerySections'
+import { buildGalleryLayout } from '~/features/wall/lib/buildGalleryLayout'
 import { disposeGalleryAtlas } from '~/features/wall/lib/galleryAtlas'
 import { resetGalleryLayoutStore } from '~/features/wall/lib/galleryLayoutStore'
 import { initGalleryMode } from '~/features/wall/lib/galleryStore'
@@ -14,8 +14,6 @@ import { initViewport } from '~/features/wall/lib/viewport'
 export type GalleryRuntime = {
   shellRef: RefObject<HTMLDivElement | null>
   wrapRef: RefObject<HTMLDivElement | null>
-  bodyRef: RefObject<HTMLDivElement | null>
-  contentRef: RefObject<HTMLDivElement | null>
   canvasWrapRef: RefObject<HTMLDivElement | null>
   canvasEngineRef: MutableRefObject<GalleryEngineHandle | null>
   scrollRef: MutableRefObject<JsScroll | null>
@@ -30,8 +28,6 @@ export type GalleryRuntime = {
 export function useGalleryRuntime(): GalleryRuntime {
   const shellRef = useRef<HTMLDivElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
-  const bodyRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
   const canvasWrapRef = useRef<HTMLDivElement>(null)
   const canvasEngineRef = useRef<GalleryEngineHandle | null>(null)
   const scrollRef = useRef<JsScroll | null>(null)
@@ -46,14 +42,11 @@ export function useGalleryRuntime(): GalleryRuntime {
   const currentCategory = selectedCategory ?? scrollCategory
 
   useEffect(() => {
-    const content = contentRef.current
-    if (!content) return
-
     initGalleryMode()
     document.documentElement.classList.add('is-load__before')
 
     const stopViewport = initViewport()
-    buildGallerySections(content)
+    buildGalleryLayout()
     setLayoutReady(true)
 
     return () => {
@@ -68,8 +61,6 @@ export function useGalleryRuntime(): GalleryRuntime {
   useGalleryScroll({
     enabled: layoutReady,
     wrapRef,
-    bodyRef,
-    contentRef,
     canvasEngineRef,
     scrollRef,
     onCategoryChange: setScrollCategory,
@@ -129,14 +120,14 @@ export function useGalleryRuntime(): GalleryRuntime {
     runHomeSplash(shell, scroll, {
       onGatherSet: () => {
         const canvas = canvasEngineRef.current
-        if (canvas && contentRef.current) {
+        if (canvas) {
           canvas.homeScene.syncMeshes()
           canvas.warmupRender()
         }
       },
       onReveal: () => {
         const canvas = canvasEngineRef.current
-        if (canvas && contentRef.current) {
+        if (canvas) {
           canvas.homeScene.syncMeshes()
           canvas.warmupRender()
         }
@@ -165,8 +156,6 @@ export function useGalleryRuntime(): GalleryRuntime {
   return {
     shellRef,
     wrapRef,
-    bodyRef,
-    contentRef,
     canvasWrapRef,
     canvasEngineRef,
     scrollRef,

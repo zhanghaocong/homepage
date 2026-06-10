@@ -47,46 +47,22 @@ function buildSectionSpec(category: CateKey, sectionIndex: number): GallerySecti
   }
 }
 
-/** Horizontal scroll strip: section width only; photos are layout store + WebGL. */
-function mountSectionDom(section: GallerySectionSpec) {
-  const sectionEl = document.createElement('div')
-  sectionEl.className = 'c-section'
-  sectionEl.dataset.category = section.category.toLowerCase()
-  sectionEl.dataset.sectionIndex = String(section.index)
-
-  const wrap = document.createElement('div')
-  wrap.className = 'c-inner gl-wrap'
-  wrap.setAttribute('aria-hidden', 'true')
-  sectionEl.appendChild(wrap)
-  return sectionEl
-}
-
-function mountFresh(container: HTMLElement): GalleryLayoutDocument {
+function buildFreshLayout(): GalleryLayoutDocument {
   const sections: GallerySectionSpec[] = []
   for (let i = 0; i < galleryCategoryOrder.length; i++) {
     sections.push(buildSectionSpec(galleryCategoryOrder[i], i))
   }
-
-  const doc: GalleryLayoutDocument = { sections }
-  for (const section of sections) {
-    container.appendChild(mountSectionDom(section))
-  }
-
-  setGalleryLayoutDocument(doc)
-  return doc
+  return { sections }
 }
 
-/** Build layout model and minimal scroll DOM (no per-frame nodes). */
-export function buildGallerySections(container: HTMLElement): GalleryLayoutDocument {
+/** Build gallery layout model only — scroll positions live in jsScroll + layout store. */
+export function buildGalleryLayout(): GalleryLayoutDocument {
   const cached = getGalleryLayoutDocument()
-  if (
-    cached?.sections.length &&
-    cached.sections.some((s) => s.frames.length > 0) &&
-    container.querySelector('.c-section')
-  ) {
+  if (cached?.sections.length && cached.sections.some((s) => s.frames.length > 0)) {
     return cached
   }
 
-  container.replaceChildren()
-  return mountFresh(container)
+  const doc = buildFreshLayout()
+  setGalleryLayoutDocument(doc)
+  return doc
 }

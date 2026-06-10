@@ -11,13 +11,12 @@ import { registerGalleryMeshRegistry, unregisterGalleryMeshRegistry } from '~/fe
 import type { JsScroll } from '~/features/wall/lib/jsScroll'
 
 type GallerySceneProps = {
-  contentRef: React.RefObject<HTMLElement | null>
   engineRef: React.MutableRefObject<GalleryEngineHandle | null>
   scrollRef: React.MutableRefObject<JsScroll | null>
   onEngineReady?: () => void
 }
 
-export function GalleryScene({ contentRef, engineRef, scrollRef, onEngineReady }: GallerySceneProps) {
+export function GalleryScene({ engineRef, scrollRef, onEngineReady }: GallerySceneProps) {
   const [meshRegistry, setMeshRegistry] = useState<GalleryMeshRegistry | null>(null)
   const isMobile = getViewportSize().w < 680
 
@@ -34,12 +33,7 @@ export function GalleryScene({ contentRef, engineRef, scrollRef, onEngineReady }
   return (
     <>
       <GalleryCamera />
-      <GalleryPhotoMeshes
-        contentRef={contentRef}
-        isMobile={isMobile}
-        onRegistry={handleRegistry}
-        onMeshesReady={onEngineReady}
-      />
+      <GalleryPhotoMeshes isMobile={isMobile} onRegistry={handleRegistry} onMeshesReady={onEngineReady} />
       {meshRegistry ? (
         <>
           <GalleryEngineBridge engineRef={engineRef} meshRegistry={meshRegistry} />

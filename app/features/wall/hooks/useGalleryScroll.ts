@@ -5,8 +5,6 @@ import { createJsScroll, type JsScroll } from '~/features/wall/lib/jsScroll'
 type UseGalleryScrollOptions = {
   enabled: boolean
   wrapRef: RefObject<HTMLDivElement | null>
-  bodyRef: RefObject<HTMLDivElement | null>
-  contentRef: RefObject<HTMLDivElement | null>
   canvasEngineRef: MutableRefObject<GalleryEngineHandle | null>
   scrollRef: MutableRefObject<JsScroll | null>
   onCategoryChange: (category: string) => void
@@ -29,8 +27,6 @@ function syncCanvasAfterResize(canvas: GalleryEngineHandle) {
 export function useGalleryScroll({
   enabled,
   wrapRef,
-  bodyRef,
-  contentRef,
   canvasEngineRef,
   scrollRef,
   onCategoryChange,
@@ -45,16 +41,12 @@ export function useGalleryScroll({
     if (!enabled) return
 
     const wrap = wrapRef.current
-    const body = bodyRef.current
-    const content = contentRef.current
-    if (!wrap || !body || !content) return
+    if (!wrap) return
 
     let raf = 0
 
     const scroll = createJsScroll({
       wrap,
-      body,
-      content,
       onCategoryChange: (category) => onCategoryChangeRef.current(category),
       onUpdateAfter: () => onScrollUpdateRef.current?.(),
       onResizeAfter: () => {
@@ -76,7 +68,7 @@ export function useGalleryScroll({
       scroll.destroy()
       scrollRef.current = null
     }
-  }, [bodyRef, canvasEngineRef, contentRef, enabled, scrollRef, wrapRef])
+  }, [canvasEngineRef, enabled, scrollRef, wrapRef])
 }
 
 export { syncCanvasAfterResize }

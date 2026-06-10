@@ -11,7 +11,6 @@ const GalleryCanvas = lazy(() =>
 type GalleryCanvasHostProps = {
   canvasReady: boolean
   canvasWrapRef: RefObject<HTMLDivElement | null>
-  contentRef: RefObject<HTMLDivElement | null>
   canvasEngineRef: MutableRefObject<GalleryEngineHandle | null>
   scrollRef: MutableRefObject<JsScroll | null>
   onEngineReady: () => void
@@ -20,7 +19,6 @@ type GalleryCanvasHostProps = {
 export function GalleryCanvasHost({
   canvasReady,
   canvasWrapRef,
-  contentRef,
   canvasEngineRef,
   scrollRef,
   onEngineReady,
@@ -30,7 +28,6 @@ export function GalleryCanvasHost({
       {canvasReady ? (
         <Suspense fallback={null}>
           <GalleryCanvas
-            contentRef={contentRef}
             engineRef={canvasEngineRef}
             scrollRef={scrollRef}
             onEngineReady={onEngineReady}

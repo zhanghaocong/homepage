@@ -204,7 +204,7 @@ export function getImageAspect(img: { width: number; height: number }) {
   return 1
 }
 
-/** Frame inner size inside a square cell (matches buildGallerySections inline styles). */
+/** Frame inner size inside a square cell. */
 export function frameSizeInCell(cell: number, aspect: number) {
   const landscape = aspect >= 1
   return {

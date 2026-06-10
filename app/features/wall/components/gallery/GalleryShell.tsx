@@ -19,8 +19,8 @@ export function GalleryShell({ runtime }: GalleryShellProps) {
       <div className="js-wrapper p-home" ref={runtime.wrapRef}>
         <div className="js-page__cover" />
         <div className="js-page">
-          <div className="js-body" data-dir="hr" ref={runtime.bodyRef}>
-            <div className="c-content js-gl__wrap" ref={runtime.contentRef} />
+          <div className="js-body" data-dir="hr">
+            <div className="c-content js-gl__wrap" aria-hidden="true" />
           </div>
         </div>
 
@@ -32,7 +32,6 @@ export function GalleryShell({ runtime }: GalleryShellProps) {
         <GalleryCanvasHost
           canvasReady={runtime.canvasReady}
           canvasWrapRef={runtime.canvasWrapRef}
-          contentRef={runtime.contentRef}
           canvasEngineRef={runtime.canvasEngineRef}
           scrollRef={runtime.scrollRef}
           onEngineReady={runtime.handleEngineReady}
