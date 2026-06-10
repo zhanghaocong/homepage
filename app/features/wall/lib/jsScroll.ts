@@ -8,6 +8,7 @@ import {
   recomputeGalleryMetrics,
   syncGalleryLayoutScroll,
 } from '~/features/wall/lib/galleryLayoutStore'
+import { normalizeCategoryId } from '~/features/wall/lib/galleryCategory'
 import { getViewportSize, syncViewport } from '~/features/wall/lib/viewport'
 
 export type ScrollPower = {
@@ -197,7 +198,7 @@ export function createJsScroll({
     for (const spec of doc.sections) {
       sections.push({
         index: spec.index,
-        category: spec.category,
+        category: normalizeCategoryId(spec.category),
         isClone: spec.isClone,
         left: 0,
         width: 0,
@@ -363,8 +364,10 @@ export function createJsScroll({
       if (Math.abs(entry.cx) < 0.5 && !activeSet) {
         entry.selected = true
         activeSet = true
-        currentCategory = entry.category
-        onCategoryChange?.(entry.category)
+        if (entry.category !== currentCategory) {
+          currentCategory = entry.category
+          onCategoryChange?.(entry.category)
+        }
       } else {
         entry.selected = false
       }
@@ -457,7 +460,8 @@ export function createJsScroll({
   }
 
   const jumpToCategory = (category: string) => {
-    const entry = sections.find((s) => !s.isClone && s.category === category)
+    const id = normalizeCategoryId(category)
+    const entry = sections.find((s) => !s.isClone && s.category === id)
     if (!entry) return
     const viewportW = getWindowSpan()
     onScrollTo(entry.left - (viewportW - entry.width) / 2, 2)
