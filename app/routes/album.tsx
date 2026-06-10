@@ -1,6 +1,6 @@
-import { PhotoList, PhotoListMissing } from '~/components/PhotoList'
-import { getPhotoListByAlbum, photoAlbums } from '~/data/photoCollections'
-import { site } from '~/data/site'
+import { PhotoList, PhotoListMissing } from '~/features/collections/PhotoList'
+import { getPhotoListByAlbum, photoAlbums } from '~/features/collections/data/photoCollections'
+import { site } from '~/shared/data/site'
 import type { Route } from './+types/album'
 
 export function meta({ params }: Route.MetaArgs) {

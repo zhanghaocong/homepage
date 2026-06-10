@@ -1,12 +1,12 @@
 import { isRouteErrorResponse, Link, Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation } from 'react-router'
 
-import { Footer } from '~/components/Footer'
-import { Header } from '~/components/Header'
-import { site } from '~/data/site'
-import { themeBootScript } from '~/lib/theme'
+import { Footer } from '~/shared/components/Footer'
+import { Header } from '~/shared/components/Header'
+import { site } from '~/shared/data/site'
+import { themeBootScript } from '~/shared/lib/theme'
 import type { Route } from './+types/root'
 import './app.css'
-import './photoyoshi-style.css'
+import '~/features/wall/wall.css'
 
 export function meta() {
   return [{ title: site.title }, { name: 'description', content: site.description }]

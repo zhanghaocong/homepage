@@ -1,5 +1,5 @@
 @import 'tailwindcss' source('.');
-@import './photo-view.css';
+@import './features/photo-view/photo-view.css';
 
 @theme {
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;

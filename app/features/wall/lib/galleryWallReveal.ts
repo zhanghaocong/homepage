@@ -1,0 +1,125 @@
+import gsap from 'gsap'
+import { getGalleryMetrics, listAllFrameSpecs, recomputeGalleryMetrics } from '~/features/wall/lib/galleryLayoutStore'
+import { applyGalleryGsapTarget, galleryGsapTarget } from '~/features/wall/lib/galleryStore'
+import type { JsScroll } from '~/features/wall/lib/jsScroll'
+import {
+  beginSplashGather,
+  endSplashGather,
+  getSplashFrameTween,
+  groupLayoutColumns,
+  initSplashColumn,
+  splashFinalFrameSize,
+} from '~/features/wall/lib/splashGatherState'
+
+function killSplashTweens(columns: ReturnType<typeof groupLayoutColumns>) {
+  for (const column of columns) {
+    for (const spec of column) {
+      const tween = getSplashFrameTween(spec.id)
+      if (tween) gsap.killTweensOf(tween)
+    }
+  }
+}
+
+export type GalleryWallRevealHooks = {
+  onReveal?: () => void
+  onComplete?: () => void
+  /** Called each frame while splash tweens run (layout → mesh sync). */
+  onLayoutTick?: () => void
+}
+
+/**
+ * Replay homepage gallery gather + reveal (no splash DOM).
+ * Call after `beginSplashGather()` + `initSplashColumn()` and wall meshes are visible.
+ */
+export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallRevealHooks) {
+  const html = document.documentElement
+  recomputeGalleryMetrics()
+  beginSplashGather()
+  html.classList.add('is-gather')
+
+  const metrics = getGalleryMetrics()
+  const columns = groupLayoutColumns(listAllFrameSpecs())
+
+  for (const column of columns) {
+    initSplashColumn(column, metrics)
+  }
+
+  hooks?.onReveal?.()
+  hooks?.onLayoutTick?.()
+
+  killSplashTweens(columns)
+
+  const distance = window.innerWidth < 680 ? 4.48 : 2.125
+  scroll.onScrollTo(scroll.delta1 + window._w * distance, 2.5, 0, 'power4.out')
+
+  const layoutTick = () => hooks?.onLayoutTick?.()
+  gsap.ticker.add(layoutTick)
+
+  const gatherEndDelay = 0.7 + 1.35 + 0.2
+  gsap.delayedCall(gatherEndDelay, () => {
+    gsap.ticker.remove(layoutTick)
+    html.classList.remove('is-gather')
+    endSplashGather()
+    hooks?.onComplete?.()
+  })
+
+  for (const column of columns) {
+    const center = column.find((s) => s.row === 2)
+    if (center) {
+      const tween = getSplashFrameTween(center.id)
+      const final = splashFinalFrameSize(center, metrics)
+      if (tween) {
+        gsap.to(tween, {
+          width: final.width,
+          duration: 1.8,
+          ease: 'power4.out',
+          delay: 0.35,
+        })
+        gsap.to(tween, {
+          height: final.height,
+          duration: 1.4,
+          ease: 'power4.out',
+        })
+      }
+    }
+
+    const row0 = column.find((s) => s.row === 0)
+    const row1 = column.find((s) => s.row === 1)
+    const row3 = column.find((s) => s.row === 3)
+    const row4 = column.find((s) => s.row === 4)
+
+    if (row0) {
+      const t = getSplashFrameTween(row0.id)
+      if (t) gsap.to(t, { y: 0, duration: 1.35, ease: 'expo.out', delay: 0.7 })
+    }
+    if (row1) {
+      const t = getSplashFrameTween(row1.id)
+      if (t) gsap.to(t, { y: 0, duration: 1.35, ease: 'expo.out', delay: 0.38 })
+    }
+    if (row3) {
+      const t = getSplashFrameTween(row3.id)
+      if (t) gsap.to(t, { y: 0, duration: 1.35, ease: 'expo.out', delay: 0.38 })
+    }
+    if (row4) {
+      const t = getSplashFrameTween(row4.id)
+      if (t) gsap.to(t, { y: 0, duration: 1.35, ease: 'expo.out', delay: 0.7 })
+    }
+  }
+
+  gsap.fromTo('.to', { opacity: 0 }, { opacity: 1, duration: 0.45, delay: 1.2 })
+  gsap.timeline().fromTo(
+    galleryGsapTarget,
+    {
+      modeChangePow: 1,
+      duration: 1,
+      ease: 'power1.out',
+      onUpdate: applyGalleryGsapTarget,
+    },
+    {
+      modeChangePow: 0,
+      duration: 1.2,
+      ease: 'power1.out',
+      onUpdate: applyGalleryGsapTarget,
+    },
+  )
+}
