@@ -11,6 +11,7 @@ import {
   type Intersection,
 } from 'three'
 import { createGalleryPhotoMaterial } from '~/features/home/canvas/materials'
+import { isHomeSplashLayoutActive } from '~/features/home/lib/homeDocument'
 import {
   galleryAtlasKeyFromSrc,
   getGalleryAtlasSprite,
@@ -352,10 +353,9 @@ export class GalleryMeshRegistry {
       return
     }
 
-    const html = document.documentElement
     const spec = getFrameSpecById(entry.layoutId)
 
-    if (html.classList.contains('is-gather') || html.classList.contains('is-load')) {
+    if (isHomeSplashLayoutActive()) {
       this.applyLayoutToMeshEntry(entry, power, true)
       return
     }

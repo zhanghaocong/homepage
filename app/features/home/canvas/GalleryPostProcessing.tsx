@@ -1,13 +1,15 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { EffectComposer, EffectPass, RenderPass } from 'postprocessing'
-import { useEffect, useMemo, useRef, type MutableRefObject } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { NoToneMapping, UnsignedByteType } from 'three'
 import { GalleryCompositeEffectImpl } from '~/features/home/canvas/galleryCompositeEffect'
 import type { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
+import type { HomeState } from '~/features/home/state/homeState'
+import type { Signal } from '~/shared/lib/signal'
 
 type GalleryPostProcessingProps = {
   meshRegistry: GalleryMeshRegistry
-  photoViewOpenRef: MutableRefObject<boolean>
+  homeState: Signal<HomeState>
 }
 
 /**
@@ -16,7 +18,7 @@ type GalleryPostProcessingProps = {
  * Do not use @react-three/postprocessing's EffectComposer — wrapEffect re-instantiates
  * effects when uniform values change (JSON.stringify deps) and can lose the GL context.
  */
-export function GalleryPostProcessing({ meshRegistry, photoViewOpenRef }: GalleryPostProcessingProps) {
+export function GalleryPostProcessing({ meshRegistry, homeState }: GalleryPostProcessingProps) {
   const { gl, scene, camera, size, invalidate } = useThree()
   const composerRef = useRef<EffectComposer | null>(null)
   const wasPhotoViewOpenRef = useRef(false)
@@ -60,7 +62,7 @@ export function GalleryPostProcessing({ meshRegistry, photoViewOpenRef }: Galler
   useFrame((_, delta) => {
     if (gl.getContext().isContextLost()) return
 
-    const photoViewOpen = photoViewOpenRef.current
+    const photoViewOpen = homeState.getSnapshot().photoViewOpen
 
     if (wasPhotoViewOpenRef.current && !photoViewOpen) {
       meshRegistry.restoreWallMeshes()

@@ -5,13 +5,16 @@ import type { JsScroll } from '~/features/home/lib/jsScroll'
 import { beginSplashGather, groupLayoutColumns, initSplashColumn } from '~/features/home/lib/splashGatherState'
 import { getViewportSize } from '~/features/home/lib/viewport'
 
+import type { HomeDocumentState } from '~/features/home/state/homeState'
+
+export type PatchHomeDocument = (patch: Partial<HomeDocumentState>) => void
+
 export type SplashExitHooks = {
   onReveal?: () => void
   onComplete?: () => void
   onLayoutTick?: () => void
+  patchDocument?: PatchHomeDocument
 }
-
-/** Title motion + splash sheet clip-out → wall reveal (photo-view close handoff). */
 export function runSplashClipOutTimeline(onReveal: () => void) {
   const tl = gsap.timeline()
   tl.to('.l-splash .l-splash__title .in span', {
@@ -127,13 +130,21 @@ export function runSplashClipTimeline(_root: HTMLElement, onReveal: () => void) 
 }
 
 /** Show splash DOM with the closing photo, then homepage-style clip + wall reveal. */
-export function runPhotoViewSplashExit(root: HTMLElement, scroll: JsScroll, imageUrl: string, hooks?: SplashExitHooks) {
-  const html = document.documentElement
+export function runPhotoViewSplashExit(
+  root: HTMLElement,
+  scroll: JsScroll,
+  imageUrl: string,
+  hooks?: SplashExitHooks,
+) {
   const splashImg = root.querySelector<HTMLImageElement>('.l-splash__front--image img')
   if (splashImg) splashImg.src = imageUrl
 
-  html.classList.remove('l-photo-view', 'l-cate', 'l-photo-view-ui')
-  html.classList.add('is-photo-view-exit', 'is-load')
+  hooks?.patchDocument?.({
+    photoView: false,
+    photoViewUi: false,
+    photoViewExit: true,
+    load: true,
+  })
 
   gsap.set(root.querySelector('.l-splash'), { opacity: 1, visibility: 'visible' })
   gsap.set('.l-splash__title', { opacity: 1 })
@@ -151,8 +162,9 @@ export function runPhotoViewSplashExit(root: HTMLElement, scroll: JsScroll, imag
     runGalleryWallReveal(scroll, {
       onReveal: hooks?.onReveal,
       onLayoutTick: hooks?.onLayoutTick,
+      patchDocument: hooks?.patchDocument,
       onComplete: () => {
-        html.classList.remove('is-photo-view-exit', 'is-load')
+        hooks?.patchDocument?.({ photoViewExit: false, load: false })
         hooks?.onComplete?.()
       },
     })
@@ -168,12 +180,11 @@ export function runHomeSplash(
     onGatherSet?: () => void
     onReveal?: () => void
     onGatherComplete?: () => void
+    patchDocument?: PatchHomeDocument
   },
 ) {
-  const html = document.documentElement
   gsap.set('canvas', { opacity: 0 })
-  html.classList.add('is-load', 'is-gather')
-  html.classList.remove('is-load__before')
+  hooks?.patchDocument?.({ loadBefore: false, load: true, gather: true })
 
   gsap.to(root.querySelector('.l-splash__title'), { opacity: 1, duration: 0.4 })
   gsap.to(root.querySelector('.l-splash__front'), {
@@ -213,6 +224,7 @@ export function runHomeSplash(
       runGalleryWallReveal(scroll, {
         onReveal: hooks?.onReveal,
         onComplete: hooks?.onGatherComplete,
+        patchDocument: hooks?.patchDocument,
       })
     }
 
@@ -220,6 +232,6 @@ export function runHomeSplash(
   }, 600)
 
   window.setTimeout(() => {
-    html.classList.remove('is-load')
+    hooks?.patchDocument?.({ load: false })
   }, 2250)
 }

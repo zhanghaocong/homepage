@@ -1,6 +1,7 @@
 import gsap from 'gsap'
 import { getGalleryMetrics, listAllFrameSpecs, recomputeGalleryMetrics } from '~/features/home/lib/galleryLayoutStore'
 import { applyGalleryGsapTarget, galleryGsapTarget } from '~/features/home/lib/galleryStore'
+import type { PatchHomeDocument } from '~/features/home/lib/splashAnimation'
 import type { JsScroll } from '~/features/home/lib/jsScroll'
 import { getViewportSize } from '~/features/home/lib/viewport'
 import {
@@ -26,6 +27,7 @@ export type GalleryWallRevealHooks = {
   onComplete?: () => void
   /** Called each frame while splash tweens run (layout → mesh sync). */
   onLayoutTick?: () => void
+  patchDocument?: PatchHomeDocument
 }
 
 /**
@@ -33,10 +35,9 @@ export type GalleryWallRevealHooks = {
  * Call after `beginSplashGather()` + `initSplashColumn()` and wall meshes are visible.
  */
 export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallRevealHooks) {
-  const html = document.documentElement
   recomputeGalleryMetrics()
   beginSplashGather()
-  html.classList.add('is-gather')
+  hooks?.patchDocument?.({ gather: true })
 
   const metrics = getGalleryMetrics()
   const columns = groupLayoutColumns(listAllFrameSpecs())
@@ -59,7 +60,7 @@ export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallReveal
   const gatherEndDelay = 0.7 + 1.35 + 0.2
   gsap.delayedCall(gatherEndDelay, () => {
     gsap.ticker.remove(layoutTick)
-    html.classList.remove('is-gather')
+    hooks?.patchDocument?.({ gather: false })
     endSplashGather()
     hooks?.onComplete?.()
   })

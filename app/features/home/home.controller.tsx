@@ -1,6 +1,12 @@
 import type { MutableRefObject, RefObject } from 'react'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import { createPhotoViewHost } from '~/features/home/lib/createPhotoViewHost'
+import { clearHomeDocument, syncHomeShell } from '~/features/home/lib/homeDocument'
+import {
+  INITIAL_HOME_STATE,
+  type HomeDocumentState,
+  type HomeState,
+} from '~/features/home/state/homeState'
 import { closePhotoView } from '~/features/photo-view/lib/photoViewController'
 import { registerPhotoViewHost, unregisterPhotoViewHost } from '~/features/photo-view/lib/photoViewHostRegistry'
 import type { PhotoViewHost } from '~/features/photo-view/lib/photoViewHost'
@@ -12,22 +18,14 @@ import { createJsScroll, type JsScroll } from '~/features/home/lib/jsScroll'
 import { preloadGalleryImages } from '~/features/home/lib/preloadGalleryImages'
 import { runHomeSplash } from '~/features/home/lib/splashAnimation'
 import { initViewport } from '~/features/home/lib/viewport'
+import { Signal } from '~/shared/lib/signal'
 
 const LOADER_TICK_MS = 10.1010101010101
 const LOADER_STEP = 3
 const LOADER_CAP = 99
 
-const INITIAL_UI: HomeUiState = {
-  photoViewOpen: false,
-  loadProgress: 0,
-  currentCategory: 'interior',
-}
-
-export type HomeUiState = {
-  photoViewOpen: boolean
-  loadProgress: number
-  currentCategory: string
-}
+/** @deprecated Use HomeState from ~/features/home/state/homeState */
+export type HomeUiState = HomeState
 
 function syncCanvasAfterResize(canvas: GalleryEngineHandle) {
   const apply = () => {
@@ -50,11 +48,9 @@ export class HomeController {
   readonly scrollThumbAfterRef: RefObject<HTMLDivElement | null> = { current: null }
   readonly canvasEngineRef: MutableRefObject<GalleryEngineHandle | null> = { current: null }
   readonly scrollRef: MutableRefObject<JsScroll | null> = { current: null }
-  readonly photoViewOpenRef: MutableRefObject<boolean> = { current: false }
+  readonly state = new Signal<HomeState>({ ...INITIAL_HOME_STATE })
 
   private photoViewHost: PhotoViewHost | null = null
-  private uiState: HomeUiState = { ...INITIAL_UI }
-  private uiListeners = new Set<() => void>()
   private attached = false
   private scroll: JsScroll | null = null
   private stopViewport: (() => void) | null = null
@@ -63,23 +59,27 @@ export class HomeController {
   private scrollCategory = 'interior'
   private selectedCategory: string | null = null
 
-  subscribe = (listener: () => void) => {
-    this.uiListeners.add(listener)
-    return () => this.uiListeners.delete(listener)
-  }
-
-  getSnapshot = (): HomeUiState => this.uiState
+  subscribe = this.state.subscribe
+  getSnapshot = this.state.getSnapshot
 
   getPhotoViewHost(): PhotoViewHost {
     if (!this.photoViewHost) {
       this.photoViewHost = createPhotoViewHost({
-        wrapRef: this.wrapRef,
         scrollRef: this.scrollRef,
         canvasEngineRef: this.canvasEngineRef,
         onPhotoViewOpenChange: (open) => {
-          this.photoViewOpenRef.current = open
-          this.patchUi({ photoViewOpen: open })
+          const prev = this.state.getSnapshot()
+          this.patchState({
+            photoViewOpen: open,
+            phase: open ? 'photoView' : 'wall',
+            doc: {
+              photoView: open,
+              photoViewUi: open ? prev.doc.photoViewUi : false,
+              photoViewExit: false,
+            },
+          })
         },
+        patchDocument: (patch) => this.patchState({ doc: patch }),
         afterPhotoViewClose: () => {},
       })
       registerPhotoViewHost(this.photoViewHost)
@@ -92,7 +92,6 @@ export class HomeController {
     this.attached = true
 
     initGalleryMode()
-    document.documentElement.classList.add('is-load__before')
     this.stopViewport = initViewport()
     buildGalleryLayout()
 
@@ -103,6 +102,7 @@ export class HomeController {
       return
     }
 
+    this.patchState({ phase: 'loading', doc: { loadBefore: true } })
     this.startScroll(wrap)
     this.getPhotoViewHost()
     this.startLoader()
@@ -120,18 +120,17 @@ export class HomeController {
     this.stopLoader = null
     unregisterPhotoViewHost()
     this.photoViewHost = null
-    this.photoViewOpenRef.current = false
     this.stopViewport?.()
     this.stopViewport = null
     resetGalleryLayoutStore()
     disposeGalleryAtlas()
-    document.documentElement.classList.remove('is-load__before')
     this.canvasEngineRef.current = null
     this.splashStarted = false
     this.scrollCategory = 'interior'
     this.selectedCategory = null
-    this.uiState = { ...INITIAL_UI }
-    this.notifyUi()
+    this.state.reset({ ...INITIAL_HOME_STATE })
+    clearHomeDocument()
+    syncHomeShell(this.wrapRef.current, INITIAL_HOME_STATE)
   }
 
   jumpToCategory(category: string) {
@@ -146,20 +145,19 @@ export class HomeController {
     })
   }
 
-  private patchUi(patch: Partial<HomeUiState>) {
-    if ('photoViewOpen' in patch && patch.photoViewOpen !== undefined) {
-      this.photoViewOpenRef.current = patch.photoViewOpen
+  private patchState(patch: Partial<Omit<HomeState, 'doc'>> & { doc?: Partial<HomeDocumentState> }) {
+    const prev = this.state.getSnapshot()
+    const next: HomeState = {
+      ...prev,
+      ...patch,
+      doc: patch.doc ? { ...prev.doc, ...patch.doc } : prev.doc,
     }
-    this.uiState = { ...this.uiState, ...patch }
-    this.notifyUi()
-  }
-
-  private notifyUi() {
-    for (const listener of this.uiListeners) listener()
+    this.state.set(next)
+    syncHomeShell(this.wrapRef.current, next)
   }
 
   private syncCurrentCategory() {
-    this.patchUi({ currentCategory: this.selectedCategory ?? this.scrollCategory })
+    this.patchState({ currentCategory: this.selectedCategory ?? this.scrollCategory })
   }
 
   private onScrollCategoryChange = (category: string) => {
@@ -185,7 +183,6 @@ export class HomeController {
       },
     })
     this.scrollRef.current = this.scroll
-    // Bootstrap layout before R3F's first useFrame.
     this.scroll.raf()
   }
 
@@ -205,7 +202,7 @@ export class HomeController {
     let completed = false
 
     const bumpProgress = (value: number) => {
-      this.patchUi({ loadProgress: Math.max(0, Math.min(100, value)) })
+      this.patchState({ loadProgress: Math.max(0, Math.min(100, value)) })
     }
 
     const tryComplete = () => {
@@ -249,12 +246,16 @@ export class HomeController {
   private startSplash() {
     if (this.splashStarted) return
     this.splashStarted = true
+    this.patchState({ phase: 'splash' })
 
     const shell = this.shellRef.current
     const scroll = this.scroll
     if (!shell || !scroll) return
 
+    const patchDocument = (doc: Partial<HomeDocumentState>) => this.patchState({ doc })
+
     runHomeSplash(shell, scroll, {
+      patchDocument,
       onGatherSet: () => {
         const canvas = this.canvasEngineRef.current
         if (canvas) {
@@ -273,6 +274,7 @@ export class HomeController {
         scroll.remeasure()
         const canvas = this.canvasEngineRef.current
         if (canvas) syncCanvasAfterResize(canvas)
+        this.patchState({ phase: 'wall' })
       },
     })
   }

@@ -7,17 +7,19 @@ import { GallerySyncSystem } from '~/features/home/canvas/GallerySyncSystem'
 import { getViewportSize } from '~/features/home/canvas/cameraUtils'
 import type { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
+import type { HomeState } from '~/features/home/state/homeState'
 import { registerGalleryMeshRegistry, unregisterGalleryMeshRegistry } from '~/features/home/lib/galleryRegistryBridge'
 import type { JsScroll } from '~/features/home/lib/jsScroll'
+import type { Signal } from '~/shared/lib/signal'
 
 type GallerySceneProps = {
   engineRef: React.MutableRefObject<GalleryEngineHandle | null>
   scrollRef: React.MutableRefObject<JsScroll | null>
-  photoViewOpenRef: React.MutableRefObject<boolean>
+  homeState: Signal<HomeState>
   onEngineReady?: () => void
 }
 
-export function GalleryScene({ engineRef, scrollRef, photoViewOpenRef, onEngineReady }: GallerySceneProps) {
+export function GalleryScene({ engineRef, scrollRef, homeState, onEngineReady }: GallerySceneProps) {
   const [meshRegistry, setMeshRegistry] = useState<GalleryMeshRegistry | null>(null)
   const isMobile = getViewportSize().w < 680
 
@@ -38,7 +40,7 @@ export function GalleryScene({ engineRef, scrollRef, photoViewOpenRef, onEngineR
       {meshRegistry ? (
         <>
           <GalleryEngineBridge engineRef={engineRef} meshRegistry={meshRegistry} />
-          <GalleryPostProcessing meshRegistry={meshRegistry} photoViewOpenRef={photoViewOpenRef} />
+          <GalleryPostProcessing meshRegistry={meshRegistry} homeState={homeState} />
         </>
       ) : null}
       <GallerySyncSystem engineRef={engineRef} scrollRef={scrollRef} />

@@ -48,9 +48,7 @@ export function openPhotoViewFromLayoutId(layoutId: string) {
     fromRect: rectFromLayoutId(layoutId),
   })
 
-  host.setPhotoViewHtmlClass(true)
   host.setScrollLocked(true)
-  host.setWallScrollLocked(true)
   host.ensureCanvasVisible()
   host.hideWallDomImmediately()
   host.onPhotoViewOpenChange(true)
@@ -58,12 +56,12 @@ export function openPhotoViewFromLayoutId(layoutId: string) {
 
 export function markPhotoViewUiReady() {
   setPhotoViewState({ uiReady: true })
-  getPhotoViewHost().setPhotoViewUiClass(true)
+  getPhotoViewHost().patchDocument({ photoViewUi: true })
 }
 
 export function closePhotoView() {
   if (isPhotoViewClosing() || !getPhotoViewOpen()) return
-  getPhotoViewHost().setPhotoViewUiClass(false)
+  getPhotoViewHost().patchDocument({ photoViewUi: false })
   completeClosePhotoView()
 }
 
@@ -77,9 +75,7 @@ export function preparePhotoViewWallReveal() {
 export function completeClosePhotoView() {
   const host = getPhotoViewHost()
   resetPhotoViewState()
-  host.setPhotoViewHtmlClass(false)
   host.setScrollLocked(false)
-  host.setWallScrollLocked(false)
   host.ensureCanvasVisible()
   host.showWallDomImmediately()
   host.onPhotoViewOpenChange(false)

@@ -1,5 +1,5 @@
 import gsap from 'gsap'
-import type { MutableRefObject, RefObject } from 'react'
+import type { MutableRefObject } from 'react'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import { isFrameVisible, getGridUnit } from '~/features/home/lib/galleryLayout'
 import {
@@ -16,7 +16,9 @@ import type {
   PhotoViewHost,
   PhotoViewScreenRect,
   PhotoViewWorldRect,
+  PhotoViewDocumentPatch,
 } from '~/features/photo-view/lib/photoViewHost'
+import type { HomeDocumentState } from '~/features/home/state/homeState'
 
 const WALL_FADE_SEL = '.p-home .c-content'
 const PAGE_COVER_SEL = '.p-home .js-page__cover'
@@ -47,18 +49,18 @@ function toWorldRect(rect: ReturnType<typeof getFrameWorldRect>): PhotoViewWorld
 }
 
 export type CreatePhotoViewHostOptions = {
-  wrapRef: RefObject<HTMLElement | null>
   scrollRef: MutableRefObject<JsScroll | null>
   canvasEngineRef: MutableRefObject<GalleryEngineHandle | null>
   onPhotoViewOpenChange: (open: boolean) => void
+  patchDocument: (patch: Partial<HomeDocumentState>) => void
   afterPhotoViewClose: () => void
 }
 
 export function createPhotoViewHost({
-  wrapRef,
   scrollRef,
   canvasEngineRef,
   onPhotoViewOpenChange,
+  patchDocument,
   afterPhotoViewClose,
 }: CreatePhotoViewHostOptions): PhotoViewHost {
   const syncCanvasAfterClose = () => {
@@ -130,10 +132,6 @@ export function createPhotoViewHost({
       scrollRef.current?.setInputEnabled(!locked)
     },
 
-    setWallScrollLocked(locked) {
-      wrapRef.current?.classList.toggle('is-photo-view-locked', locked)
-    },
-
     hideWallDomImmediately() {
       gsap.killTweensOf(PAGE_COVER_SEL)
       gsap.killTweensOf(WALL_FADE_SEL)
@@ -166,15 +164,8 @@ export function createPhotoViewHost({
       gsap.set('.js-canvas__wrap canvas', { opacity: 1 })
     },
 
-    setPhotoViewHtmlClass(on) {
-      const html = document.documentElement
-      html.classList.toggle('l-photo-view', on)
-      html.classList.toggle('l-cate', on)
-      if (!on) html.classList.remove('l-photo-view-ui')
-    },
-
-    setPhotoViewUiClass(on) {
-      document.documentElement.classList.toggle('l-photo-view-ui', on)
+    patchDocument(patch: PhotoViewDocumentPatch) {
+      patchDocument(patch)
     },
 
     onPhotoViewOpenChange,
