@@ -52,7 +52,10 @@ export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallReveal
   killSplashTweens(columns)
 
   const distance = window.innerWidth < 680 ? 4.48 : 2.125
-  scroll.onScrollTo(scroll.delta1 + getViewportSize().w * distance, 2.5, 0, 'power4.out')
+  const revealTarget = getViewportSize().w * distance
+  if (scroll.delta1 < revealTarget) {
+    scroll.onScrollTo(revealTarget, 2.5, 0, 'power4.out')
+  }
 
   const layoutTick = () => hooks?.onLayoutTick?.()
   gsap.ticker.add(layoutTick)
