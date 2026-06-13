@@ -15,14 +15,12 @@ const LOADER_STEP = 3
 const LOADER_CAP = 99
 
 const INITIAL_UI: HomeUiState = {
-  canvasReady: false,
   photoViewOpen: false,
   loadProgress: 0,
   currentCategory: 'interior',
 }
 
 export type HomeUiState = {
-  canvasReady: boolean
   photoViewOpen: boolean
   loadProgress: number
   currentCategory: string
@@ -83,7 +81,6 @@ export class HomeController {
 
     this.startScroll(wrap)
     this.registerPhotoView(shell, wrap)
-    this.patchUi({ canvasReady: true })
     this.startLoader()
 
     window.addEventListener('keydown', this.onKeyDown)
