@@ -1,6 +1,7 @@
 import { PhotoView } from '~/features/photo-view/PhotoView'
 import { GalleryCanvasHost } from '~/features/home/gallery/GalleryCanvasHost'
 import { GalleryCategoryNav } from '~/features/home/gallery/GalleryCategoryNav'
+import { GalleryScrollbar } from '~/features/home/gallery/GalleryScrollbar'
 import { GallerySplash } from '~/features/home/gallery/GallerySplash'
 import { useHomeController, useHomeMount, useHomeUi } from '~/features/home/ctx'
 
@@ -29,12 +30,10 @@ export function GalleryShell() {
         <GalleryCanvasHost />
       </div>
 
-      <div className="c-scrollbar">
-        <div className="c-thumb">
-          <div className="c-pivot" />
-          <div className="c-pivot" />
-        </div>
-      </div>
+      <GalleryScrollbar
+        thumbBeforeRef={controller.scrollThumbBeforeRef}
+        thumbAfterRef={controller.scrollThumbAfterRef}
+      />
 
       <GallerySplash />
     </div>

@@ -56,8 +56,14 @@ export type JsScroll = {
   destroy: () => void
 }
 
+export type ScrollScrollbarElements = {
+  thumbBefore: HTMLElement
+  thumbAfter: HTMLElement
+}
+
 type JsScrollOptions = {
   wrap: HTMLElement
+  scrollbar?: ScrollScrollbarElements
   speed?: number
   ease?: number
   onCategoryChange?: (category: string) => void
@@ -165,6 +171,7 @@ function cloneSectionsUntilWideEnough() {
 
 export function createJsScroll({
   wrap,
+  scrollbar,
   speed = 80,
   ease = 0.125,
   onCategoryChange,
@@ -180,13 +187,6 @@ export function createJsScroll({
   let currentCategory = 'interior'
   let scrollToTween: gsap.core.Tween | null = null
   const sections: SectionEntry[] = []
-
-  const scrollbar = document.querySelector<HTMLElement>('.c-scrollbar')
-  const thumb = document.querySelector<HTMLElement>('.c-thumb')
-  const thumbBefore = thumb?.querySelector<HTMLElement>('.c-pivot')
-  const thumbAfter = thumb?.querySelectorAll<HTMLElement>('.c-pivot')[1]
-
-  if (scrollbar) scrollbar.dataset.dir = 'hr'
 
   let lastWideAspect = isWideAspect()
 
@@ -380,11 +380,11 @@ export function createJsScroll({
       }
     }
 
-    if (scrollbar && thumb && thumbBefore && thumbAfter) {
+    if (scrollbar) {
       const trackWidth = getWindowSpan()
       const progressPx = position * trackWidth
-      thumbBefore.style.transform = `translate3d(${progressPx - trackWidth}px, 0, 0)`
-      thumbAfter.style.transform = `translate3d(${progressPx}px, 0, 0)`
+      scrollbar.thumbBefore.style.transform = `translate3d(${progressPx - trackWidth}px, 0, 0)`
+      scrollbar.thumbAfter.style.transform = `translate3d(${progressPx}px, 0, 0)`
     }
 
     syncGalleryLayoutScroll(

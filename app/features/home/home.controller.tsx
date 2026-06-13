@@ -43,6 +43,8 @@ export class HomeController {
   readonly shellRef: RefObject<HTMLDivElement | null> = { current: null }
   readonly wrapRef: RefObject<HTMLDivElement | null> = { current: null }
   readonly canvasWrapRef: RefObject<HTMLDivElement | null> = { current: null }
+  readonly scrollThumbBeforeRef: RefObject<HTMLDivElement | null> = { current: null }
+  readonly scrollThumbAfterRef: RefObject<HTMLDivElement | null> = { current: null }
   readonly canvasEngineRef: MutableRefObject<GalleryEngineHandle | null> = { current: null }
   readonly scrollRef: MutableRefObject<JsScroll | null> = { current: null }
 
@@ -143,8 +145,12 @@ export class HomeController {
   }
 
   private startScroll(wrap: HTMLElement) {
+    const thumbBefore = this.scrollThumbBeforeRef.current
+    const thumbAfter = this.scrollThumbAfterRef.current
+
     this.scroll = createJsScroll({
       wrap,
+      scrollbar: thumbBefore && thumbAfter ? { thumbBefore, thumbAfter } : undefined,
       onCategoryChange: this.onScrollCategoryChange,
       onResizeAfter: () => {
         const canvas = this.canvasEngineRef.current
