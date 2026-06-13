@@ -49,16 +49,12 @@ function toWorldRect(rect: ReturnType<typeof getFrameWorldRect>): PhotoViewWorld
 export type CreatePhotoViewHostOptions = {
   scrollRef: MutableRefObject<JsScroll | null>
   canvasEngineRef: MutableRefObject<GalleryEngineHandle | null>
-  onPhotoViewOpenChange: (open: boolean) => void
-  setPhotoViewUi: (ready: boolean) => void
   afterPhotoViewClose: () => void
 }
 
 export function createPhotoViewHost({
   scrollRef,
   canvasEngineRef,
-  onPhotoViewOpenChange,
-  setPhotoViewUi,
   afterPhotoViewClose,
 }: CreatePhotoViewHostOptions): PhotoViewHost {
   const syncCanvasAfterClose = () => {
@@ -162,9 +158,6 @@ export function createPhotoViewHost({
       gsap.set('.js-canvas__wrap canvas', { opacity: 1 })
     },
 
-    setPhotoViewUi,
-
-    onPhotoViewOpenChange,
     onPhotoViewAfterClose() {
       syncCanvasAfterClose()
       afterPhotoViewClose()

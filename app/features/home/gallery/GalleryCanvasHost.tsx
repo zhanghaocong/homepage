@@ -9,7 +9,6 @@ export function GalleryCanvasHost() {
       <GalleryCanvas
         engineRef={controller.canvasEngineRef}
         scrollRef={controller.scrollRef}
-        homeState={controller.state}
         onEngineReady={() => controller.handleEngineReady()}
       />
     </div>

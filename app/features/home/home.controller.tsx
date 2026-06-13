@@ -8,6 +8,7 @@ import {
   type HomeStatePatch,
 } from '~/features/home/state/homeState'
 import { closePhotoView } from '~/features/photo-view/lib/photoViewController'
+import { resetPhotoViewState } from '~/features/photo-view/lib/photoViewStore'
 import { registerPhotoViewHost, unregisterPhotoViewHost } from '~/features/photo-view/lib/photoViewHostRegistry'
 import type { PhotoViewHost } from '~/features/photo-view/lib/photoViewHost'
 import { buildGalleryLayout } from '~/features/home/lib/buildGalleryLayout'
@@ -23,9 +24,6 @@ import { Signal } from '~/shared/lib/signal'
 const LOADER_TICK_MS = 10.1010101010101
 const LOADER_STEP = 3
 const LOADER_CAP = 99
-
-/** @deprecated Use HomeState from ~/features/home/state/homeState */
-export type HomeUiState = HomeState
 
 function syncCanvasAfterResize(canvas: GalleryEngineHandle) {
   const apply = () => {
@@ -67,16 +65,6 @@ export class HomeController {
       this.photoViewHost = createPhotoViewHost({
         scrollRef: this.scrollRef,
         canvasEngineRef: this.canvasEngineRef,
-        onPhotoViewOpenChange: (open) => {
-          const prev = this.state.getSnapshot()
-          this.patchState({
-            photoViewOpen: open,
-            phase: open ? 'photoView' : 'wall',
-            photoViewUi: open ? prev.photoViewUi : false,
-            shell: open ? undefined : { photoViewExit: false },
-          })
-        },
-        setPhotoViewUi: (ready) => this.patchState({ photoViewUi: ready }),
         afterPhotoViewClose: () => {},
       })
       registerPhotoViewHost(this.photoViewHost)
@@ -127,6 +115,7 @@ export class HomeController {
     this.splashStarted = false
     this.scrollCategory = 'interior'
     this.selectedCategory = null
+    resetPhotoViewState()
     this.state.reset({ ...INITIAL_HOME_STATE })
     unbindHomeState()
   }

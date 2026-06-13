@@ -1,8 +1,7 @@
-import { useAtomValue } from 'jotai/react'
 import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject, type WheelEvent } from 'react'
 import { PhotoViewBgImage, thumbWrapClass } from '~/features/photo-view/PhotoViewImage'
 import { CATEGORY_UI, galleryImages, imageUrl } from '~/data/gallery'
-import { usePhotoViewHost } from '~/features/photo-view/ctx'
+import { usePhotoViewHost, usePhotoViewState } from '~/features/photo-view/ctx'
 import {
   closePhotoView,
   isPhotoViewClosing,
@@ -10,13 +9,7 @@ import {
   openPhotoViewFromLayoutId,
 } from '~/features/photo-view/lib/photoViewController'
 import { getImageAspect, heroCenterRect, worldRectToScreen, type PhotoViewScreenRect } from '~/features/photo-view/lib/photoViewLayout'
-import {
-  CATE_ID_TO_KEY,
-  getPhotoViewState,
-  photoViewAtom,
-  photoViewStore,
-  setPhotoViewState,
-} from '~/features/photo-view/lib/photoViewStore'
+import { CATE_ID_TO_KEY, getPhotoViewState, setPhotoViewState } from '~/features/photo-view/lib/photoViewStore'
 
 type PhotoViewProps = {
   wrapRef: RefObject<HTMLElement | null>
@@ -33,7 +26,7 @@ function screenStyle(rect: PhotoViewScreenRect): React.CSSProperties {
 
 export function PhotoView({ wrapRef }: PhotoViewProps) {
   const host = usePhotoViewHost()
-  const state = useAtomValue(photoViewAtom, { store: photoViewStore })
+  const state = usePhotoViewState()
   const thumbRefs = useRef<Array<HTMLButtonElement | null>>([])
   const openedRef = useRef(false)
   const lastWheelAtRef = useRef(0)
@@ -102,7 +95,7 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
         closePhotoView()
       }
     }
-  }, [host, state.open, openPhotoListImmediately])
+  }, [host, state.open, openPhotoListImmediately, state.uiReady])
 
   useLayoutEffect(() => {
     if (!state.open || !state.uiReady) return
@@ -146,7 +139,7 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 
   return (
     <div
-      className={`p-photo-view${state.uiReady ? 'is-ui-ready' : ''}`}
+      className={`p-photo-view${state.uiReady ? ' is-ui-ready' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label={`${categoryLabel} gallery`}

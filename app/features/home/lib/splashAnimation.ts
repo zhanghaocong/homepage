@@ -140,8 +140,6 @@ export function runPhotoViewSplashExit(
   if (splashImg) splashImg.src = imageUrl
 
   hooks?.patchShell?.({
-    photoViewOpen: false,
-    photoViewUi: false,
     phase: 'photoViewExit',
     shell: { photoViewExit: true, load: true },
   })

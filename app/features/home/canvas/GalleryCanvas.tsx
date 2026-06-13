@@ -1,15 +1,12 @@
 import { Canvas } from '@react-three/fiber'
 import { GalleryScene } from '~/features/home/canvas/GalleryScene'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
-import type { HomeState } from '~/features/home/state/homeState'
 import { loadGalleryAtlasTexture, tuneGalleryAtlasForRenderer } from '~/features/home/lib/galleryAtlas'
 import type { JsScroll } from '~/features/home/lib/jsScroll'
-import type { Signal } from '~/shared/lib/signal'
 
 export type GalleryCanvasProps = {
   engineRef: React.MutableRefObject<GalleryEngineHandle | null>
   scrollRef: React.MutableRefObject<JsScroll | null>
-  homeState: Signal<HomeState>
   onEngineReady?: () => void
 }
 
@@ -17,7 +14,7 @@ export type GalleryCanvasProps = {
  * R3F entry for the gallery WebGL layer.
  * Scroll + mesh sync run in GallerySyncSystem (useFrame priority 1); post-processing at priority 2.
  */
-export function GalleryCanvas({ engineRef, scrollRef, homeState, onEngineReady }: GalleryCanvasProps) {
+export function GalleryCanvas({ engineRef, scrollRef, onEngineReady }: GalleryCanvasProps) {
   return (
     <Canvas
       frameloop="always"
@@ -50,12 +47,7 @@ export function GalleryCanvas({ engineRef, scrollRef, homeState, onEngineReady }
         })
       }}
     >
-      <GalleryScene
-        engineRef={engineRef}
-        scrollRef={scrollRef}
-        homeState={homeState}
-        onEngineReady={onEngineReady}
-      />
+      <GalleryScene engineRef={engineRef} scrollRef={scrollRef} onEngineReady={onEngineReady} />
     </Canvas>
   )
 }

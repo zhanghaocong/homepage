@@ -44,8 +44,6 @@ export type PhotoViewHost = {
   showWallDomImmediately(): void
   fadeWallDom(show: boolean): void
   ensureCanvasVisible(): void
-  setPhotoViewUi(ready: boolean): void
 
-  onPhotoViewOpenChange(open: boolean): void
   onPhotoViewAfterClose(): void
 }

@@ -1,4 +1,4 @@
-/** Homepage runtime phase — drives loader, splash, wall scroll, and photo view. */
+/** Homepage runtime phase — drives loader, splash, wall scroll, and photo view shell CSS. */
 export type HomePhase = 'boot' | 'loading' | 'splash' | 'wall' | 'photoView' | 'photoViewExit'
 
 /** Shell presentation flags — applied as React className on `.xhr-wrap`, never written to `<html>`. */
@@ -13,8 +13,6 @@ export type HomeState = {
   phase: HomePhase
   loadProgress: number
   currentCategory: string
-  photoViewOpen: boolean
-  photoViewUi: boolean
   shell: HomeShellFlags
 }
 
@@ -33,7 +31,5 @@ export const INITIAL_HOME_STATE: HomeState = {
   phase: 'boot',
   loadProgress: 0,
   currentCategory: 'interior',
-  photoViewOpen: false,
-  photoViewUi: false,
   shell: { ...INITIAL_HOME_SHELL },
 }

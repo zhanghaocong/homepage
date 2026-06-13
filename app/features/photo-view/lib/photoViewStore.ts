@@ -1,6 +1,6 @@
-import { atom, createStore } from 'jotai'
 import type { CateImage, CateKey } from '~/data/gallery'
 import type { PhotoViewWorldRect } from '~/features/photo-view/lib/photoViewLayout'
+import { Signal } from '~/shared/lib/signal'
 
 export type PhotoViewCategory = 'interior' | 'portrait' | 'landscape'
 
@@ -17,7 +17,7 @@ export type PhotoViewState = {
   fromRect: PhotoViewWorldRect | null
 }
 
-const initialState: PhotoViewState = {
+export const INITIAL_PHOTO_VIEW_STATE: PhotoViewState = {
   open: false,
   closing: false,
   uiReady: false,
@@ -28,20 +28,18 @@ const initialState: PhotoViewState = {
   fromRect: null,
 }
 
-export const photoViewStore = createStore()
-
-export const photoViewAtom = atom<PhotoViewState>(initialState)
+export const photoViewState = new Signal<PhotoViewState>({ ...INITIAL_PHOTO_VIEW_STATE })
 
 export function getPhotoViewState() {
-  return photoViewStore.get(photoViewAtom)
+  return photoViewState.getSnapshot()
 }
 
 export function setPhotoViewState(patch: Partial<PhotoViewState>) {
-  photoViewStore.set(photoViewAtom, { ...getPhotoViewState(), ...patch })
+  photoViewState.patch(patch)
 }
 
 export function resetPhotoViewState() {
-  photoViewStore.set(photoViewAtom, { ...initialState })
+  photoViewState.reset({ ...INITIAL_PHOTO_VIEW_STATE })
 }
 
 export const CATE_ID_TO_KEY: Record<PhotoViewCategory, CateKey> = {

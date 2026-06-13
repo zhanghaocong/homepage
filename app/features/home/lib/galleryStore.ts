@@ -1,29 +1,35 @@
-import { atom, createStore } from 'jotai'
+import { Signal } from '~/shared/lib/signal'
 
-export const galleryStore = createStore()
+export type GalleryModeState = {
+  mode: number
+  modeChangePow: number
+  APowF: number
+}
 
-export const galleryModeAtom = atom(0)
-export const galleryModeChangePowAtom = atom(0)
-export const galleryAPowFAtom = atom(0)
+export const INITIAL_GALLERY_MODE_STATE: GalleryModeState = {
+  mode: 0,
+  modeChangePow: 0,
+  APowF: 0,
+}
+
+export const galleryModeState = new Signal<GalleryModeState>({ ...INITIAL_GALLERY_MODE_STATE })
 
 export function getGalleryMode() {
-  return galleryStore.get(galleryModeAtom)
+  return galleryModeState.getSnapshot().mode
 }
 
 export function getGalleryModeChangePow() {
-  return galleryStore.get(galleryModeChangePowAtom)
+  return galleryModeState.getSnapshot().modeChangePow
 }
 
 export function initGalleryMode() {
   document.documentElement.dataset.mode = 'grid'
-  galleryStore.set(galleryModeAtom, 0)
-  galleryStore.set(galleryModeChangePowAtom, 0)
-  galleryStore.set(galleryAPowFAtom, 0)
+  galleryModeState.reset({ ...INITIAL_GALLERY_MODE_STATE })
   syncGalleryGsapTarget()
 }
 
 /**
- * GSAP tweens plain object properties; this bridge writes values into the jotai store.
+ * GSAP tweens plain object properties; this bridge writes values into galleryModeState.
  */
 export const galleryGsapTarget = {
   mode: 0,
@@ -32,13 +38,16 @@ export const galleryGsapTarget = {
 }
 
 export function syncGalleryGsapTarget() {
-  galleryGsapTarget.mode = galleryStore.get(galleryModeAtom)
-  galleryGsapTarget.modeChangePow = galleryStore.get(galleryModeChangePowAtom)
-  galleryGsapTarget.APowF = galleryStore.get(galleryAPowFAtom)
+  const state = galleryModeState.getSnapshot()
+  galleryGsapTarget.mode = state.mode
+  galleryGsapTarget.modeChangePow = state.modeChangePow
+  galleryGsapTarget.APowF = state.APowF
 }
 
 export function applyGalleryGsapTarget() {
-  galleryStore.set(galleryModeAtom, galleryGsapTarget.mode)
-  galleryStore.set(galleryModeChangePowAtom, galleryGsapTarget.modeChangePow)
-  galleryStore.set(galleryAPowFAtom, galleryGsapTarget.APowF)
+  galleryModeState.patch({
+    mode: galleryGsapTarget.mode,
+    modeChangePow: galleryGsapTarget.modeChangePow,
+    APowF: galleryGsapTarget.APowF,
+  })
 }
