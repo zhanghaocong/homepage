@@ -1,7 +1,7 @@
 import { PhotoView } from '~/features/photo-view/PhotoView'
-import { GalleryCanvasHost } from '~/features/home/components/gallery/GalleryCanvasHost'
-import { GalleryCategoryNav } from '~/features/home/components/gallery/GalleryCategoryNav'
-import { GallerySplash } from '~/features/home/components/gallery/GallerySplash'
+import { GalleryCanvasHost } from '~/features/home/gallery/GalleryCanvasHost'
+import { GalleryCategoryNav } from '~/features/home/gallery/GalleryCategoryNav'
+import { GallerySplash } from '~/features/home/gallery/GallerySplash'
 import { useHomeController, useHomeMount, useHomeUi } from '~/features/home/ctx'
 
 export function GalleryShell() {
