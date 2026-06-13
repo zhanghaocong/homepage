@@ -40,7 +40,7 @@ export default function App() {
     : `mx-auto w-full flex-1 px-6 py-12 ${isPhotoListRoute ? 'max-w-5xl' : 'max-w-3xl'}`
 
   return (
-    <div className="site-shell flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-[var(--site-bg)] font-[family-name:var(--site-font)] text-[var(--site-fg)] antialiased">
       <Header />
       <main className={mainClassName}>
         <Outlet />
@@ -64,17 +64,20 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <div className="site-shell flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-[var(--site-bg)] font-[family-name:var(--site-font)] text-[var(--site-fg)] antialiased">
       <Header />
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
         <div className="space-y-4 text-center">
-          <h1 className="site-page-title text-3xl">{message}</h1>
-          <p className="site-prose">{details}</p>
-          <Link to="/" className="site-header__link inline-block text-sm font-medium underline underline-offset-4">
+          <h1 className="text-3xl font-semibold tracking-tight text-[var(--site-fg)]">{message}</h1>
+          <p className="text-[0.9375rem] leading-relaxed text-[var(--site-fg-muted)]">{details}</p>
+          <Link
+            to="/"
+            className="inline-block text-sm font-medium text-[var(--site-fg-muted)] underline underline-offset-4 transition-colors hover:text-[var(--site-fg)]"
+          >
             Back to home
           </Link>
           {stack && (
-            <pre className="site-card mt-6 w-full overflow-x-auto p-4 text-left text-sm">
+            <pre className="mt-6 w-full overflow-x-auto rounded-lg border border-[var(--site-border)] p-4 text-left text-sm">
               <code>{stack}</code>
             </pre>
           )}

@@ -1,6 +1,9 @@
 import { Link } from 'react-router'
 import type { PhotoCollectionKind, PhotoCollectionSummary, PhotoListModel } from '~/features/collections/data/photoCollections'
 
+const tagClass =
+  'rounded-full bg-[var(--site-tag-bg)] px-3 py-1 text-xs font-medium text-[var(--site-fg-muted)] transition-colors hover:text-[var(--site-fg)]'
+
 function labelForKind(kind: PhotoCollectionKind) {
   return kind === 'album' ? 'Album' : 'Tag'
 }
@@ -8,15 +11,15 @@ function labelForKind(kind: PhotoCollectionKind) {
 export function PhotoList({ list }: { list: PhotoListModel }) {
   return (
     <div className="space-y-10">
-      <header className="site-page-header space-y-5">
+      <header className="space-y-5 border-b border-[var(--site-border)] pb-8">
         <div className="space-y-2">
           <p className="text-xs font-medium tracking-[0.28em] text-[var(--site-fg-muted)] uppercase">
             {labelForKind(list.kind)}
           </p>
-          <h1 className="site-page-title">{list.title}</h1>
-          <p className="site-page-lead">{list.description}</p>
+          <h1 className="text-4xl font-semibold tracking-tight text-[var(--site-fg)]">{list.title}</h1>
+          <p className="text-lg text-[var(--site-fg-muted)]">{list.description}</p>
         </div>
-        <p className="site-prose">
+        <p className="text-[0.9375rem] leading-relaxed text-[var(--site-fg-muted)]">
           {list.count} {list.count === 1 ? 'photo' : 'photos'}
         </p>
       </header>
@@ -43,11 +46,11 @@ export function PhotoList({ list }: { list: PhotoListModel }) {
               />
             </a>
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Link to={`/albums/${photo.albumId}`} className="site-tag">
+              <Link to={`/albums/${photo.albumId}`} className={tagClass}>
                 {photo.albumTitle}
               </Link>
               {photo.tags.map((tag) => (
-                <Link key={tag} to={`/tags/${tag}`} className="site-tag">
+                <Link key={tag} to={`/tags/${tag}`} className={tagClass}>
                   #{tag}
                 </Link>
               ))}
@@ -70,9 +73,9 @@ export function PhotoListMissing({
 }) {
   return (
     <div className="space-y-8">
-      <header className="site-page-header space-y-2">
-        <h1 className="site-page-title">Nothing here yet</h1>
-        <p className="site-page-lead">
+      <header className="space-y-2 border-b border-[var(--site-border)] pb-8">
+        <h1 className="text-4xl font-semibold tracking-tight text-[var(--site-fg)]">Nothing here yet</h1>
+        <p className="text-lg text-[var(--site-fg-muted)]">
           No {kind} named <span className="font-mono">{value}</span> exists in the current photo archive.
         </p>
       </header>
@@ -88,7 +91,7 @@ function CollectionSwitch({ currentId, items }: { currentId?: string; items: Pho
         <Link
           key={item.id}
           to={item.href}
-          className={`site-tag transition ${item.id === currentId ? 'text-[var(--site-fg)]' : ''}`}
+          className={`${tagClass} ${item.id === currentId ? 'text-[var(--site-fg)]' : ''}`}
         >
           {item.title}
           <span className="ml-1 text-[var(--site-fg-muted)]">({item.count})</span>

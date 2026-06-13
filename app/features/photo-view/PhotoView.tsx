@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject, type WheelEvent } from 'react'
+import { galleryText } from '~/features/home/galleryTypography'
 import { PhotoViewBgImage, thumbWrapClass } from '~/features/photo-view/PhotoViewImage'
 import { CATEGORY_UI, galleryImages, imageUrl } from '~/data/gallery'
 import { usePhotoViewHost, usePhotoViewState } from '~/features/photo-view/ctx'
@@ -151,13 +152,13 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
           src={heroSrc}
           width={heroW}
           height={heroH}
-          className="js-img js-bg u-br p-photo-view__fly-img is-loaded"
+          className="js-img js-bg p-photo-view__fly-img is-loaded"
         />
       </div>
 
       <button
         type="button"
-        className="p-photo-view__close fs-s"
+        className={`p-photo-view__close ${galleryText.s}`}
         aria-label="Close gallery view"
         onClick={() => closePhotoView()}
       >
@@ -167,10 +168,10 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
       <div className="p-cate__fixed p-photo-view__fixed">
         <div className="p-photo-view__border p-cate__border to" aria-hidden />
         <div className="p-cate__category p-photo-view__category">
-          <p className="fs-s u-upper u-sub to">
+          <p className={`${galleryText.s} uppercase opacity-50 to`}>
             <span>Category</span>
           </p>
-          <h2 className="fs-xl to">{categoryLabel}</h2>
+          <h2 className={`${galleryText.xl} to`}>{categoryLabel}</h2>
         </div>
       </div>
 
@@ -198,7 +199,7 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
                     src={thumbSrc}
                     width={image.width}
                     height={image.height}
-                    className="js-img js-bg u-br p-cate__tmb-img is-loaded"
+                    className="js-img js-bg p-cate__tmb-img is-loaded"
                   />
                 </button>
               )

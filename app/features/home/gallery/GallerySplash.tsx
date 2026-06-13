@@ -1,4 +1,5 @@
 import { site } from '~/shared/data/site'
+import { galleryText } from '~/features/home/galleryTypography'
 import { useHomeUi } from '~/features/home/ctx'
 
 function Scope() {
@@ -43,7 +44,7 @@ export function GallerySplash() {
       </div>
       <div className="l-splash__back">
         <div className="l-splash__title">
-          <h1 className="fs-xxl u-upper">
+          <h1 className={`${galleryText.xxl} uppercase`}>
             <SplashLetters text={site.name} phase="in" />
             <SplashLetters text={site.name} phase="out" />
           </h1>
@@ -56,8 +57,8 @@ export function GallerySplash() {
           <div className="l-splash__tag">
             <img src="/assets/img/tag.svg" alt="" />
           </div>
-          <p className="l-splash__text fs-s">{site.description}</p>
-          <p className="l-splash__loader fs-l">
+          <p className={`l-splash__text ${galleryText.s}`}>{site.description}</p>
+          <p className={`l-splash__loader ${galleryText.l}`}>
             <span className="l-splash__num">{formatLoaderProgress(loadProgress)}</span>
           </p>
         </div>

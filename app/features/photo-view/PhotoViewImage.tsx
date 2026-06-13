@@ -9,7 +9,7 @@ export const PhotoViewBgImage = forwardRef<
     height: number
     className?: string
   }
->(function PhotoViewBgImage({ src, width, height, className = 'js-img js-bg u-br is-loaded' }, forwardedRef) {
+>(function PhotoViewBgImage({ src, width, height, className = 'js-img js-bg is-loaded' }, forwardedRef) {
   const nodeRef = useRef<HTMLDivElement | null>(null)
 
   const setRef = useCallback(

@@ -40,7 +40,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      className="site-header__theme"
+      className="inline-flex cursor-pointer items-center justify-center border-0 bg-transparent p-0 leading-none text-[var(--site-fg-muted)] transition-colors duration-150 hover:text-[var(--site-fg)]"
       aria-label={labels[resolved]}
       title={labels[resolved]}
       onClick={() => setResolved(toggleTheme())}

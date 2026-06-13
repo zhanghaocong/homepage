@@ -1,5 +1,6 @@
 import { CATEGORY_UI, galleryCounts, galleryTotal } from '~/data/gallery'
 import { useHomeController, useHomeUi } from '~/features/home/ctx'
+import { galleryText } from '~/features/home/galleryTypography'
 
 export function GalleryCategoryNav() {
   const controller = useHomeController()
@@ -20,12 +21,12 @@ export function GalleryCategoryNav() {
                 controller.jumpToCategory(id)
               }}
             >
-              <h2 className="fs-xl">{label}</h2>
-              <p className="--n fs-s">( {galleryCounts[id]} )</p>
+              <h2 className={galleryText.xl}>{label}</h2>
+              <p className={`--n ${galleryText.s}`}>( {galleryCounts[id]} )</p>
             </a>
           ))}
         </div>
-        <p className="p-home__category--all fs-s">
+        <p className={`p-home__category--all ${galleryText.s}`}>
           <span className="o">
             <span className="t"> /{galleryTotal}Photos </span>
           </span>
