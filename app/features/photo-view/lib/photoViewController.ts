@@ -1,8 +1,8 @@
 import gsap from 'gsap'
-import type { GalleryMeshEntry } from '~/features/wall/canvas/gallery-canvas/galleryMeshRegistry'
+import type { GalleryMeshEntry } from '~/features/home/canvas/gallery-canvas/galleryMeshRegistry'
 import { galleryImages, imageUrl } from '~/data/gallery'
-import { getFrameSpecById } from '~/features/wall/lib/galleryLayoutStore'
-import type { JsScroll } from '~/features/wall/lib/jsScroll'
+import { getFrameSpecById } from '~/features/home/lib/galleryLayoutStore'
+import type { JsScroll } from '~/features/home/lib/jsScroll'
 import { rectFromLayoutId } from '~/features/photo-view/lib/photoViewLayout'
 import {
   CATE_ID_TO_KEY,

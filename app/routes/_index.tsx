@@ -1,4 +1,4 @@
-import { WallPage } from '~/features/wall/WallPage'
+import { HomePage } from '~/features/home/HomePage'
 import { site } from '~/shared/data/site'
 
 export function meta() {
@@ -6,5 +6,5 @@ export function meta() {
 }
 
 export default function Index() {
-  return <WallPage />
+  return <HomePage />
 }

@@ -1,9 +1,9 @@
 import type { Mesh } from 'three'
 import { PlaneGeometry } from 'three'
 import type { CateImage } from '~/data/gallery'
-import { getGridUnit as layoutGridUnit, type GalleryFrameRect } from '~/features/wall/lib/galleryLayout'
-import { getFrameSplashHandoffWorldRect, getFrameWorldRect } from '~/features/wall/lib/galleryLayoutStore'
-import { getViewportSize } from '~/features/wall/lib/viewport'
+import { getGridUnit as layoutGridUnit, type GalleryFrameRect } from '~/features/home/lib/galleryLayout'
+import { getFrameSplashHandoffWorldRect, getFrameWorldRect } from '~/features/home/lib/galleryLayoutStore'
+import { getViewportSize } from '~/features/home/lib/viewport'
 
 export type PhotoViewWorldRect = {
   x: number

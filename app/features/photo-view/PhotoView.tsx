@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai/react'
 import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject, type WheelEvent } from 'react'
 import { PhotoViewBgImage, thumbWrapClass } from '~/features/photo-view/PhotoViewImage'
 import { CATEGORY_UI, galleryImages, imageUrl } from '~/data/gallery'
-import { getGalleryMeshRegistry } from '~/features/wall/lib/galleryRegistryBridge'
+import { getGalleryMeshRegistry } from '~/features/home/lib/galleryRegistryBridge'
 import { pickWallLayoutIdAt } from '~/features/photo-view/lib/galleryWallPick'
 import {
   closePhotoView,

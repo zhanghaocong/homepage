@@ -13,7 +13,7 @@ export function Header() {
         </h1>
         <nav className="site-header__nav">
           <NavLink to="/" end className="site-header__link">
-            Wall
+            Home
           </NavLink>
           <NavLink to="/about" className="site-header__link">
             About
