@@ -56,12 +56,12 @@ export function openPhotoViewFromLayoutId(layoutId: string) {
 
 export function markPhotoViewUiReady() {
   setPhotoViewState({ uiReady: true })
-  getPhotoViewHost().patchDocument({ photoViewUi: true })
+  getPhotoViewHost().setPhotoViewUi(true)
 }
 
 export function closePhotoView() {
   if (isPhotoViewClosing() || !getPhotoViewOpen()) return
-  getPhotoViewHost().patchDocument({ photoViewUi: false })
+  getPhotoViewHost().setPhotoViewUi(false)
   completeClosePhotoView()
 }
 

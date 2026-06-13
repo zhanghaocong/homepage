@@ -1,11 +1,11 @@
 import type { MutableRefObject, RefObject } from 'react'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import { createPhotoViewHost } from '~/features/home/lib/createPhotoViewHost'
-import { clearHomeDocument, syncHomeShell } from '~/features/home/lib/homeDocument'
+import { bindHomeState, unbindHomeState } from '~/features/home/lib/homeShellState'
 import {
   INITIAL_HOME_STATE,
-  type HomeDocumentState,
   type HomeState,
+  type HomeStatePatch,
 } from '~/features/home/state/homeState'
 import { closePhotoView } from '~/features/photo-view/lib/photoViewController'
 import { registerPhotoViewHost, unregisterPhotoViewHost } from '~/features/photo-view/lib/photoViewHostRegistry'
@@ -72,14 +72,11 @@ export class HomeController {
           this.patchState({
             photoViewOpen: open,
             phase: open ? 'photoView' : 'wall',
-            doc: {
-              photoView: open,
-              photoViewUi: open ? prev.doc.photoViewUi : false,
-              photoViewExit: false,
-            },
+            photoViewUi: open ? prev.photoViewUi : false,
+            shell: open ? undefined : { photoViewExit: false },
           })
         },
-        patchDocument: (patch) => this.patchState({ doc: patch }),
+        setPhotoViewUi: (ready) => this.patchState({ photoViewUi: ready }),
         afterPhotoViewClose: () => {},
       })
       registerPhotoViewHost(this.photoViewHost)
@@ -90,6 +87,7 @@ export class HomeController {
   attach() {
     if (this.attached) return
     this.attached = true
+    bindHomeState(this.state)
 
     initGalleryMode()
     this.stopViewport = initViewport()
@@ -99,10 +97,11 @@ export class HomeController {
     const wrap = this.wrapRef.current
     if (!shell || !wrap) {
       this.attached = false
+      unbindHomeState()
       return
     }
 
-    this.patchState({ phase: 'loading', doc: { loadBefore: true } })
+    this.patchState({ phase: 'loading', shell: { loadBefore: true } })
     this.startScroll(wrap)
     this.getPhotoViewHost()
     this.startLoader()
@@ -129,8 +128,7 @@ export class HomeController {
     this.scrollCategory = 'interior'
     this.selectedCategory = null
     this.state.reset({ ...INITIAL_HOME_STATE })
-    clearHomeDocument()
-    syncHomeShell(this.wrapRef.current, INITIAL_HOME_STATE)
+    unbindHomeState()
   }
 
   jumpToCategory(category: string) {
@@ -145,15 +143,14 @@ export class HomeController {
     })
   }
 
-  private patchState(patch: Partial<Omit<HomeState, 'doc'>> & { doc?: Partial<HomeDocumentState> }) {
+  private patchState(patch: HomeStatePatch) {
     const prev = this.state.getSnapshot()
     const next: HomeState = {
       ...prev,
       ...patch,
-      doc: patch.doc ? { ...prev.doc, ...patch.doc } : prev.doc,
+      shell: patch.shell ? { ...prev.shell, ...patch.shell } : prev.shell,
     }
     this.state.set(next)
-    syncHomeShell(this.wrapRef.current, next)
   }
 
   private syncCurrentCategory() {
@@ -252,10 +249,10 @@ export class HomeController {
     const scroll = this.scroll
     if (!shell || !scroll) return
 
-    const patchDocument = (doc: Partial<HomeDocumentState>) => this.patchState({ doc })
+    const patchShell = (patch: HomeStatePatch) => this.patchState(patch)
 
     runHomeSplash(shell, scroll, {
-      patchDocument,
+      patchShell,
       onGatherSet: () => {
         const canvas = this.canvasEngineRef.current
         if (canvas) {

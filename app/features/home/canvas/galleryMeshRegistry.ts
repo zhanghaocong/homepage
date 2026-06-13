@@ -11,7 +11,7 @@ import {
   type Intersection,
 } from 'three'
 import { createGalleryPhotoMaterial } from '~/features/home/canvas/materials'
-import { isHomeSplashLayoutActive } from '~/features/home/lib/homeDocument'
+import { isHomeSplashLayoutActive } from '~/features/home/lib/homeShellState'
 import {
   galleryAtlasKeyFromSrc,
   getGalleryAtlasSprite,

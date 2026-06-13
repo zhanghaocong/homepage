@@ -1,13 +1,11 @@
 /** Homepage runtime phase — drives loader, splash, wall scroll, and photo view. */
 export type HomePhase = 'boot' | 'loading' | 'splash' | 'wall' | 'photoView' | 'photoViewExit'
 
-/** `<html>` class flags — sole source of truth for document-level CSS hooks. */
-export type HomeDocumentState = {
+/** Shell presentation flags — applied as React className on `.xhr-wrap`, never written to `<html>`. */
+export type HomeShellFlags = {
   loadBefore: boolean
   load: boolean
   gather: boolean
-  photoView: boolean
-  photoViewUi: boolean
   photoViewExit: boolean
 }
 
@@ -16,15 +14,18 @@ export type HomeState = {
   loadProgress: number
   currentCategory: string
   photoViewOpen: boolean
-  doc: HomeDocumentState
+  photoViewUi: boolean
+  shell: HomeShellFlags
 }
 
-export const INITIAL_HOME_DOCUMENT: HomeDocumentState = {
+export type HomeStatePatch = Partial<Omit<HomeState, 'shell'>> & {
+  shell?: Partial<HomeShellFlags>
+}
+
+export const INITIAL_HOME_SHELL: HomeShellFlags = {
   loadBefore: false,
   load: false,
   gather: false,
-  photoView: false,
-  photoViewUi: false,
   photoViewExit: false,
 }
 
@@ -33,5 +34,6 @@ export const INITIAL_HOME_STATE: HomeState = {
   loadProgress: 0,
   currentCategory: 'interior',
   photoViewOpen: false,
-  doc: { ...INITIAL_HOME_DOCUMENT },
+  photoViewUi: false,
+  shell: { ...INITIAL_HOME_SHELL },
 }

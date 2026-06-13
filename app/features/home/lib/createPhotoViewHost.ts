@@ -16,9 +16,7 @@ import type {
   PhotoViewHost,
   PhotoViewScreenRect,
   PhotoViewWorldRect,
-  PhotoViewDocumentPatch,
 } from '~/features/photo-view/lib/photoViewHost'
-import type { HomeDocumentState } from '~/features/home/state/homeState'
 
 const WALL_FADE_SEL = '.p-home .c-content'
 const PAGE_COVER_SEL = '.p-home .js-page__cover'
@@ -52,7 +50,7 @@ export type CreatePhotoViewHostOptions = {
   scrollRef: MutableRefObject<JsScroll | null>
   canvasEngineRef: MutableRefObject<GalleryEngineHandle | null>
   onPhotoViewOpenChange: (open: boolean) => void
-  patchDocument: (patch: Partial<HomeDocumentState>) => void
+  setPhotoViewUi: (ready: boolean) => void
   afterPhotoViewClose: () => void
 }
 
@@ -60,7 +58,7 @@ export function createPhotoViewHost({
   scrollRef,
   canvasEngineRef,
   onPhotoViewOpenChange,
-  patchDocument,
+  setPhotoViewUi,
   afterPhotoViewClose,
 }: CreatePhotoViewHostOptions): PhotoViewHost {
   const syncCanvasAfterClose = () => {
@@ -164,9 +162,7 @@ export function createPhotoViewHost({
       gsap.set('.js-canvas__wrap canvas', { opacity: 1 })
     },
 
-    patchDocument(patch: PhotoViewDocumentPatch) {
-      patchDocument(patch)
-    },
+    setPhotoViewUi,
 
     onPhotoViewOpenChange,
     onPhotoViewAfterClose() {

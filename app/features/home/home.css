@@ -1373,7 +1373,7 @@ html .l-header svg path {
   left: 0
 }
 
-.is-load__before .c-scope.--grid .l,
+.xhr-wrap.is-load__before .c-scope.--grid .l,
 .is-transition .c-scope.--grid .l {
   background: #252726;
   display: inline-block;
@@ -1383,10 +1383,10 @@ html .l-header svg path {
   transition: .5s
 }
 
-.is-load__before .c-scope.--grid .l1,
-.is-load__before .c-scope.--grid .l2,
-.is-load__before .c-scope.--grid .l3,
-.is-load__before .c-scope.--grid .l4,
+.xhr-wrap.is-load__before .c-scope.--grid .l1,
+.xhr-wrap.is-load__before .c-scope.--grid .l2,
+.xhr-wrap.is-load__before .c-scope.--grid .l3,
+.xhr-wrap.is-load__before .c-scope.--grid .l4,
 .is-transition .c-scope.--grid .l1,
 .is-transition .c-scope.--grid .l2,
 .is-transition .c-scope.--grid .l3,
@@ -1396,27 +1396,27 @@ html .l-header svg path {
   width: 0
 }
 
-.is-load__before .c-scope.--grid .l1,
+.xhr-wrap.is-load__before .c-scope.--grid .l1,
 .is-transition .c-scope.--grid .l1 {
   top: 0
 }
 
-.is-load__before .c-scope.--grid .l2,
+.xhr-wrap.is-load__before .c-scope.--grid .l2,
 .is-transition .c-scope.--grid .l2 {
   right: 0
 }
 
-.is-load__before .c-scope.--grid .l3,
+.xhr-wrap.is-load__before .c-scope.--grid .l3,
 .is-transition .c-scope.--grid .l3 {
   bottom: 0
 }
 
-.is-load__before .c-scope.--grid .l4,
+.xhr-wrap.is-load__before .c-scope.--grid .l4,
 .is-transition .c-scope.--grid .l4 {
   left: 0
 }
 
-.is-load__before .c-scope.--full .l,
+.xhr-wrap.is-load__before .c-scope.--full .l,
 .is-transition .c-scope.--full .l {
   background: #252726;
   display: inline-block;
@@ -1426,10 +1426,10 @@ html .l-header svg path {
   transition: .5s
 }
 
-.is-load__before .c-scope.--full .l1,
-.is-load__before .c-scope.--full .l2,
-.is-load__before .c-scope.--full .l3,
-.is-load__before .c-scope.--full .l4,
+.xhr-wrap.is-load__before .c-scope.--full .l1,
+.xhr-wrap.is-load__before .c-scope.--full .l2,
+.xhr-wrap.is-load__before .c-scope.--full .l3,
+.xhr-wrap.is-load__before .c-scope.--full .l4,
 .is-transition .c-scope.--full .l1,
 .is-transition .c-scope.--full .l2,
 .is-transition .c-scope.--full .l3,
@@ -1439,27 +1439,27 @@ html .l-header svg path {
   width: 0
 }
 
-.is-load__before .c-scope.--full .l1,
+.xhr-wrap.is-load__before .c-scope.--full .l1,
 .is-transition .c-scope.--full .l1 {
   top: 0
 }
 
-.is-load__before .c-scope.--full .l2,
+.xhr-wrap.is-load__before .c-scope.--full .l2,
 .is-transition .c-scope.--full .l2 {
   right: 0
 }
 
-.is-load__before .c-scope.--full .l3,
+.xhr-wrap.is-load__before .c-scope.--full .l3,
 .is-transition .c-scope.--full .l3 {
   bottom: 0
 }
 
-.is-load__before .c-scope.--full .l4,
+.xhr-wrap.is-load__before .c-scope.--full .l4,
 .is-transition .c-scope.--full .l4 {
   left: 0
 }
 
-.is-load__before .c-scope .l,
+.xhr-wrap.is-load__before .c-scope .l,
 .is-transition .c-scope .l {
   background: #252726;
   display: inline-block;
@@ -1469,10 +1469,10 @@ html .l-header svg path {
   transition: .5s
 }
 
-.is-load__before .c-scope .l1,
-.is-load__before .c-scope .l2,
-.is-load__before .c-scope .l3,
-.is-load__before .c-scope .l4,
+.xhr-wrap.is-load__before .c-scope .l1,
+.xhr-wrap.is-load__before .c-scope .l2,
+.xhr-wrap.is-load__before .c-scope .l3,
+.xhr-wrap.is-load__before .c-scope .l4,
 .is-transition .c-scope .l1,
 .is-transition .c-scope .l2,
 .is-transition .c-scope .l3,
@@ -1482,22 +1482,22 @@ html .l-header svg path {
   width: 0
 }
 
-.is-load__before .c-scope .l1,
+.xhr-wrap.is-load__before .c-scope .l1,
 .is-transition .c-scope .l1 {
   top: 0
 }
 
-.is-load__before .c-scope .l2,
+.xhr-wrap.is-load__before .c-scope .l2,
 .is-transition .c-scope .l2 {
   right: 0
 }
 
-.is-load__before .c-scope .l3,
+.xhr-wrap.is-load__before .c-scope .l3,
 .is-transition .c-scope .l3 {
   bottom: 0
 }
 
-.is-load__before .c-scope .l4,
+.xhr-wrap.is-load__before .c-scope .l4,
 .is-transition .c-scope .l4 {
   left: 0
 }
@@ -2084,22 +2084,22 @@ html[data-mode=full] .c-btn__full {
   width: 100%
 }
 
-.l-cate .l-header .--a {
+.site-shell:has(.xhr-wrap.l-cate) .l-header .--a {
   pointer-events: none
 }
 
-.l-cate .l-header .--c {
+.site-shell:has(.xhr-wrap.l-cate) .l-header .--c {
   opacity: 1;
   pointer-events: auto;
   transition-delay: .5s
 }
 
-.l-cate .l-header .--c:hover:after {
+.site-shell:has(.xhr-wrap.l-cate) .l-header .--c:hover:after {
   transform: scale(1);
   transform-origin: left top
 }
 
-.l-cate .l-header .c-link__text.is-nav:after {
+.site-shell:has(.xhr-wrap.l-cate) .l-header .c-link__text.is-nav:after {
   background-color: #252726;
   bottom: 0;
   bottom: 3px;

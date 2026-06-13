@@ -23,12 +23,6 @@ export type PhotoViewViewport = {
   h: number
 }
 
-export type PhotoViewDocumentPatch = {
-  photoView?: boolean
-  photoViewUi?: boolean
-  photoViewExit?: boolean
-}
-
 /** Narrow wall API implemented by the homepage gallery host. */
 export type PhotoViewHost = {
   getFrameSpec(id: string): PhotoViewFrameSpec | null
@@ -50,7 +44,7 @@ export type PhotoViewHost = {
   showWallDomImmediately(): void
   fadeWallDom(show: boolean): void
   ensureCanvasVisible(): void
-  patchDocument(patch: PhotoViewDocumentPatch): void
+  setPhotoViewUi(ready: boolean): void
 
   onPhotoViewOpenChange(open: boolean): void
   onPhotoViewAfterClose(): void

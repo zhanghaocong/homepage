@@ -4,23 +4,20 @@ import { GalleryCanvasHost } from '~/features/home/gallery/GalleryCanvasHost'
 import { GalleryCategoryNav } from '~/features/home/gallery/GalleryCategoryNav'
 import { GalleryScrollbar } from '~/features/home/gallery/GalleryScrollbar'
 import { GallerySplash } from '~/features/home/gallery/GallerySplash'
-import { useHomeController, useHomeMount, useHomeUi } from '~/features/home/ctx'
+import { useHomeController, useHomeMount, useHomeState } from '~/features/home/ctx'
+import { homeShellClassName, homeWrapClassName } from '~/features/home/lib/homeShellClassName'
 
 export function GalleryShell() {
   const controller = useHomeController()
-  const ui = useHomeUi()
+  const state = useHomeState()
 
   useHomeMount()
 
   return (
     <PhotoViewHostContext value={controller.getPhotoViewHost()}>
-      <div
-        className={`xhr-wrap${ui.photoViewOpen ? 'is-photo-view-open' : ''}`}
-        data-xhr-namespace="home"
-        ref={controller.shellRef}
-      >
+      <div className={homeShellClassName(state)} data-xhr-namespace="home" ref={controller.shellRef}>
         <PhotoView wrapRef={controller.wrapRef} />
-        <div className="js-wrapper p-home" ref={controller.wrapRef}>
+        <div className={homeWrapClassName(state)} ref={controller.wrapRef}>
           <div className="js-page__cover" />
           <div className="js-page">
             <div className="js-body" data-dir="hr">

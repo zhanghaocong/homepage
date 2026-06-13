@@ -5,15 +5,15 @@ import type { JsScroll } from '~/features/home/lib/jsScroll'
 import { beginSplashGather, groupLayoutColumns, initSplashColumn } from '~/features/home/lib/splashGatherState'
 import { getViewportSize } from '~/features/home/lib/viewport'
 
-import type { HomeDocumentState } from '~/features/home/state/homeState'
+import type { HomeStatePatch } from '~/features/home/state/homeState'
 
-export type PatchHomeDocument = (patch: Partial<HomeDocumentState>) => void
+export type PatchHomeShell = (patch: HomeStatePatch) => void
 
 export type SplashExitHooks = {
   onReveal?: () => void
   onComplete?: () => void
   onLayoutTick?: () => void
-  patchDocument?: PatchHomeDocument
+  patchShell?: PatchHomeShell
 }
 export function runSplashClipOutTimeline(onReveal: () => void) {
   const tl = gsap.timeline()
@@ -139,11 +139,11 @@ export function runPhotoViewSplashExit(
   const splashImg = root.querySelector<HTMLImageElement>('.l-splash__front--image img')
   if (splashImg) splashImg.src = imageUrl
 
-  hooks?.patchDocument?.({
-    photoView: false,
+  hooks?.patchShell?.({
+    photoViewOpen: false,
     photoViewUi: false,
-    photoViewExit: true,
-    load: true,
+    phase: 'photoViewExit',
+    shell: { photoViewExit: true, load: true },
   })
 
   gsap.set(root.querySelector('.l-splash'), { opacity: 1, visibility: 'visible' })
@@ -162,9 +162,9 @@ export function runPhotoViewSplashExit(
     runGalleryWallReveal(scroll, {
       onReveal: hooks?.onReveal,
       onLayoutTick: hooks?.onLayoutTick,
-      patchDocument: hooks?.patchDocument,
+      patchShell: hooks?.patchShell,
       onComplete: () => {
-        hooks?.patchDocument?.({ photoViewExit: false, load: false })
+        hooks?.patchShell?.({ phase: 'wall', shell: { photoViewExit: false, load: false } })
         hooks?.onComplete?.()
       },
     })
@@ -180,11 +180,11 @@ export function runHomeSplash(
     onGatherSet?: () => void
     onReveal?: () => void
     onGatherComplete?: () => void
-    patchDocument?: PatchHomeDocument
+    patchShell?: PatchHomeShell
   },
 ) {
   gsap.set('canvas', { opacity: 0 })
-  hooks?.patchDocument?.({ loadBefore: false, load: true, gather: true })
+  hooks?.patchShell?.({ shell: { loadBefore: false, load: true, gather: true } })
 
   gsap.to(root.querySelector('.l-splash__title'), { opacity: 1, duration: 0.4 })
   gsap.to(root.querySelector('.l-splash__front'), {
@@ -224,7 +224,7 @@ export function runHomeSplash(
       runGalleryWallReveal(scroll, {
         onReveal: hooks?.onReveal,
         onComplete: hooks?.onGatherComplete,
-        patchDocument: hooks?.patchDocument,
+        patchShell: hooks?.patchShell,
       })
     }
 
@@ -232,6 +232,6 @@ export function runHomeSplash(
   }, 600)
 
   window.setTimeout(() => {
-    hooks?.patchDocument?.({ load: false })
+    hooks?.patchShell?.({ shell: { load: false } })
   }, 2250)
 }
