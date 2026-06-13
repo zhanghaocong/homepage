@@ -1,5 +1,6 @@
 import gsap from 'gsap'
 import type { MutableRefObject } from 'react'
+import type { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import { isFrameVisible, getGridUnit } from '~/features/home/lib/galleryLayout'
 import {
@@ -9,7 +10,6 @@ import {
   getFrameWorldRect,
   listAllFrameSpecs,
 } from '~/features/home/lib/galleryLayoutStore'
-import { getGalleryMeshRegistry } from '~/features/home/lib/galleryRegistryBridge'
 import type { JsScroll } from '~/features/home/lib/jsScroll'
 import { getViewportSize } from '~/features/home/lib/viewport'
 import type {
@@ -49,12 +49,14 @@ function toWorldRect(rect: ReturnType<typeof getFrameWorldRect>): PhotoViewWorld
 export type CreatePhotoViewHostOptions = {
   scrollRef: MutableRefObject<JsScroll | null>
   canvasEngineRef: MutableRefObject<GalleryEngineHandle | null>
+  getMeshRegistry: () => GalleryMeshRegistry | null
   afterPhotoViewClose: () => void
 }
 
 export function createPhotoViewHost({
   scrollRef,
   canvasEngineRef,
+  getMeshRegistry,
   afterPhotoViewClose,
 }: CreatePhotoViewHostOptions): PhotoViewHost {
   const syncCanvasAfterClose = () => {
@@ -103,7 +105,7 @@ export function createPhotoViewHost({
     },
 
     enterPhotoView() {
-      const registry = getGalleryMeshRegistry()
+      const registry = getMeshRegistry()
       if (!registry) return false
       registry.setWallMeshesHidden(true)
       registry.effectUniforms.u_type.value = 0
@@ -111,13 +113,13 @@ export function createPhotoViewHost({
     },
 
     exitPhotoView() {
-      const registry = getGalleryMeshRegistry()
+      const registry = getMeshRegistry()
       registry?.restoreWallMeshes()
       registry?.onResize()
     },
 
     setEffectPassthrough(passthrough) {
-      const registry = getGalleryMeshRegistry()
+      const registry = getMeshRegistry()
       if (!registry) return
       registry.effectUniforms.u_type.value = passthrough ? 0 : 1
     },

@@ -6,7 +6,6 @@ import { site } from '~/shared/data/site'
 import { themeBootScript } from '~/shared/lib/theme'
 import type { Route } from './+types/root'
 import './app.css'
-import '~/features/home/home.css'
 
 export function meta() {
   return [{ title: site.title }, { name: 'description', content: site.description }]

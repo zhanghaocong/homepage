@@ -1,12 +1,13 @@
 import { Canvas } from '@react-three/fiber'
 import { GalleryScene } from '~/features/home/canvas/GalleryScene'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
-import { loadGalleryAtlasTexture, tuneGalleryAtlasForRenderer } from '~/features/home/lib/galleryAtlas'
+import { loadGalleryAtlasTexture, tuneGalleryAtlasForRenderer } from '~/features/home/lib/galleryAtlasTexture'
 import type { JsScroll } from '~/features/home/lib/jsScroll'
 
 export type GalleryCanvasProps = {
   engineRef: React.MutableRefObject<GalleryEngineHandle | null>
   scrollRef: React.MutableRefObject<JsScroll | null>
+  canvasInvalidateRef: React.MutableRefObject<(() => void) | null>
   onEngineReady?: () => void
 }
 
@@ -14,10 +15,10 @@ export type GalleryCanvasProps = {
  * R3F entry for the gallery WebGL layer.
  * Scroll + mesh sync run in GallerySyncSystem (useFrame priority 1); post-processing at priority 2.
  */
-export function GalleryCanvas({ engineRef, scrollRef, onEngineReady }: GalleryCanvasProps) {
+export function GalleryCanvas({ engineRef, scrollRef, canvasInvalidateRef, onEngineReady }: GalleryCanvasProps) {
   return (
     <Canvas
-      frameloop="always"
+      frameloop="demand"
       gl={{
         antialias: true,
         alpha: true,
@@ -25,10 +26,11 @@ export function GalleryCanvas({ engineRef, scrollRef, onEngineReady }: GalleryCa
       }}
       dpr={[1, 2]}
       style={{ display: 'block', width: '100%', height: '100%' }}
-      onCreated={({ gl, size }) => {
+      onCreated={({ gl, size, invalidate }) => {
         // photoyoshi.com: transparent clear so CSS page bg shows through meshes
         gl.setClearColor(0, 0)
         gl.setSize(size.width, size.height, false)
+        invalidate()
 
         const canvas = gl.domElement
         const onContextLost = (event: Event) => {
@@ -47,7 +49,12 @@ export function GalleryCanvas({ engineRef, scrollRef, onEngineReady }: GalleryCa
         })
       }}
     >
-      <GalleryScene engineRef={engineRef} scrollRef={scrollRef} onEngineReady={onEngineReady} />
+      <GalleryScene
+        engineRef={engineRef}
+        scrollRef={scrollRef}
+        canvasInvalidateRef={canvasInvalidateRef}
+        onEngineReady={onEngineReady}
+      />
     </Canvas>
   )
 }

@@ -1,5 +1,4 @@
 import { galleryImages, imageUrl } from '~/data/gallery'
-import { patchHomeState } from '~/features/home/lib/homeShellState'
 import { getPhotoViewHost } from '~/features/photo-view/lib/photoViewHostRegistry'
 import { rectFromLayoutId } from '~/features/photo-view/lib/photoViewLayout'
 import {
@@ -48,7 +47,6 @@ export function openPhotoViewFromLayoutId(layoutId: string) {
     sourceLayoutId: layoutId,
     fromRect: rectFromLayoutId(layoutId),
   })
-  patchHomeState({ phase: 'photoView' })
 
   host.setScrollLocked(true)
   host.ensureCanvasVisible()
@@ -74,7 +72,6 @@ export function preparePhotoViewWallReveal() {
 export function completeClosePhotoView() {
   const host = getPhotoViewHost()
   resetPhotoViewState()
-  patchHomeState({ phase: 'wall', shell: { photoViewExit: false } })
   host.setScrollLocked(false)
   host.ensureCanvasVisible()
   host.showWallDomImmediately()

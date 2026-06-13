@@ -53,8 +53,11 @@ export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallReveal
 
   const distance = window.innerWidth < 680 ? 4.48 : 2.125
   const revealTarget = getViewportSize().w * distance
-  if (scroll.delta1 < revealTarget) {
-    scroll.onScrollTo(revealTarget, 2.5, 0, 'power4.out')
+  const start = scroll.delta1
+  if (start < revealTarget) {
+    const remaining = revealTarget - start
+    const duration = Math.max(0.9, 2.5 * (remaining / revealTarget))
+    scroll.onScrollTo(revealTarget, duration, 0, 'power4.out')
   }
 
   const layoutTick = () => hooks?.onLayoutTick?.()

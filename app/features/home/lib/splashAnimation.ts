@@ -177,6 +177,7 @@ export function runHomeSplash(
   hooks?: {
     onGatherSet?: () => void
     onReveal?: () => void
+    onLayoutTick?: () => void
     onGatherComplete?: () => void
     patchShell?: PatchHomeShell
   },
@@ -221,6 +222,7 @@ export function runHomeSplash(
       gsap.fromTo('canvas', { opacity: 0 }, { opacity: 1, duration: 0.85 })
       runGalleryWallReveal(scroll, {
         onReveal: hooks?.onReveal,
+        onLayoutTick: hooks?.onLayoutTick,
         onComplete: hooks?.onGatherComplete,
         patchShell: hooks?.patchShell,
       })

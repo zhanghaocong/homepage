@@ -1,18 +1,18 @@
 import type { MutableRefObject, RefObject } from 'react'
+import type { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import { createPhotoViewHost } from '~/features/home/lib/createPhotoViewHost'
-import { bindHomeState, unbindHomeState } from '~/features/home/lib/homeShellState'
 import {
   INITIAL_HOME_STATE,
+  applyHomeStatePatch,
+  syncHomePhaseFromPhotoView,
   type HomeState,
   type HomeStatePatch,
 } from '~/features/home/state/homeState'
-import { closePhotoView } from '~/features/photo-view/lib/photoViewController'
-import { resetPhotoViewState } from '~/features/photo-view/lib/photoViewStore'
+import { resetPhotoViewState, photoViewState } from '~/features/photo-view/lib/photoViewStore'
 import { registerPhotoViewHost, unregisterPhotoViewHost } from '~/features/photo-view/lib/photoViewHostRegistry'
 import type { PhotoViewHost } from '~/features/photo-view/lib/photoViewHost'
 import { buildGalleryLayout } from '~/features/home/lib/buildGalleryLayout'
-import { disposeGalleryAtlas } from '~/features/home/lib/galleryAtlas'
 import { resetGalleryLayoutStore } from '~/features/home/lib/galleryLayoutStore'
 import { initGalleryMode } from '~/features/home/lib/galleryStore'
 import { createJsScroll, type JsScroll } from '~/features/home/lib/jsScroll'
@@ -20,6 +20,7 @@ import { preloadGalleryImages } from '~/features/home/lib/preloadGalleryImages'
 import { runHomeSplash } from '~/features/home/lib/splashAnimation'
 import { initViewport } from '~/features/home/lib/viewport'
 import { Signal } from '~/shared/lib/signal'
+import { closePhotoView } from '~/features/photo-view/lib/photoViewController'
 
 const LOADER_TICK_MS = 10.1010101010101
 const LOADER_STEP = 3
@@ -45,6 +46,8 @@ export class HomeController {
   readonly scrollThumbBeforeRef: RefObject<HTMLDivElement | null> = { current: null }
   readonly scrollThumbAfterRef: RefObject<HTMLDivElement | null> = { current: null }
   readonly canvasEngineRef: MutableRefObject<GalleryEngineHandle | null> = { current: null }
+  readonly meshRegistryRef: MutableRefObject<GalleryMeshRegistry | null> = { current: null }
+  readonly canvasInvalidateRef: MutableRefObject<(() => void) | null> = { current: null }
   readonly scrollRef: MutableRefObject<JsScroll | null> = { current: null }
   readonly state = new Signal<HomeState>({ ...INITIAL_HOME_STATE })
 
@@ -56,6 +59,7 @@ export class HomeController {
   private splashStarted = false
   private scrollCategory = 'interior'
   private selectedCategory: string | null = null
+  private stopPhotoViewSync: (() => void) | null = null
 
   subscribe = this.state.subscribe
   getSnapshot = this.state.getSnapshot
@@ -65,6 +69,7 @@ export class HomeController {
       this.photoViewHost = createPhotoViewHost({
         scrollRef: this.scrollRef,
         canvasEngineRef: this.canvasEngineRef,
+        getMeshRegistry: () => this.meshRegistryRef.current,
         afterPhotoViewClose: () => {},
       })
       registerPhotoViewHost(this.photoViewHost)
@@ -75,7 +80,6 @@ export class HomeController {
   attach() {
     if (this.attached) return
     this.attached = true
-    bindHomeState(this.state)
 
     initGalleryMode()
     this.stopViewport = initViewport()
@@ -85,9 +89,12 @@ export class HomeController {
     const wrap = this.wrapRef.current
     if (!shell || !wrap) {
       this.attached = false
-      unbindHomeState()
       return
     }
+
+    this.stopPhotoViewSync = photoViewState.subscribe(() => {
+      syncHomePhaseFromPhotoView(this.state, photoViewState.getSnapshot().open)
+    })
 
     this.patchState({ phase: 'loading', shell: { loadBefore: true } })
     this.startScroll(wrap)
@@ -105,19 +112,30 @@ export class HomeController {
     this.stopScroll()
     this.stopLoader?.()
     this.stopLoader = null
+    this.stopPhotoViewSync?.()
+    this.stopPhotoViewSync = null
     unregisterPhotoViewHost()
     this.photoViewHost = null
+    this.meshRegistryRef.current = null
+    this.canvasInvalidateRef.current = null
     this.stopViewport?.()
     this.stopViewport = null
     resetGalleryLayoutStore()
-    disposeGalleryAtlas()
+    void import('~/features/home/lib/galleryAtlasTexture').then((m) => m.disposeGalleryAtlas())
     this.canvasEngineRef.current = null
     this.splashStarted = false
     this.scrollCategory = 'interior'
     this.selectedCategory = null
     resetPhotoViewState()
     this.state.reset({ ...INITIAL_HOME_STATE })
-    unbindHomeState()
+  }
+
+  requestCanvasFrame() {
+    this.canvasInvalidateRef.current?.()
+  }
+
+  private patchState(patch: HomeStatePatch) {
+    applyHomeStatePatch(this.state, patch)
   }
 
   jumpToCategory(category: string) {
@@ -129,17 +147,8 @@ export class HomeController {
   handleEngineReady() {
     requestAnimationFrame(() => {
       this.canvasEngineRef.current?.warmupRender()
+      this.requestCanvasFrame()
     })
-  }
-
-  private patchState(patch: HomeStatePatch) {
-    const prev = this.state.getSnapshot()
-    const next: HomeState = {
-      ...prev,
-      ...patch,
-      shell: patch.shell ? { ...prev.shell, ...patch.shell } : prev.shell,
-    }
-    this.state.set(next)
   }
 
   private syncCurrentCategory() {
@@ -168,8 +177,10 @@ export class HomeController {
         if (canvas) syncCanvasAfterResize(canvas)
       },
     })
+    this.scroll.setIntroScrollBlend(true)
     this.scrollRef.current = this.scroll
     this.scroll.raf()
+    this.requestCanvasFrame()
   }
 
   private stopScroll() {
@@ -240,27 +251,27 @@ export class HomeController {
 
     const patchShell = (patch: HomeStatePatch) => this.patchState(patch)
 
+    const syncSplashMeshes = () => {
+      const canvas = this.canvasEngineRef.current
+      if (canvas) {
+        canvas.homeScene.syncMeshes()
+        canvas.warmupRender()
+      }
+      this.requestCanvasFrame()
+    }
+
     runHomeSplash(shell, scroll, {
       patchShell,
-      onGatherSet: () => {
-        const canvas = this.canvasEngineRef.current
-        if (canvas) {
-          canvas.homeScene.syncMeshes()
-          canvas.warmupRender()
-        }
-      },
-      onReveal: () => {
-        const canvas = this.canvasEngineRef.current
-        if (canvas) {
-          canvas.homeScene.syncMeshes()
-          canvas.warmupRender()
-        }
-      },
+      onGatherSet: syncSplashMeshes,
+      onReveal: syncSplashMeshes,
+      onLayoutTick: syncSplashMeshes,
       onGatherComplete: () => {
         scroll.remeasure()
         const canvas = this.canvasEngineRef.current
         if (canvas) syncCanvasAfterResize(canvas)
+        scroll.setIntroScrollBlend(false)
         this.patchState({ phase: 'wall' })
+        this.requestCanvasFrame()
       },
     })
   }

@@ -11,14 +11,14 @@ import {
   type Intersection,
 } from 'three'
 import { createGalleryPhotoMaterial } from '~/features/home/canvas/materials'
-import { isHomeSplashLayoutActive } from '~/features/home/lib/homeShellState'
+import { isHomeSplashLayoutActive, type HomeState } from '~/features/home/state/homeState'
 import {
   galleryAtlasKeyFromSrc,
   getGalleryAtlasSprite,
   getGalleryAtlasTexture,
   loadGalleryAtlasTexture,
   spriteToUvRect,
-} from '~/features/home/lib/galleryAtlas'
+} from '~/features/home/lib/galleryAtlasTexture'
 import { getImageAspect, isFrameVisible, type GalleryFrameSpec } from '~/features/home/lib/galleryLayout'
 import {
   getFrameScreenRect,
@@ -55,6 +55,7 @@ export type GalleryMeshRegistryOptions = {
   scene: Scene
   isMobile: boolean
   pm: { value: number }
+  getHomeState: () => HomeState
 }
 
 /**
@@ -83,10 +84,12 @@ export class GalleryMeshRegistry {
   private time = 0
   private wallHiddenForPhotoView = false
   private lastScrollPower: ScrollPower | null = null
+  private readonly getHomeState: () => HomeState
 
-  constructor({ scene, isMobile, pm }: GalleryMeshRegistryOptions) {
+  constructor({ scene, isMobile, pm, getHomeState }: GalleryMeshRegistryOptions) {
     this.scene = scene
     this.pm = pm
+    this.getHomeState = getHomeState
     this.effectUniforms.device.value = isMobile ? 0.5 : 0
   }
 
@@ -355,7 +358,7 @@ export class GalleryMeshRegistry {
 
     const spec = getFrameSpecById(entry.layoutId)
 
-    if (isHomeSplashLayoutActive()) {
+    if (isHomeSplashLayoutActive(this.getHomeState())) {
       this.applyLayoutToMeshEntry(entry, power, true)
       return
     }

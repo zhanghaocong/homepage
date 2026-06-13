@@ -1,14 +1,16 @@
-import { useMemo } from 'react'
-import { GalleryShell } from '~/features/home/gallery/GalleryShell'
-import { HomeControllerContext } from '~/features/home/ctx'
-import { HomeController } from '~/features/home/home.controller'
+import { lazy, Suspense } from 'react'
+import { HomePageFallback } from '~/features/home/HomePageFallback'
+import { ClientOnly } from '~/shared/components/ClientOnly'
+import '~/features/home/home.css'
+
+const HomePageClient = lazy(() => import('~/features/home/HomePage.client', { ssr: false }))
 
 export function HomePage() {
-  const controller = useMemo(() => new HomeController(), [])
-
   return (
-    <HomeControllerContext value={controller}>
-      <GalleryShell />
-    </HomeControllerContext>
+    <ClientOnly fallback={<HomePageFallback />}>
+      <Suspense fallback={<HomePageFallback />}>
+        <HomePageClient />
+      </Suspense>
+    </ClientOnly>
   )
 }

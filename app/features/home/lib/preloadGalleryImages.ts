@@ -1,6 +1,6 @@
 import allCateImages from '~/data/allCateImages.json'
 import { imageUrl } from '~/data/gallery'
-import { getGalleryAtlasManifest } from '~/features/home/lib/galleryAtlas'
+import { getGalleryAtlasManifest } from '~/features/home/lib/galleryAtlasManifest'
 
 export type GalleryLoadProgress = {
   loaded: number

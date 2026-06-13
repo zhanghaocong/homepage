@@ -8,29 +8,15 @@ import {
   Vector4,
   type WebGLRenderer,
 } from 'three'
-import galleryAtlasManifest from '~/data/galleryAtlas.json'
+import {
+  getGalleryAtlasManifest,
+  type GalleryAtlasSprite,
+} from '~/features/home/lib/galleryAtlasManifest'
 
-export type GalleryAtlasSprite = {
-  u0: number
-  v0: number
-  u1: number
-  v1: number
-  w: number
-  h: number
-}
+export type { GalleryAtlasManifest, GalleryAtlasSprite } from '~/features/home/lib/galleryAtlasManifest'
+export { galleryAtlasKeyFromSrc, getGalleryAtlasManifest, getGalleryAtlasSprite } from '~/features/home/lib/galleryAtlasManifest'
 
-export type GalleryAtlasManifest = {
-  image: string
-  width: number
-  height: number
-  maxThumb: number
-  extrude: number
-  /** Unique photos in atlas (path aliases may exceed this). */
-  spriteCount?: number
-  sprites: Record<string, GalleryAtlasSprite>
-}
-
-const manifest = galleryAtlasManifest as GalleryAtlasManifest
+const manifest = getGalleryAtlasManifest()
 
 let atlasTexture: Texture | null = null
 let loadPromise: Promise<Texture> | null = null
@@ -57,19 +43,6 @@ export function tuneGalleryAtlasForRenderer(gl: WebGLRenderer) {
   const max = gl.capabilities.getMaxAnisotropy()
   atlasTexture.anisotropy = Math.min(8, max)
   atlasTexture.needsUpdate = true
-}
-
-/** Path key without `.webp` suffix (matches `imageUrl()` input). */
-export function galleryAtlasKeyFromSrc(src: string) {
-  return src.replace(/\.webp$/i, '')
-}
-
-export function getGalleryAtlasManifest() {
-  return manifest
-}
-
-export function getGalleryAtlasSprite(key: string): GalleryAtlasSprite | null {
-  return manifest.sprites[key] ?? null
 }
 
 export function loadGalleryAtlasTexture(): Promise<Texture> {

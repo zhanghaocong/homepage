@@ -49,10 +49,13 @@ export type JsScroll = {
   delta1: number
   currentCategory: string
   raf: () => void
+  isAnimating: () => boolean
+  setRequestFrame: (fn: (() => void) | null) => void
   onScrollTo: (target: number, duration?: number, delay?: number, ease?: string) => void
   jumpToCategory: (category: string) => void
   remeasure: () => void
   setInputEnabled: (enabled: boolean) => void
+  setIntroScrollBlend: (active: boolean) => void
   destroy: () => void
 }
 
@@ -93,7 +96,7 @@ function createScrollPower(): ScrollPower {
   }
 }
 
-function getSpeed(power: ScrollPower, scale = 1) {
+function getSpeed(power: ScrollPower, scale = 1, requestFrame?: () => void) {
   if (power.history.length > 2) {
     power.history.shift()
     power.history.push(power.delta2)
@@ -103,29 +106,33 @@ function getSpeed(power: ScrollPower, scale = 1) {
       duration: power.pow1.duration,
       ease: power.pow1.ease,
       value: power.pow0.value,
+      onUpdate: requestFrame,
     })
     power.pow2.tween?.kill()
     power.pow2.tween = gsap.to(power.pow2, {
       duration: power.pow2.duration,
       ease: power.pow2.ease,
       value: power.pow0.value,
+      onUpdate: requestFrame,
     })
   } else {
     power.history.push(power.delta2)
   }
 }
 
-function onScrollPowerComplete(power: ScrollPower) {
+function onScrollPowerComplete(power: ScrollPower, requestFrame?: () => void) {
   power.pow0.value = 0
   power.pow1.tween?.kill()
   power.pow1.tween = gsap.to(power.pow1, {
     duration: power.pow1.duration,
     value: 0,
+    onUpdate: requestFrame,
   })
   power.pow2.tween?.kill()
   power.pow2.tween = gsap.to(power.pow2, {
     duration: power.pow2.duration,
     value: 0,
+    onUpdate: requestFrame,
   })
 }
 
@@ -186,7 +193,13 @@ export function createJsScroll({
   let inputEnabled = true
   let currentCategory = 'interior'
   let scrollToTween: gsap.core.Tween | null = null
+  let scrollToProxy: { value: number } | null = null
+  let introScrollBlend = false
+  let inputBoostUntil = 0
   const sections: SectionEntry[] = []
+  let requestFrame: (() => void) | null = null
+
+  const emitFrameRequest = () => requestFrame?.()
 
   let lastWideAspect = isWideAspect()
 
@@ -266,22 +279,40 @@ export function createJsScroll({
   const scheduleScrollComplete = () => {
     clearScrollTimers()
     completeTimer = window.setTimeout(() => {
-      onScrollPowerComplete(power)
+      onScrollPowerComplete(power, emitFrameRequest)
     }, completeWait)
   }
 
-  const resetScrollTo = () => {
-    if (!scrollToTween) return
-    scrollToTween.kill()
+  const markInputBoost = () => {
+    inputBoostUntil = performance.now() + 150
+  }
+
+  const getScrollEase = () => {
+    if (introScrollBlend && performance.now() < inputBoostUntil) return 0.5
+    if (introScrollBlend) return 0.28
+    return ease
+  }
+
+  const absorbScrollToTween = () => {
+    if (scrollToProxy) {
+      delta1 = scrollToProxy.value
+    }
+    scrollToTween?.kill()
     scrollToTween = null
+    scrollToProxy = null
     scrollX = delta1
+  }
+
+  const interruptAutoScroll = () => {
+    absorbScrollToTween()
   }
 
   const applyScrollImpulse = (detail: number) => {
     power.delta1 += Math.abs(detail)
     power.delta2 += Math.abs(detail)
-    getSpeed(power, 1)
+    getSpeed(power, 1, emitFrameRequest)
     scheduleScrollComplete()
+    emitFrameRequest()
   }
 
   const onWheel = (event: WheelEvent) => {
@@ -290,11 +321,13 @@ export function createJsScroll({
       return
     }
     event.preventDefault()
-    resetScrollTo()
+    if (scrollToTween) interruptAutoScroll()
     clearScrollTimers()
     const detail = getWheelDetail(event)
     delta1 += -detail * speed
     applyScrollImpulse(detail)
+    markInputBoost()
+    emitFrameRequest()
   }
 
   let dragging = false
@@ -309,8 +342,9 @@ export function createJsScroll({
     dragStartDelta = delta1
     wrap.setPointerCapture(event.pointerId)
     power.pow0.value = 0
-    resetScrollTo()
+    if (scrollToTween) interruptAutoScroll()
     clearScrollTimers()
+    markInputBoost()
   }
 
   const onPointerMove = (event: PointerEvent) => {
@@ -319,11 +353,14 @@ export function createJsScroll({
     const dragDetail = Math.abs(nextDelta - delta1) / speed
     delta1 = nextDelta
     if (dragDetail > 0) applyScrollImpulse(dragDetail)
+    markInputBoost()
+    emitFrameRequest()
   }
 
   const onPointerUp = () => {
     dragging = false
     scheduleScrollComplete()
+    emitFrameRequest()
   }
 
   window.addEventListener('wheel', onWheel, { passive: false })
@@ -335,7 +372,7 @@ export function createJsScroll({
   const raf = () => {
     if (!ready) return
 
-    scrollX += (delta1 - scrollX) * ease
+    scrollX += (delta1 - scrollX) * getScrollEase()
     if (Math.abs(scrollX) < 1e-3) scrollX = 0
 
     const cw = contentWidth()
@@ -447,16 +484,22 @@ export function createJsScroll({
 
   const onScrollTo = (target: number, duration = 2, delay = 0, easeName = 'power2.out') => {
     scrollToTween?.kill()
-    const proxy = { value: delta1 }
-    scrollToTween = gsap.to(proxy, {
+    scrollToProxy = { value: delta1 }
+    scrollToTween = gsap.to(scrollToProxy, {
       value: target,
       duration,
       delay,
       ease: easeName,
       onUpdate: () => {
-        delta1 = proxy.value
+        delta1 = scrollToProxy!.value
+        emitFrameRequest()
+      },
+      onComplete: () => {
+        scrollToProxy = null
+        scrollToTween = null
       },
     })
+    emitFrameRequest()
   }
 
   const jumpToCategory = (category: string) => {
@@ -483,14 +526,34 @@ export function createJsScroll({
     power.pow1.tween?.kill()
     power.pow2.tween?.kill()
     scrollToTween?.kill()
+    scrollToProxy = null
   }
 
   const setInputEnabled = (enabled: boolean) => {
     inputEnabled = enabled
     if (!enabled) {
       dragging = false
-      resetScrollTo()
+      interruptAutoScroll()
     }
+  }
+
+  const setIntroScrollBlend = (active: boolean) => {
+    introScrollBlend = active
+    if (!active) inputBoostUntil = 0
+  }
+
+  const isAnimating = () => {
+    const eps = 0.001
+    if (dragging) return true
+    if (scrollToTween?.isActive()) return true
+    if (power.pow1.tween?.isActive() || power.pow2.tween?.isActive()) return true
+    if (Math.abs(power.pow1.value) > eps || Math.abs(power.pow2.value) > eps) return true
+    if (Math.abs(power.pow0.value) > eps) return true
+    return false
+  }
+
+  const setRequestFrame = (fn: (() => void) | null) => {
+    requestFrame = fn
   }
 
   return {
@@ -502,10 +565,13 @@ export function createJsScroll({
       return currentCategory
     },
     raf,
+    isAnimating,
+    setRequestFrame,
     onScrollTo,
     jumpToCategory,
     remeasure,
     setInputEnabled,
+    setIntroScrollBlend,
     destroy,
   }
 }

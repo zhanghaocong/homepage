@@ -1,5 +1,3 @@
-import type { Mesh } from 'three'
-import { PlaneGeometry } from 'three'
 import type { CateImage } from '~/data/gallery'
 import type { PhotoViewHost, PhotoViewScreenRect, PhotoViewWorldRect } from '~/features/photo-view/lib/photoViewHost'
 
@@ -43,18 +41,6 @@ export function getGridUnit() {
 export function getImageAspect(img: { width: number; height: number }) {
   if (img.width > 0 && img.height > 0) return img.width / img.height
   return 1
-}
-
-export function meshWorldRect(mesh: Mesh): PhotoViewWorldRect {
-  const geo = mesh.geometry as PlaneGeometry
-  const width = geo.parameters.width * mesh.scale.x
-  const height = geo.parameters.height * mesh.scale.y
-  return {
-    x: mesh.position.x,
-    y: mesh.position.y,
-    width,
-    height,
-  }
 }
 
 export function rectFromLayoutId(layoutId: string): PhotoViewWorldRect | null {
@@ -155,12 +141,4 @@ export function clientToNdc(clientX: number, clientY: number, canvas: HTMLCanvas
     x: ((clientX - rect.left) / rect.width) * 2 - 1,
     y: -((clientY - rect.top) / rect.height) * 2 + 1,
   }
-}
-
-export function applyMeshRect(mesh: Mesh, rect: PhotoViewWorldRect) {
-  const geo = mesh.geometry as PlaneGeometry
-  const baseW = geo.parameters.width
-  const baseH = geo.parameters.height
-  mesh.position.set(rect.x, rect.y, 1)
-  mesh.scale.set(rect.width / baseW, rect.height / baseH, 1)
 }
