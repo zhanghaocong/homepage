@@ -2,8 +2,7 @@ import { useAtomValue } from 'jotai/react'
 import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject, type WheelEvent } from 'react'
 import { PhotoViewBgImage, thumbWrapClass } from '~/features/photo-view/PhotoViewImage'
 import { CATEGORY_UI, galleryImages, imageUrl } from '~/data/gallery'
-import { getGalleryMeshRegistry } from '~/features/home/lib/galleryRegistryBridge'
-import { pickWallLayoutIdAt } from '~/features/photo-view/lib/galleryWallPick'
+import { usePhotoViewHost } from '~/features/photo-view/ctx'
 import {
   closePhotoView,
   isPhotoViewClosing,
@@ -33,6 +32,7 @@ function screenStyle(rect: PhotoViewScreenRect): React.CSSProperties {
 }
 
 export function PhotoView({ wrapRef }: PhotoViewProps) {
+  const host = usePhotoViewHost()
   const state = useAtomValue(photoViewAtom, { store: photoViewStore })
   const thumbRefs = useRef<Array<HTMLButtonElement | null>>([])
   const openedRef = useRef(false)
@@ -44,14 +44,10 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
   const categoryLabel = CATEGORY_UI.find((c) => c.id === state.category)?.label ?? state.category
 
   const openPhotoListImmediately = useCallback(() => {
-    const registry = getGalleryMeshRegistry()
-    if (!registry) return false
-
-    registry.setWallMeshesHidden(true)
-    registry.effectUniforms.u_type.value = 0
+    if (!host.enterPhotoView()) return false
     markPhotoViewUiReady()
     return true
-  }, [])
+  }, [host])
 
   const setActivePhoto = useCallback(
     (index: number) => {
@@ -86,19 +82,15 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
   )
 
   useEffect(() => {
-    const registry = getGalleryMeshRegistry()
-    if (!registry) return
     const passthrough = state.open && !state.closing
-    registry.effectUniforms.u_type.value = passthrough ? 0 : 1
-  }, [state.open, state.closing])
+    host.setEffectPassthrough(passthrough)
+  }, [host, state.open, state.closing])
 
   useLayoutEffect(() => {
     if (!state.open) {
       openedRef.current = false
       thumbRefs.current = []
-      const registry = getGalleryMeshRegistry()
-      registry?.restoreWallMeshes()
-      registry?.onResize()
+      host.exitPhotoView()
       return
     }
 
@@ -106,11 +98,11 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
       openedRef.current = true
       if (!openPhotoListImmediately()) {
         openedRef.current = false
-        getGalleryMeshRegistry()?.restoreWallMeshes()
+        host.exitPhotoView()
         closePhotoView()
       }
     }
-  }, [state.open, openPhotoListImmediately])
+  }, [host, state.open, openPhotoListImmediately])
 
   useLayoutEffect(() => {
     if (!state.open || !state.uiReady) return
@@ -130,7 +122,7 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
       const current = getPhotoViewState()
 
       if (!current.open) {
-        const layoutId = pickWallLayoutIdAt(event.clientX, event.clientY)
+        const layoutId = host.pickFrameAt(event.clientX, event.clientY)
         if (!layoutId) return
         event.preventDefault()
         event.stopPropagation()
@@ -140,7 +132,7 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
 
     wrap.addEventListener('pointerdown', onPointerDown, true)
     return () => wrap.removeEventListener('pointerdown', onPointerDown, true)
-  }, [wrapRef])
+  }, [host, wrapRef])
 
   if (!state.open) return null
 

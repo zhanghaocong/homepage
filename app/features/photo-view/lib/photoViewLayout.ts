@@ -1,19 +1,26 @@
 import type { Mesh } from 'three'
 import { PlaneGeometry } from 'three'
 import type { CateImage } from '~/data/gallery'
-import { getGridUnit as layoutGridUnit, type GalleryFrameRect } from '~/features/home/lib/galleryLayout'
-import { getFrameSplashHandoffWorldRect, getFrameWorldRect } from '~/features/home/lib/galleryLayoutStore'
-import { getViewportSize } from '~/features/home/lib/viewport'
+import type { PhotoViewHost, PhotoViewScreenRect, PhotoViewWorldRect } from '~/features/photo-view/lib/photoViewHost'
 
-export type PhotoViewWorldRect = {
-  x: number
-  y: number
-  width: number
-  height: number
+export type { PhotoViewScreenRect, PhotoViewWorldRect }
+
+let layoutHost: PhotoViewHost | null = null
+
+export function bindPhotoViewLayoutHost(host: PhotoViewHost) {
+  layoutHost = host
 }
 
-/** Screen-space rect (px, top-left origin) for DOM photo view. */
-export type PhotoViewScreenRect = GalleryFrameRect
+export function unbindPhotoViewLayoutHost() {
+  layoutHost = null
+}
+
+function requireLayoutHost(): PhotoViewHost {
+  if (!layoutHost) {
+    throw new Error('PhotoViewHost is missing — bind it before using photo view layout')
+  }
+  return layoutHost
+}
 
 export function worldRectToScreen(rect: PhotoViewWorldRect): PhotoViewScreenRect {
   const { w: vw, h: vh } = getViewport()
@@ -26,12 +33,11 @@ export function worldRectToScreen(rect: PhotoViewWorldRect): PhotoViewScreenRect
 }
 
 export function getViewport() {
-  return getViewportSize()
+  return requireLayoutHost().getViewport()
 }
 
-/** photoyoshi grid column width from viewport (no DOM read). */
 export function getGridUnit() {
-  return layoutGridUnit()
+  return requireLayoutHost().getGridUnit()
 }
 
 export function getImageAspect(img: { width: number; height: number }) {
@@ -52,7 +58,7 @@ export function meshWorldRect(mesh: Mesh): PhotoViewWorldRect {
 }
 
 export function rectFromLayoutId(layoutId: string): PhotoViewWorldRect | null {
-  return getFrameWorldRect(layoutId)
+  return requireLayoutHost().getFrameWorldRect(layoutId)
 }
 
 export function getHeroTargetSize(aspect: number) {
@@ -76,14 +82,7 @@ export function heroCenterRect(aspect: number): PhotoViewWorldRect {
 /** Photo view close → splash gather hero slot (same as homepage `splashHeroFrameSize`). */
 export function heroSplashHandoffRect(layoutId: string | null): PhotoViewWorldRect | null {
   if (!layoutId) return null
-  const world = getFrameSplashHandoffWorldRect(layoutId)
-  if (!world) return null
-  return {
-    x: world.x,
-    y: world.y,
-    width: world.width,
-    height: world.height,
-  }
+  return requireLayoutHost().getSplashHandoffRect(layoutId)
 }
 
 export function thumbRailX() {

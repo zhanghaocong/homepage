@@ -1,8 +1,5 @@
-import gsap from 'gsap'
-import type { GalleryMeshEntry } from '~/features/home/canvas/galleryMeshRegistry'
 import { galleryImages, imageUrl } from '~/data/gallery'
-import { getFrameSpecById } from '~/features/home/lib/galleryLayoutStore'
-import type { JsScroll } from '~/features/home/lib/jsScroll'
+import { getPhotoViewHost } from '~/features/photo-view/lib/photoViewHostRegistry'
 import { rectFromLayoutId } from '~/features/photo-view/lib/photoViewLayout'
 import {
   CATE_ID_TO_KEY,
@@ -13,46 +10,6 @@ import {
   setPhotoViewState,
 } from '~/features/photo-view/lib/photoViewStore'
 
-let scrollRef: JsScroll | null = null
-let wallWrap: HTMLElement | null = null
-let shellRef: HTMLElement | null = null
-let onOpenChange: ((open: boolean) => void) | null = null
-let onAfterClose: (() => void) | null = null
-
-/**
- * Do NOT fade `.js-page__cover` — it is a #222 fullscreen layer at z-index 150;
- * setting opacity to 1 after photo view covers the WebGL canvas and looks like a black screen.
- */
-const WALL_FADE_SEL = '.p-home .c-content'
-const PAGE_COVER_SEL = '.p-home .js-page__cover'
-
-export function registerPhotoViewContext(
-  scroll: JsScroll,
-  wrap: HTMLElement,
-  onOpen: (open: boolean) => void,
-  afterClose?: () => void,
-  shell?: HTMLElement | null,
-) {
-  scrollRef = scroll
-  wallWrap = wrap
-  shellRef = shell ?? null
-  onOpenChange = onOpen
-  onAfterClose = afterClose ?? null
-}
-
-export function unregisterPhotoViewContext() {
-  scrollRef?.setInputEnabled(true)
-  scrollRef = null
-  wallWrap = null
-  shellRef = null
-  onOpenChange = null
-  onAfterClose = null
-}
-
-export function getPhotoViewShell() {
-  return shellRef
-}
-
 export function getPhotoViewOpen() {
   return getPhotoViewState().open
 }
@@ -61,67 +18,14 @@ export function isPhotoViewClosing() {
   return getPhotoViewState().closing
 }
 
-export function getPhotoViewScroll() {
-  return scrollRef
-}
-
-function lockWallScroll(locked: boolean) {
-  wallWrap?.classList.toggle('is-photo-view-locked', locked)
-  scrollRef?.setInputEnabled(!locked)
-}
-
-function setHtmlPhotoView(on: boolean) {
-  const html = document.documentElement
-  html.classList.toggle('l-photo-view', on)
-  html.classList.toggle('l-cate', on)
-  if (!on) html.classList.remove('l-photo-view-ui')
-}
-
-function fadeWallDom(hide: boolean) {
-  gsap.killTweensOf(PAGE_COVER_SEL)
-  gsap.set(PAGE_COVER_SEL, { opacity: 0 })
-  if (!hide) {
-    gsap.killTweensOf(WALL_FADE_SEL)
-    gsap.set(WALL_FADE_SEL, { opacity: 1 })
-  }
-  gsap.to(WALL_FADE_SEL, {
-    opacity: hide ? 0 : 1,
-    duration: hide ? 0.45 : 0.55,
-    ease: hide ? 'power2.in' : 'power2.out',
-  })
-}
-
-function hideWallDomImmediately() {
-  gsap.killTweensOf(PAGE_COVER_SEL)
-  gsap.killTweensOf(WALL_FADE_SEL)
-  gsap.set(PAGE_COVER_SEL, { opacity: 0 })
-  gsap.set(WALL_FADE_SEL, { opacity: 0 })
-}
-
-function showWallDomImmediately() {
-  gsap.killTweensOf(PAGE_COVER_SEL)
-  gsap.killTweensOf(WALL_FADE_SEL)
-  gsap.set(PAGE_COVER_SEL, { opacity: 0 })
-  gsap.set(WALL_FADE_SEL, { opacity: 1 })
-}
-
-/** Keep the fixed R3F canvas visible (splash / fades must not leave it at opacity 0). */
-function ensureGalleryCanvasVisible() {
-  gsap.set('.js-canvas__wrap canvas', { opacity: 1 })
-}
-
 export function requestOpenPhotoView(layoutId: string) {
   if (isPhotoViewClosing() || getPhotoViewOpen()) return
   openPhotoViewFromLayoutId(layoutId)
 }
 
-/** @deprecated Use `openPhotoViewFromLayoutId` — mesh only supplies layout id. */
-export function openPhotoViewFromMesh(entry: GalleryMeshEntry) {
-  openPhotoViewFromLayoutId(entry.layoutId)
-}
-
 export function openPhotoViewFromLayoutId(layoutId: string) {
-  const spec = getFrameSpecById(layoutId)
+  const host = getPhotoViewHost()
+  const spec = host.getFrameSpec(layoutId)
   if (!spec) return
 
   const category = normalizePhotoCategory(spec.category)
@@ -144,37 +48,40 @@ export function openPhotoViewFromLayoutId(layoutId: string) {
     fromRect: rectFromLayoutId(layoutId),
   })
 
-  setHtmlPhotoView(true)
-  lockWallScroll(true)
-  ensureGalleryCanvasVisible()
-  hideWallDomImmediately()
-  onOpenChange?.(true)
+  host.setPhotoViewHtmlClass(true)
+  host.setScrollLocked(true)
+  host.setWallScrollLocked(true)
+  host.ensureCanvasVisible()
+  host.hideWallDomImmediately()
+  host.onPhotoViewOpenChange(true)
 }
 
 export function markPhotoViewUiReady() {
   setPhotoViewState({ uiReady: true })
-  document.documentElement.classList.add('l-photo-view-ui')
+  getPhotoViewHost().setPhotoViewUiClass(true)
 }
 
 export function closePhotoView() {
   if (isPhotoViewClosing() || !getPhotoViewOpen()) return
-  document.documentElement.classList.remove('l-photo-view-ui')
+  getPhotoViewHost().setPhotoViewUiClass(false)
   completeClosePhotoView()
 }
 
 /** Fade scroll wall back in before homepage-style gather/reveal. */
 export function preparePhotoViewWallReveal() {
-  ensureGalleryCanvasVisible()
-  fadeWallDom(false)
+  const host = getPhotoViewHost()
+  host.ensureCanvasVisible()
+  host.fadeWallDom(true)
 }
 
 export function completeClosePhotoView() {
+  const host = getPhotoViewHost()
   resetPhotoViewState()
-  setHtmlPhotoView(false)
-  lockWallScroll(false)
-  gsap.set(PAGE_COVER_SEL, { opacity: 0 })
-  ensureGalleryCanvasVisible()
-  showWallDomImmediately()
-  onOpenChange?.(false)
-  onAfterClose?.()
+  host.setPhotoViewHtmlClass(false)
+  host.setScrollLocked(false)
+  host.setWallScrollLocked(false)
+  host.ensureCanvasVisible()
+  host.showWallDomImmediately()
+  host.onPhotoViewOpenChange(false)
+  host.onPhotoViewAfterClose()
 }

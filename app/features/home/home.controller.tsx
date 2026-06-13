@@ -1,6 +1,9 @@
 import type { MutableRefObject, RefObject } from 'react'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
-import { closePhotoView, registerPhotoViewContext, unregisterPhotoViewContext } from '~/features/photo-view/lib/photoViewController'
+import { createPhotoViewHost } from '~/features/home/lib/createPhotoViewHost'
+import { closePhotoView } from '~/features/photo-view/lib/photoViewController'
+import { registerPhotoViewHost, unregisterPhotoViewHost } from '~/features/photo-view/lib/photoViewHostRegistry'
+import type { PhotoViewHost } from '~/features/photo-view/lib/photoViewHost'
 import { buildGalleryLayout } from '~/features/home/lib/buildGalleryLayout'
 import { disposeGalleryAtlas } from '~/features/home/lib/galleryAtlas'
 import { resetGalleryLayoutStore } from '~/features/home/lib/galleryLayoutStore'
@@ -47,7 +50,9 @@ export class HomeController {
   readonly scrollThumbAfterRef: RefObject<HTMLDivElement | null> = { current: null }
   readonly canvasEngineRef: MutableRefObject<GalleryEngineHandle | null> = { current: null }
   readonly scrollRef: MutableRefObject<JsScroll | null> = { current: null }
+  readonly photoViewOpenRef: MutableRefObject<boolean> = { current: false }
 
+  private photoViewHost: PhotoViewHost | null = null
   private uiState: HomeUiState = { ...INITIAL_UI }
   private uiListeners = new Set<() => void>()
   private attached = false
@@ -64,6 +69,23 @@ export class HomeController {
   }
 
   getSnapshot = (): HomeUiState => this.uiState
+
+  getPhotoViewHost(): PhotoViewHost {
+    if (!this.photoViewHost) {
+      this.photoViewHost = createPhotoViewHost({
+        wrapRef: this.wrapRef,
+        scrollRef: this.scrollRef,
+        canvasEngineRef: this.canvasEngineRef,
+        onPhotoViewOpenChange: (open) => {
+          this.photoViewOpenRef.current = open
+          this.patchUi({ photoViewOpen: open })
+        },
+        afterPhotoViewClose: () => {},
+      })
+      registerPhotoViewHost(this.photoViewHost)
+    }
+    return this.photoViewHost
+  }
 
   attach() {
     if (this.attached) return
@@ -82,7 +104,7 @@ export class HomeController {
     }
 
     this.startScroll(wrap)
-    this.registerPhotoView(shell, wrap)
+    this.getPhotoViewHost()
     this.startLoader()
 
     window.addEventListener('keydown', this.onKeyDown)
@@ -96,7 +118,9 @@ export class HomeController {
     this.stopScroll()
     this.stopLoader?.()
     this.stopLoader = null
-    unregisterPhotoViewContext()
+    unregisterPhotoViewHost()
+    this.photoViewHost = null
+    this.photoViewOpenRef.current = false
     this.stopViewport?.()
     this.stopViewport = null
     resetGalleryLayoutStore()
@@ -123,6 +147,9 @@ export class HomeController {
   }
 
   private patchUi(patch: Partial<HomeUiState>) {
+    if ('photoViewOpen' in patch && patch.photoViewOpen !== undefined) {
+      this.photoViewOpenRef.current = patch.photoViewOpen
+    }
     this.uiState = { ...this.uiState, ...patch }
     this.notifyUi()
   }
@@ -166,21 +193,6 @@ export class HomeController {
     this.scroll?.destroy()
     this.scroll = null
     this.scrollRef.current = null
-  }
-
-  private registerPhotoView(shell: HTMLElement, wrap: HTMLElement) {
-    if (!this.scroll) return
-
-    registerPhotoViewContext(
-      this.scroll,
-      wrap,
-      (open) => this.patchUi({ photoViewOpen: open }),
-      () => {
-        const canvas = this.canvasEngineRef.current
-        if (canvas) syncCanvasAfterResize(canvas)
-      },
-      shell,
-    )
   }
 
   private startLoader() {
