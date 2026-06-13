@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { GalleryCompositeEffectImpl } from '~/features/home/canvas/gallery-canvas/galleryCompositeEffect'
-import type { GalleryEffectUniforms } from '~/features/home/canvas/gallery-canvas/galleryMeshRegistry'
+import { GalleryCompositeEffectImpl } from '~/features/home/canvas/galleryCompositeEffect'
+import type { GalleryEffectUniforms } from '~/features/home/canvas/galleryMeshRegistry'
 
 export type GalleryCompositeProps = {
   effectUniforms: GalleryEffectUniforms

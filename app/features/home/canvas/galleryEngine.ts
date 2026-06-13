@@ -1,7 +1,7 @@
 import { PerspectiveCamera, WebGLRenderer } from 'three'
-import { applyGalleryCamera, getViewportSize } from '~/features/home/canvas/gallery-canvas/cameraUtils'
-import type { GalleryMeshRegistry } from '~/features/home/canvas/gallery-canvas/galleryMeshRegistry'
-import type { GalleryEngineHandle } from '~/features/home/canvas/gallery-canvas/types'
+import { applyGalleryCamera, getViewportSize } from '~/features/home/canvas/cameraUtils'
+import type { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
+import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import type { ScrollPower } from '~/features/home/lib/jsScroll'
 
 type AttachGalleryRuntimeOptions = {

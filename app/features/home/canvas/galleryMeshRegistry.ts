@@ -10,7 +10,7 @@ import {
   type Camera,
   type Intersection,
 } from 'three'
-import { createGalleryPhotoMaterial } from '~/features/home/canvas/gallery-canvas/materials'
+import { createGalleryPhotoMaterial } from '~/features/home/canvas/materials'
 import {
   galleryAtlasKeyFromSrc,
   getGalleryAtlasSprite,

@@ -1,7 +1,7 @@
 import { Effect } from 'postprocessing'
 import { Uniform } from 'three'
-import type { GalleryEffectUniforms } from '~/features/home/canvas/gallery-canvas/galleryMeshRegistry'
-import compositePostFragmentShader from '~/features/home/canvas/gallery-canvas/shaders/compositePost.frag.glsl?raw'
+import type { GalleryEffectUniforms } from '~/features/home/canvas/galleryMeshRegistry'
+import compositePostFragmentShader from '~/features/home/canvas/shaders/compositePost.frag.glsl?raw'
 
 type GalleryCompositeEffectOptions = {
   effectUniforms: GalleryEffectUniforms

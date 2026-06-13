@@ -1,9 +1,9 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { PerspectiveCamera } from 'three'
-import { attachGalleryRuntime } from '~/features/home/canvas/gallery-canvas/galleryEngine'
-import type { GalleryMeshRegistry } from '~/features/home/canvas/gallery-canvas/galleryMeshRegistry'
-import type { GalleryEngineHandle } from '~/features/home/canvas/gallery-canvas/types'
+import { attachGalleryRuntime } from '~/features/home/canvas/galleryEngine'
+import type { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
+import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 
 type GalleryEngineBridgeProps = {
   engineRef: React.MutableRefObject<GalleryEngineHandle | null>

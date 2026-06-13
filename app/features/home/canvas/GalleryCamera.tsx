@@ -1,7 +1,7 @@
 import { useThree } from '@react-three/fiber'
 import { useLayoutEffect } from 'react'
 import { PerspectiveCamera } from 'three'
-import { applyGalleryCamera, getViewportSize } from '~/features/home/canvas/gallery-canvas/cameraUtils'
+import { applyGalleryCamera, getViewportSize } from '~/features/home/canvas/cameraUtils'
 
 /** Matches photoyoshi perspective camera setup. */
 export function GalleryCamera() {

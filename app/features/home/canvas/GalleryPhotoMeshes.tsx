@@ -1,6 +1,6 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
-import { GalleryMeshRegistry } from '~/features/home/canvas/gallery-canvas/galleryMeshRegistry'
+import { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
 
 type GalleryPhotoMeshesProps = {
   isMobile: boolean

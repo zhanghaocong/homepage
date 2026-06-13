@@ -1,5 +1,5 @@
 import gsap from 'gsap'
-import type { GalleryMeshEntry } from '~/features/home/canvas/gallery-canvas/galleryMeshRegistry'
+import type { GalleryMeshEntry } from '~/features/home/canvas/galleryMeshRegistry'
 import { galleryImages, imageUrl } from '~/data/gallery'
 import { getFrameSpecById } from '~/features/home/lib/galleryLayoutStore'
 import type { JsScroll } from '~/features/home/lib/jsScroll'

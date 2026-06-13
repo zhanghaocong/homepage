@@ -1,4 +1,4 @@
-import type { GalleryMeshRegistry } from '~/features/home/canvas/gallery-canvas/galleryMeshRegistry'
+import type { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
 
 let meshRegistry: GalleryMeshRegistry | null = null
 

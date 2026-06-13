@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
-import { GalleryScene } from '~/features/home/canvas/gallery-canvas/GalleryScene'
-import type { GalleryEngineHandle } from '~/features/home/canvas/gallery-canvas/types'
+import { GalleryScene } from '~/features/home/canvas/GalleryScene'
+import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import { loadGalleryAtlasTexture, tuneGalleryAtlasForRenderer } from '~/features/home/lib/galleryAtlas'
 import type { JsScroll } from '~/features/home/lib/jsScroll'
 
@@ -12,7 +12,7 @@ export type GalleryCanvasProps = {
 
 /**
  * R3F entry for the gallery WebGL layer.
- * Render loop is driven by GallerySyncSystem (useFrame), not gsap.ticker.
+ * Scroll + mesh sync run in GallerySyncSystem (useFrame priority 1); post-processing at priority 2.
  */
 export function GalleryCanvas({ engineRef, scrollRef, onEngineReady }: GalleryCanvasProps) {
   return (

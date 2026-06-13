@@ -1,8 +1,8 @@
 import { shaderMaterial } from '@react-three/drei'
 import { extend } from '@react-three/fiber'
 import { DoubleSide, Texture, Vector2, Vector4 } from 'three'
-import photoFragmentShader from '~/features/home/canvas/gallery-canvas/shaders/photo.frag.glsl?raw'
-import photoVertexShader from '~/features/home/canvas/gallery-canvas/shaders/photo.vert.glsl?raw'
+import photoFragmentShader from '~/features/home/canvas/shaders/photo.frag.glsl?raw'
+import photoVertexShader from '~/features/home/canvas/shaders/photo.vert.glsl?raw'
 export const GalleryPhotoMaterial = shaderMaterial(
   {
     tA: null as Texture | null,

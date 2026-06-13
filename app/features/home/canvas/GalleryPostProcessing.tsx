@@ -2,8 +2,8 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { EffectComposer, EffectPass, RenderPass } from 'postprocessing'
 import { useEffect, useMemo, useRef } from 'react'
 import { NoToneMapping, UnsignedByteType } from 'three'
-import { GalleryCompositeEffectImpl } from '~/features/home/canvas/gallery-canvas/galleryCompositeEffect'
-import type { GalleryMeshRegistry } from '~/features/home/canvas/gallery-canvas/galleryMeshRegistry'
+import { GalleryCompositeEffectImpl } from '~/features/home/canvas/galleryCompositeEffect'
+import type { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
 import { getPhotoViewState } from '~/features/photo-view/lib/photoViewStore'
 
 type GalleryPostProcessingProps = {

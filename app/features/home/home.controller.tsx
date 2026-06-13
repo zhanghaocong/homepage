@@ -1,5 +1,5 @@
 import type { MutableRefObject, RefObject } from 'react'
-import type { GalleryEngineHandle } from '~/features/home/canvas/gallery-canvas/types'
+import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import { closePhotoView, registerPhotoViewContext, unregisterPhotoViewContext } from '~/features/photo-view/lib/photoViewController'
 import { buildGalleryLayout } from '~/features/home/lib/buildGalleryLayout'
 import { disposeGalleryAtlas } from '~/features/home/lib/galleryAtlas'
@@ -52,7 +52,6 @@ export class HomeController {
   private uiListeners = new Set<() => void>()
   private attached = false
   private scroll: JsScroll | null = null
-  private scrollRaf = 0
   private stopViewport: (() => void) | null = null
   private stopLoader: (() => void) | null = null
   private splashStarted = false
@@ -156,19 +155,11 @@ export class HomeController {
       },
     })
     this.scrollRef.current = this.scroll
-
-    const loop = () => {
-      this.scroll?.raf()
-      this.scrollRaf = requestAnimationFrame(loop)
-    }
-    this.scrollRaf = requestAnimationFrame(loop)
+    // Bootstrap layout before R3F's first useFrame.
+    this.scroll.raf()
   }
 
   private stopScroll() {
-    if (this.scrollRaf) {
-      cancelAnimationFrame(this.scrollRaf)
-      this.scrollRaf = 0
-    }
     this.scroll?.destroy()
     this.scroll = null
     this.scrollRef.current = null
