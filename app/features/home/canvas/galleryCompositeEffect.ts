@@ -17,7 +17,6 @@ export class GalleryCompositeEffectImpl extends Effect {
         ['scroll_pow', new Uniform(effectUniforms.scroll_pow.value)],
         ['modeChangePow', new Uniform(effectUniforms.modeChangePow.value)],
         ['mode', new Uniform(effectUniforms.mode.value)],
-        ['device', new Uniform(effectUniforms.device.value)],
       ]),
     })
     this.effectUniforms = effectUniforms
@@ -29,6 +28,5 @@ export class GalleryCompositeEffectImpl extends Effect {
     this.uniforms.get('scroll_pow')!.value = src.scroll_pow.value
     this.uniforms.get('modeChangePow')!.value = src.modeChangePow.value
     this.uniforms.get('mode')!.value = src.mode.value
-    this.uniforms.get('device')!.value = src.device.value
   }
 }

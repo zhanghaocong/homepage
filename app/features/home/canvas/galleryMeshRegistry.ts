@@ -48,12 +48,10 @@ export type GalleryEffectUniforms = {
   scroll_pow: { value: number }
   modeChangePow: { value: number }
   mode: { value: number }
-  device: { value: number }
 }
 
 export type GalleryMeshRegistryOptions = {
   scene: Scene
-  isMobile: boolean
   pm: { value: number }
   getHomeState: () => HomeState
 }
@@ -68,7 +66,6 @@ export class GalleryMeshRegistry {
     scroll_pow: { value: 0 },
     modeChangePow: { value: 0 },
     mode: { value: 0 },
-    device: { value: 0 },
   }
 
   private readonly scene: Scene
@@ -86,11 +83,10 @@ export class GalleryMeshRegistry {
   private lastScrollPower: ScrollPower | null = null
   private readonly getHomeState: () => HomeState
 
-  constructor({ scene, isMobile, pm, getHomeState }: GalleryMeshRegistryOptions) {
+  constructor({ scene, pm, getHomeState }: GalleryMeshRegistryOptions) {
     this.scene = scene
     this.pm = pm
     this.getHomeState = getHomeState
-    this.effectUniforms.device.value = isMobile ? 0.5 : 0
   }
 
   init(onReady?: () => void) {
