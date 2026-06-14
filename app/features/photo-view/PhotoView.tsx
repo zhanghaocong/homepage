@@ -1,20 +1,11 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject, type WheelEvent } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, type WheelEvent } from 'react'
 import { galleryText } from '~/features/home/galleryTypography'
 import { PhotoViewBgImage, thumbWrapClass } from '~/features/photo-view/PhotoViewImage'
 import { CATEGORY_UI, galleryImages, imageUrl } from '~/data/gallery'
 import { usePhotoViewHost, usePhotoViewState } from '~/features/photo-view/ctx'
-import {
-  closePhotoView,
-  isPhotoViewClosing,
-  markPhotoViewUiReady,
-  openPhotoViewFromLayoutId,
-} from '~/features/photo-view/lib/photoViewController'
+import { closePhotoView, isPhotoViewClosing, markPhotoViewUiReady } from '~/features/photo-view/lib/photoViewController'
 import { getImageAspect, heroCenterRect, worldRectToScreen, type PhotoViewScreenRect } from '~/features/photo-view/lib/photoViewLayout'
-import { CATE_ID_TO_KEY, getPhotoViewState, setPhotoViewState } from '~/features/photo-view/lib/photoViewStore'
-
-type PhotoViewProps = {
-  wrapRef: RefObject<HTMLElement | null>
-}
+import { CATE_ID_TO_KEY, setPhotoViewState } from '~/features/photo-view/lib/photoViewStore'
 
 function screenStyle(rect: PhotoViewScreenRect): React.CSSProperties {
   return {
@@ -25,7 +16,7 @@ function screenStyle(rect: PhotoViewScreenRect): React.CSSProperties {
   }
 }
 
-export function PhotoView({ wrapRef }: PhotoViewProps) {
+export function PhotoView() {
   const host = usePhotoViewHost()
   const state = usePhotoViewState()
   const thumbRefs = useRef<Array<HTMLButtonElement | null>>([])
@@ -105,28 +96,6 @@ export function PhotoView({ wrapRef }: PhotoViewProps) {
       behavior: 'auto',
     })
   }, [state.activeIndex, state.open, state.uiReady])
-
-  useEffect(() => {
-    const wrap = wrapRef.current
-    if (!wrap) return
-
-    const onPointerDown = (event: PointerEvent) => {
-      if (event.button !== 0) return
-      if (isPhotoViewClosing()) return
-      const current = getPhotoViewState()
-
-      if (!current.open) {
-        const layoutId = host.pickFrameAt(event.clientX, event.clientY)
-        if (!layoutId) return
-        event.preventDefault()
-        event.stopPropagation()
-        openPhotoViewFromLayoutId(layoutId)
-      }
-    }
-
-    wrap.addEventListener('pointerdown', onPointerDown, true)
-    return () => wrap.removeEventListener('pointerdown', onPointerDown, true)
-  }, [host, wrapRef])
 
   if (!state.open) return null
 

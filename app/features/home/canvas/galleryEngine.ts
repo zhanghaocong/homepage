@@ -1,5 +1,5 @@
 import { PerspectiveCamera, WebGLRenderer } from 'three'
-import { applyGalleryCamera, getViewportSize } from '~/features/home/canvas/cameraUtils'
+import { applyGalleryCamera, getGalleryMaxDpr, getViewportSize } from '~/features/home/canvas/cameraUtils'
 import type { GalleryMeshRegistry } from '~/features/home/canvas/galleryMeshRegistry'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import type { ScrollPower } from '~/features/home/lib/jsScroll'
@@ -48,7 +48,7 @@ export function attachGalleryRuntime({
     const { w: nw, h: nh } = getViewportSize()
     applyGalleryCamera(camera, nw, nh)
     gl.setSize(nw, nh)
-    gl.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    gl.setPixelRatio(Math.min(window.devicePixelRatio, getGalleryMaxDpr()))
     canvas.style.width = `${nw}px`
     canvas.style.height = `${nh}px`
     meshRegistry.onResize()

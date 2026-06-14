@@ -1,4 +1,5 @@
 import { Canvas } from '@react-three/fiber'
+import { getGalleryMaxDpr } from '~/features/home/canvas/cameraUtils'
 import { GalleryScene } from '~/features/home/canvas/GalleryScene'
 import type { GalleryEngineHandle } from '~/features/home/canvas/types'
 import { loadGalleryAtlasTexture, tuneGalleryAtlasForRenderer } from '~/features/home/lib/galleryAtlasTexture'
@@ -24,7 +25,7 @@ export function GalleryCanvas({ engineRef, scrollRef, canvasInvalidateRef, onEng
         alpha: true,
         powerPreference: 'high-performance',
       }}
-      dpr={[1, 2]}
+      dpr={[1, getGalleryMaxDpr()]}
       style={{ display: 'block', width: '100%', height: '100%' }}
       onCreated={({ gl, size, invalidate }) => {
         // photoyoshi.com: transparent clear so CSS page bg shows through meshes

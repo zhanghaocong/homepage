@@ -103,6 +103,8 @@ body {
   overflow: hidden;
   position: fixed;
   width: 100vw;
+  /* JS owns scrolling: stop native touch scroll/refresh/back-swipe from stealing drags. */
+  touch-action: none;
   will-change: transform, clip-path, opacity
 }
 

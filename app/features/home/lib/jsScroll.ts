@@ -1,4 +1,5 @@
 import gsap from 'gsap'
+import { DragGesture, WheelGesture } from '@use-gesture/vanilla'
 import { rebuildGalleryLayoutIfCellsChanged } from '~/features/home/lib/buildGalleryLayout'
 import { GALLERY_CONTENT_MIN_VW, GALLERY_MESH_OVERSCAN_VW, isGalleryWideAspect } from '~/features/home/lib/galleryLayout'
 import {
@@ -73,7 +74,20 @@ type JsScrollOptions = {
   onCategoryChange?: (category: string) => void
   onUpdateAfter?: () => void
   onResizeAfter?: () => void
+  /** Tap (press with negligible movement) at viewport coords — used to open a photo. */
+  onTap?: (clientX: number, clientY: number) => void
 }
+
+/** Finger/pointer drag → content travel multiplier (drag feels 1:N). */
+const DRAG_SPEED = 2.2
+/** Fling: content px injected into the target per (px/ms) of release velocity (post-multiplier). */
+const FLING_DISTANCE = 260
+/** Cap one fling so a hard swipe can't overshoot wildly. */
+const FLING_MAX_DISTANCE = 5200
+/** Release speed (px/ms, post-multiplier) below which we don't fling. */
+const FLING_MIN_VELOCITY = 0.08
+/** A press that moves less than this (px) counts as a tap (open photo), not a drag. */
+const TAP_THRESHOLD_PX = 8
 
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max)
 
@@ -185,6 +199,7 @@ export function createJsScroll({
   onCategoryChange,
   onUpdateAfter,
   onResizeAfter,
+  onTap,
 }: JsScrollOptions): JsScroll {
   const power = createScrollPower()
   let delta1 = 0
@@ -316,59 +331,98 @@ export function createJsScroll({
     emitFrameRequest()
   }
 
-  const onWheel = (event: WheelEvent) => {
-    if (!inputEnabled) {
-      event.preventDefault()
-      return
-    }
-    event.preventDefault()
+  // One-shot displacement injected into the scroll target (a wheel notch or a
+  // release fling). The shared raf lerp + power decay below carry the easing,
+  // so every device eases and uncurls identically — no separate inertia tween.
+  const injectImpulse = (deltaContentPx: number) => {
     if (scrollToTween) interruptAutoScroll()
     clearScrollTimers()
-    const detail = getWheelDetail(event)
-    delta1 += -detail * speed
-    applyScrollImpulse(detail)
+    delta1 += deltaContentPx
+    applyScrollImpulse(deltaContentPx / speed)
     markInputBoost()
     emitFrameRequest()
   }
 
   let dragging = false
-  let dragStartY = 0
   let dragStartDelta = 0
 
-  const onPointerDown = (event: PointerEvent) => {
-    if (!inputEnabled) return
-    if ((event.target as Element).closest('a, button, input, label')) return
-    dragging = true
-    dragStartY = event.clientY
-    dragStartDelta = delta1
-    wrap.setPointerCapture(event.pointerId)
-    power.pow0.value = 0
-    if (scrollToTween) interruptAutoScroll()
-    clearScrollTimers()
-    markInputBoost()
-  }
+  const wheelGesture = new WheelGesture(
+    window,
+    (state) => {
+      const event = state.event as WheelEvent
+      if (!inputEnabled) {
+        event.preventDefault()
+        return
+      }
+      event.preventDefault()
+      injectImpulse(-getWheelDetail(event) * speed)
+    },
+    { eventOptions: { passive: false } },
+  )
 
-  const onPointerMove = (event: PointerEvent) => {
-    if (!dragging) return
-    const nextDelta = dragStartDelta + (event.clientY - dragStartY) * 1.8
-    const dragDetail = Math.abs(nextDelta - delta1) / speed
-    delta1 = nextDelta
-    if (dragDetail > 0) applyScrollImpulse(dragDetail)
-    markInputBoost()
-    emitFrameRequest()
-  }
+  const dragGesture = new DragGesture(
+    wrap,
+    (state) => {
+      if (!inputEnabled) return
+      if (state.canceled) {
+        dragging = false
+        return
+      }
 
-  const onPointerUp = () => {
-    dragging = false
-    scheduleScrollComplete()
-    emitFrameRequest()
-  }
+      const { first, last, movement, velocity, direction, tap, event } = state
 
-  window.addEventListener('wheel', onWheel, { passive: false })
-  wrap.addEventListener('pointerdown', onPointerDown)
-  wrap.addEventListener('pointermove', onPointerMove)
-  wrap.addEventListener('pointerup', onPointerUp)
-  wrap.addEventListener('pointercancel', onPointerUp)
+      if (first) {
+        const target = event.target as Element | null
+        if (target?.closest('a, button, input, label')) {
+          state.cancel()
+          return
+        }
+        dragging = true
+        dragStartDelta = delta1
+        power.pow0.value = 0
+        if (scrollToTween) interruptAutoScroll()
+        clearScrollTimers()
+        markInputBoost()
+      }
+
+      // Negligible-movement press → tap (open photo), never a scroll.
+      if (last && tap) {
+        dragging = false
+        onTap?.((event as PointerEvent).clientX, (event as PointerEvent).clientY)
+        scheduleScrollComplete()
+        emitFrameRequest()
+        return
+      }
+
+      // Follow the finger 1:1 while dragging.
+      const nextDelta = dragStartDelta + movement[1] * DRAG_SPEED
+      const moved = nextDelta - delta1
+      delta1 = nextDelta
+      if (moved !== 0) applyScrollImpulse(Math.abs(moved) / speed)
+      markInputBoost()
+      emitFrameRequest()
+
+      if (last) {
+        dragging = false
+        // Fling is a one-shot displacement; the SAME raf lerp + power decay as
+        // wheel then eases it to rest, so release feels identical on every device.
+        const v = velocity[1] * direction[1] * DRAG_SPEED
+        if (Math.abs(v) >= FLING_MIN_VELOCITY) {
+          const fling = clamp(v * FLING_DISTANCE, -FLING_MAX_DISTANCE, FLING_MAX_DISTANCE)
+          delta1 += fling
+          applyScrollImpulse(Math.abs(fling) / speed)
+        }
+        scheduleScrollComplete()
+        emitFrameRequest()
+      }
+    },
+    {
+      filterTaps: true,
+      tapsThreshold: TAP_THRESHOLD_PX,
+      axis: 'y',
+      eventOptions: { passive: false },
+    },
+  )
 
   const raf = () => {
     if (!ready) return
@@ -525,12 +579,9 @@ export function createJsScroll({
       resizeRafId = 0
     }
     resizeObserver?.disconnect()
-    window.removeEventListener('wheel', onWheel)
     window.removeEventListener('resize', onResize)
-    wrap.removeEventListener('pointerdown', onPointerDown)
-    wrap.removeEventListener('pointermove', onPointerMove)
-    wrap.removeEventListener('pointerup', onPointerUp)
-    wrap.removeEventListener('pointercancel', onPointerUp)
+    wheelGesture.destroy()
+    dragGesture.destroy()
     power.pow1.tween?.kill()
     power.pow2.tween?.kill()
     scrollToTween?.kill()
@@ -553,6 +604,8 @@ export function createJsScroll({
   const isAnimating = () => {
     const eps = 0.001
     if (dragging) return true
+    // Keep rendering while the lerp still chases the target (wheel coast / fling glide).
+    if (Math.abs(delta1 - scrollX) > 0.5) return true
     if (scrollToTween?.isActive()) return true
     if (power.pow1.tween?.isActive() || power.pow2.tween?.isActive()) return true
     if (Math.abs(power.pow1.value) > eps || Math.abs(power.pow2.value) > eps) return true

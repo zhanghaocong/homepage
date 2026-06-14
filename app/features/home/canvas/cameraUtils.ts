@@ -27,3 +27,14 @@ export function applyGalleryCamera(camera: PerspectiveCamera, w: number, h: numb
 export function getViewportSize() {
   return readViewportSize()
 }
+
+/**
+ * Max device pixel ratio for the gallery renderer.
+ * Touch devices (phones/tablets) often report DPR 2–3; rendering at full res plus the
+ * full-screen post-processing pass is fill-rate bound there, so cap lower to keep FPS up.
+ */
+export function getGalleryMaxDpr(): number {
+  if (typeof window === 'undefined') return 2
+  const coarsePointer = window.matchMedia?.('(pointer: coarse)')?.matches ?? false
+  return coarsePointer ? 1.5 : 2
+}

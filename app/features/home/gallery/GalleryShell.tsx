@@ -16,7 +16,7 @@ export function GalleryShell() {
   return (
     <PhotoViewHostContext value={controller.getPhotoViewHost()}>
       <div className={homeShellClassName(state)} data-xhr-namespace="home" ref={controller.shellRef}>
-        <PhotoView wrapRef={controller.wrapRef} />
+        <PhotoView />
         <div className={homeWrapClassName(state)} ref={controller.wrapRef}>
           <div className="js-page__cover" />
           <div className="js-page">

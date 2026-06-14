@@ -20,7 +20,7 @@ import { preloadGalleryImages } from '~/features/home/lib/preloadGalleryImages'
 import { runHomeSplash } from '~/features/home/lib/splashAnimation'
 import { initViewport } from '~/features/home/lib/viewport'
 import { Signal } from '~/shared/lib/signal'
-import { closePhotoView } from '~/features/photo-view/lib/photoViewController'
+import { closePhotoView, isPhotoViewClosing, openPhotoViewFromLayoutId } from '~/features/photo-view/lib/photoViewController'
 
 const LOADER_TICK_MS = 10.1010101010101
 const LOADER_STEP = 3
@@ -164,6 +164,14 @@ export class HomeController {
     if (event.key === 'Escape') closePhotoView()
   }
 
+  // A tap on the wall (negligible drag) opens the photo under the pointer.
+  private onWallTap = (clientX: number, clientY: number) => {
+    if (isPhotoViewClosing()) return
+    if (photoViewState.getSnapshot().open) return
+    const id = this.getPhotoViewHost().pickFrameAt(clientX, clientY)
+    if (id) openPhotoViewFromLayoutId(id)
+  }
+
   private startScroll(wrap: HTMLElement) {
     const thumbBefore = this.scrollThumbBeforeRef.current
     const thumbAfter = this.scrollThumbAfterRef.current
@@ -172,6 +180,7 @@ export class HomeController {
       wrap,
       scrollbar: thumbBefore && thumbAfter ? { thumbBefore, thumbAfter } : undefined,
       onCategoryChange: this.onScrollCategoryChange,
+      onTap: this.onWallTap,
       onResizeAfter: () => {
         const canvas = this.canvasEngineRef.current
         if (canvas) syncCanvasAfterResize(canvas)
