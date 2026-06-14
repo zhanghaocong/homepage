@@ -20,7 +20,7 @@ export function GalleryShell() {
         <div className={homeWrapClassName(state)} ref={controller.wrapRef}>
           <div className="js-page__cover" />
           <div className="js-page">
-            <div className="js-body" data-dir="hr">
+            <div className="js-body" data-dir="vr">
               <div className="c-content js-gl__wrap" aria-hidden="true" />
             </div>
           </div>

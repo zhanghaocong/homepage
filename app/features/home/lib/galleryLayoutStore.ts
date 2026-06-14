@@ -1,6 +1,6 @@
 import {
   appendCloneRoundToLayout,
-  computeSectionLefts,
+  computeSectionTops,
   frameScreenRect,
   frameWorldRect,
   frameWorldRectForSplash,
@@ -18,13 +18,13 @@ import { endSplashGather, getSplashFrameTween, isSplashGatherActive } from '~/fe
 
 export type SectionScrollState = {
   index: number
-  left: number
-  scrollX: number
+  top: number
+  scrollOffset: number
 }
 
 let layoutDoc: GalleryLayoutDocument | null = null
 let metrics: GalleryGridMetrics | null = null
-let sectionLefts: number[] = []
+let sectionTops: number[] = []
 const sectionScroll = new Map<number, number>()
 let scrollPow = 0
 
@@ -40,7 +40,7 @@ export function getGalleryLayoutDocument() {
 export function setGalleryLayoutDocument(doc: GalleryLayoutDocument | null) {
   layoutDoc = doc
   if (!doc) {
-    sectionLefts = []
+    sectionTops = []
     sectionScroll.clear()
     return
   }
@@ -54,10 +54,10 @@ export function recomputeGalleryMetrics() {
 function recomputeMetrics() {
   metrics = getGalleryGridMetrics()
   if (!layoutDoc) {
-    sectionLefts = []
+    sectionTops = []
     return
   }
-  sectionLefts = computeSectionLefts(layoutDoc.sections, metrics)
+  sectionTops = computeSectionTops(layoutDoc.sections, metrics)
 }
 
 export function getGalleryMetrics() {
@@ -68,13 +68,18 @@ export function getGallerySectionWidth() {
   return ensureMetrics().sectionWidth
 }
 
+/** Vertical span per section — equals section width (scroll axis rotated 90° CCW). */
+export function getGallerySectionHeight() {
+  return ensureMetrics().sectionWidth
+}
+
 export function syncGalleryLayoutScroll(entries: SectionScrollState[], power = 0) {
   scrollPow = power
   sectionScroll.clear()
   for (const entry of entries) {
-    sectionScroll.set(entry.index, entry.scrollX)
-    if (entry.left !== sectionLefts[entry.index]) {
-      sectionLefts[entry.index] = entry.left
+    sectionScroll.set(entry.index, entry.scrollOffset)
+    if (entry.top !== sectionTops[entry.index]) {
+      sectionTops[entry.index] = entry.top
     }
   }
 }
@@ -126,20 +131,20 @@ export function getFrameSplashHandoffWorldRect(frameId: string): GalleryWorldRec
   const hero = splashHeroFrameSize(metrics)
   return frameWorldRectForSplash(
     center,
-    sectionLeft(center.sectionIndex),
-    sectionScrollX(center.sectionIndex),
+    sectionTop(center.sectionIndex),
+    sectionScrollOffset(center.sectionIndex),
     metrics,
-    { y: 0, width: hero.width, height: hero.height },
+    { x: 0, width: hero.width, height: hero.height },
     scrollPow,
   )
 }
 
-function sectionScrollX(sectionIndex: number) {
+function sectionScrollOffset(sectionIndex: number) {
   return sectionScroll.get(sectionIndex) ?? 0
 }
 
-function sectionLeft(sectionIndex: number) {
-  return sectionLefts[sectionIndex] ?? 0
+function sectionTop(sectionIndex: number) {
+  return sectionTops[sectionIndex] ?? 0
 }
 
 export function getFrameScreenRect(frameId: string): GalleryFrameRect | null {
@@ -147,8 +152,8 @@ export function getFrameScreenRect(frameId: string): GalleryFrameRect | null {
   if (!spec || !layoutDoc) return null
   return frameScreenRect(
     spec,
-    sectionLeft(spec.sectionIndex),
-    sectionScrollX(spec.sectionIndex),
+    sectionTop(spec.sectionIndex),
+    sectionScrollOffset(spec.sectionIndex),
     ensureMetrics(),
     scrollPow,
   )
@@ -162,8 +167,8 @@ export function getFrameWorldRect(frameId: string): GalleryWorldRect | null {
   if (isSplashGatherActive() && splash) {
     return frameWorldRectForSplash(
       spec,
-      sectionLeft(spec.sectionIndex),
-      sectionScrollX(spec.sectionIndex),
+      sectionTop(spec.sectionIndex),
+      sectionScrollOffset(spec.sectionIndex),
       ensureMetrics(),
       splash,
       scrollPow,
@@ -172,8 +177,8 @@ export function getFrameWorldRect(frameId: string): GalleryWorldRect | null {
 
   return frameWorldRect(
     spec,
-    sectionLeft(spec.sectionIndex),
-    sectionScrollX(spec.sectionIndex),
+    sectionTop(spec.sectionIndex),
+    sectionScrollOffset(spec.sectionIndex),
     ensureMetrics(),
     scrollPow,
   )
@@ -182,8 +187,8 @@ export function getFrameWorldRect(frameId: string): GalleryWorldRect | null {
 export function getFrameWorldRectForSpec(spec: GalleryFrameSpec): GalleryWorldRect {
   return frameWorldRect(
     spec,
-    sectionLeft(spec.sectionIndex),
-    sectionScrollX(spec.sectionIndex),
+    sectionTop(spec.sectionIndex),
+    sectionScrollOffset(spec.sectionIndex),
     ensureMetrics(),
     scrollPow,
     getViewport(),
@@ -203,7 +208,7 @@ export function listOriginalFrameSpecs(): GalleryFrameSpec[] {
 export function resetGalleryLayoutStore() {
   endSplashGather()
   layoutDoc = null
-  sectionLefts = []
+  sectionTops = []
   sectionScroll.clear()
   scrollPow = 0
   metrics = null

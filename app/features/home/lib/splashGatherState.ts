@@ -2,7 +2,7 @@ import {
   frameSizeInCell,
   getImageAspect,
   getViewport,
-  splashGatherOffsetY,
+  splashGatherOffsetX,
   splashHeroFrameSize,
   type GalleryFrameSpec,
   type GalleryGridMetrics,
@@ -11,7 +11,7 @@ import {
 
 /** Per-frame splash tween target (GSAP mutates these; mesh reads each frame). */
 export type SplashFrameTween = {
-  y: number
+  x: number
   width: number
   height: number
 }
@@ -65,13 +65,13 @@ export function initSplashColumn(
     if (spec.row === 2) {
       const hero = splashHeroFrameSize(metrics, viewport)
       tweens.set(spec.id, {
-        y: 0,
+        x: 0,
         width: hero.width,
         height: hero.height,
       })
     } else {
       tweens.set(spec.id, {
-        y: splashGatherOffsetY(spec, metrics, viewport),
+        x: splashGatherOffsetX(spec, metrics, viewport),
         width: final.width,
         height: final.height,
       })

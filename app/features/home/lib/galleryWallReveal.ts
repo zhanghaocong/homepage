@@ -52,7 +52,7 @@ export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallReveal
   killSplashTweens(columns)
 
   const distance = window.innerWidth < 680 ? 4.48 : 2.125
-  const revealTarget = getViewportSize().w * distance
+  const revealTarget = getViewportSize().h * distance
   const start = scroll.delta1
   if (start < revealTarget) {
     const remaining = revealTarget - start
@@ -98,19 +98,19 @@ export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallReveal
 
     if (row0) {
       const t = getSplashFrameTween(row0.id)
-      if (t) gsap.to(t, { y: 0, duration: 1.35, ease: 'expo.out', delay: 0.7 })
+      if (t) gsap.to(t, { x: 0, duration: 1.35, ease: 'expo.out', delay: 0.7 })
     }
     if (row1) {
       const t = getSplashFrameTween(row1.id)
-      if (t) gsap.to(t, { y: 0, duration: 1.35, ease: 'expo.out', delay: 0.38 })
+      if (t) gsap.to(t, { x: 0, duration: 1.35, ease: 'expo.out', delay: 0.38 })
     }
     if (row3) {
       const t = getSplashFrameTween(row3.id)
-      if (t) gsap.to(t, { y: 0, duration: 1.35, ease: 'expo.out', delay: 0.38 })
+      if (t) gsap.to(t, { x: 0, duration: 1.35, ease: 'expo.out', delay: 0.38 })
     }
     if (row4) {
       const t = getSplashFrameTween(row4.id)
-      if (t) gsap.to(t, { y: 0, duration: 1.35, ease: 'expo.out', delay: 0.7 })
+      if (t) gsap.to(t, { x: 0, duration: 1.35, ease: 'expo.out', delay: 0.7 })
     }
   }
 

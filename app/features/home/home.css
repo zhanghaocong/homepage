@@ -145,6 +145,23 @@ body {
 
 
 
+.js-body[data-dir=vr] {
+  display: flex;
+  flex-direction: column
+}
+
+
+
+.js-body[data-dir=vr] .c-content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 99999px;
+  width: 100vw
+}
+
+
+
 .js-body[data-dir=hr] {
   display: flex
 }
@@ -198,6 +215,18 @@ body {
   position: absolute;
   top: 0;
   width: 100%
+}
+
+
+
+.c-scrollbar[data-dir=vr] {
+  border-left: 1px solid #222;
+  border-top: none;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 10px
 }
 
 

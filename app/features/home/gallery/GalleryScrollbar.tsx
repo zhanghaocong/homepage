@@ -7,7 +7,7 @@ type GalleryScrollbarProps = {
 
 export function GalleryScrollbar({ thumbBeforeRef, thumbAfterRef }: GalleryScrollbarProps) {
   return (
-    <div className="c-scrollbar" data-dir="hr">
+    <div className="c-scrollbar" data-dir="vr">
       <div className="c-thumb">
         <div className="c-pivot" ref={thumbBeforeRef} />
         <div className="c-pivot" ref={thumbAfterRef} />

@@ -37,6 +37,8 @@ export type GalleryGridMetrics = {
   columnInnerHeight: number
   /** Vertical offset to center the 5-cell stack inside the column. */
   columnStackOffset: number
+  /** 90° CCW: horizontal centering offset for the rotated 5-cell stack. */
+  rowStackOffset: number
   wrapTop: number
   useLargeCells: boolean
   mobile: boolean
@@ -180,6 +182,9 @@ export function getGalleryGridMetrics(viewport: GalleryViewport = getViewport())
   // Center the 5-row stack in the viewport (photoyoshi `align-content: center`).
   const stackTop = Math.max(0, (h - stackHeight) / 2)
   const columnStackOffset = stackTop - columnTop
+  // 90° CCW: center the same 5-cell stack along the horizontal axis (viewport width).
+  const rowStackLeft = Math.max(0, (w - stackHeight) / 2)
+  const rowStackOffset = rowStackLeft - columnTop
 
   return {
     grid,
@@ -193,6 +198,7 @@ export function getGalleryGridMetrics(viewport: GalleryViewport = getViewport())
     columnTop,
     columnInnerHeight,
     columnStackOffset,
+    rowStackOffset,
     wrapTop,
     useLargeCells,
     mobile,
@@ -227,38 +233,39 @@ export function getCellParallaxOffset(row: number, scrollPow: number, grid: numb
 }
 
 /**
- * Splash gather Y — photoyoshi `-(top + clientHeight)`; layout uses cell box (grid × 4/6).
+ * Splash gather X — photoyoshi `-(top + clientHeight)` rotated 90° CCW onto the horizontal axis.
  */
-/** Splash hero frame size before reveal (187% × 20vw in photoyoshi). */
+/** Splash hero frame size before reveal — 90° CCW from photoyoshi 187% × 20vw (tall banner). */
 export function splashHeroFrameSize(metrics: GalleryGridMetrics, viewport: GalleryViewport = getViewport()) {
   return {
-    width: metrics.cell * 1.87,
-    height: viewport.w * 0.2,
+    width: viewport.w * 0.2,
+    height: metrics.cell * 1.87,
   }
 }
 
-export function splashGatherOffsetY(
+export function splashGatherOffsetX(
   spec: GalleryFrameSpec,
   metrics: GalleryGridMetrics,
   viewport: GalleryViewport = getViewport(),
 ): number {
   if (spec.row === 2) return 0
 
-  const { cell, columnTop, columnStackOffset, cellStride } = metrics
-  const cellTop = columnTop + columnStackOffset + spec.row * cellStride
-  const { h: vh } = viewport
+  const { cell, columnTop, rowStackOffset, cellStride } = metrics
+  // `row` now maps to the horizontal axis (90° CCW); push frames off-screen left/right.
+  const rowAxis = columnTop + rowStackOffset + spec.row * cellStride
+  const { w: vw } = viewport
 
   if (spec.row === 0 || spec.row === 1) {
-    return -1 * (cellTop + cell)
+    return -1 * (rowAxis + cell)
   }
   if (spec.row === 3 || spec.row === 4) {
-    return -1 * (cellTop + cell - vh - cell)
+    return -1 * (rowAxis + cell - vw - cell)
   }
   return 0
 }
 
 export type SplashFramePose = {
-  y: number
+  x: number
   width: number
   height: number
 }
@@ -270,13 +277,14 @@ export function frameRectInSectionForSplash(
   scrollPow = 0,
 ): GalleryFrameRect {
   const { col, row } = spec
-  const { grid, cell, columnStride, columnTop, columnStackOffset, cellStride } = metrics
-  const colLeft = col * columnStride + metrics.columnMargin
-  const cellTop = columnTop + columnStackOffset + row * cellStride + getCellParallaxOffset(row, scrollPow, grid)
+  const { grid, cell, columnStride, columnMargin, columnTop, rowStackOffset, cellStride } = metrics
+  // 90° CCW: row drives the horizontal axis, col drives the vertical axis.
+  const rowAxis = columnTop + rowStackOffset + row * cellStride + getCellParallaxOffset(row, scrollPow, grid)
+  const colAxis = col * columnStride + columnMargin
 
   return {
-    left: colLeft + (cell - pose.width) / 2,
-    top: cellTop + (cell - pose.height) / 2,
+    left: rowAxis + (cell - pose.width) / 2,
+    top: colAxis + (cell - pose.height) / 2,
     width: pose.width,
     height: pose.height,
   }
@@ -288,15 +296,16 @@ export function frameRectInSectionForImage(
   scrollPow = 0,
 ): GalleryFrameRect {
   const { col, row, image } = spec
-  const { grid, cell, columnStride, columnTop, columnStackOffset } = metrics
+  const { grid, cell, columnStride, columnMargin, columnTop, rowStackOffset, cellStride } = metrics
   const aspect = getImageAspect(image)
-  const colLeft = col * columnStride + metrics.columnMargin
-  const cellTop = columnTop + columnStackOffset + row * metrics.cellStride + getCellParallaxOffset(row, scrollPow, grid)
+  // 90° CCW: row drives the horizontal axis, col drives the vertical axis.
+  const rowAxis = columnTop + rowStackOffset + row * cellStride + getCellParallaxOffset(row, scrollPow, grid)
+  const colAxis = col * columnStride + columnMargin
   const frame = frameSizeInCell(cell, aspect)
 
   return {
-    left: colLeft + (cell - frame.width) / 2,
-    top: cellTop + (cell - frame.height) / 2,
+    left: rowAxis + (cell - frame.width) / 2,
+    top: colAxis + (cell - frame.height) / 2,
     width: frame.width,
     height: frame.height,
   }
@@ -314,16 +323,16 @@ export function screenRectToWorld(rect: GalleryFrameRect, viewport: GalleryViewp
 
 export function frameScreenRect(
   spec: GalleryFrameSpec,
-  sectionLeft: number,
-  sectionScrollX: number,
+  sectionTop: number,
+  sectionScrollOffset: number,
   metrics: GalleryGridMetrics,
   scrollPow = 0,
   viewport: GalleryViewport = getViewport(),
 ): GalleryFrameRect {
   const local = frameRectInSectionForImage(spec, metrics, scrollPow)
   return {
-    left: sectionLeft + sectionScrollX + local.left,
-    top: local.top,
+    left: local.left,
+    top: sectionTop + sectionScrollOffset + local.top,
     width: local.width,
     height: local.height,
   }
@@ -331,19 +340,22 @@ export function frameScreenRect(
 
 export function frameWorldRect(
   spec: GalleryFrameSpec,
-  sectionLeft: number,
-  sectionScrollX: number,
+  sectionTop: number,
+  sectionScrollOffset: number,
   metrics: GalleryGridMetrics,
   scrollPow = 0,
   viewport: GalleryViewport = getViewport(),
 ): GalleryWorldRect {
-  return screenRectToWorld(frameScreenRect(spec, sectionLeft, sectionScrollX, metrics, scrollPow, viewport), viewport)
+  return screenRectToWorld(
+    frameScreenRect(spec, sectionTop, sectionScrollOffset, metrics, scrollPow, viewport),
+    viewport,
+  )
 }
 
 export function frameWorldRectForSplash(
   spec: GalleryFrameSpec,
-  sectionLeft: number,
-  sectionScrollX: number,
+  sectionTop: number,
+  sectionScrollOffset: number,
   metrics: GalleryGridMetrics,
   pose: SplashFramePose,
   scrollPow = 0,
@@ -351,23 +363,22 @@ export function frameWorldRectForSplash(
 ): GalleryWorldRect {
   const local = frameRectInSectionForSplash(spec, metrics, pose, scrollPow)
   const screen: GalleryFrameRect = {
-    left: sectionLeft + sectionScrollX + local.left,
-    top: local.top,
+    left: local.left + pose.x,
+    top: sectionTop + sectionScrollOffset + local.top,
     width: local.width,
     height: local.height,
   }
-  const world = screenRectToWorld(screen, viewport)
-  return { ...world, y: world.y - pose.y }
+  return screenRectToWorld(screen, viewport)
 }
 
-export function computeSectionLefts(sections: GallerySectionSpec[], metrics: GalleryGridMetrics) {
-  const lefts: number[] = []
-  let x = 0
+export function computeSectionTops(sections: GallerySectionSpec[], metrics: GalleryGridMetrics) {
+  const tops: number[] = []
+  let y = 0
   for (const section of sections) {
-    lefts[section.index] = x
-    x += metrics.sectionWidth
+    tops[section.index] = y
+    y += metrics.sectionWidth
   }
-  return lefts
+  return tops
 }
 
 export function appendCloneRoundToLayout(doc: GalleryLayoutDocument): GalleryLayoutDocument | null {
@@ -399,8 +410,9 @@ export function getMeshOverscanPx(viewport: GalleryViewport = getViewport()) {
 
 export function isFrameVisible(rect: GalleryFrameRect, viewport: GalleryViewport = getViewport()) {
   const { w: vw, h: vh } = viewport
-  const padX = getMeshOverscanPx(viewport)
-  const padY = vh * 0.35
+  // Vertical scroll axis → generous vertical overscan, modest horizontal padding.
+  const padX = vw * 0.35
+  const padY = vh * GALLERY_MESH_OVERSCAN_VW
   return (
     rect.height > 2 &&
     rect.width > 2 &&

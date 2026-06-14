@@ -6,8 +6,8 @@ const float curvePower = 5.0;
 void main() {
   vUv = uv;
   if (u_type == 1) {
-    float normalizedX = position.x / 1.0;
-    float tz = pw * curvePower * normalizedX;
+    float normalizedY = position.y / 1.0;
+    float tz = pw * curvePower * normalizedY;
     vec3 newPosition = vec3(position.x, position.y, tz);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
   } else {

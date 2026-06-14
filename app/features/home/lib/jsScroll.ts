@@ -4,7 +4,7 @@ import {
   appendGalleryLayoutCloneRound,
   clearGalleryLayoutClones,
   getGalleryLayoutDocument,
-  getGallerySectionWidth,
+  getGallerySectionHeight,
   recomputeGalleryMetrics,
   syncGalleryLayoutScroll,
 } from '~/features/home/lib/galleryLayoutStore'
@@ -35,10 +35,10 @@ type SectionEntry = {
   index: number
   category: string
   isClone: boolean
-  left: number
-  width: number
-  x: number
-  cx: number
+  top: number
+  height: number
+  y: number
+  cy: number
   progress: number
   selected: boolean
   visible: boolean
@@ -137,10 +137,10 @@ function onScrollPowerComplete(power: ScrollPower, requestFrame?: () => void) {
 }
 
 function getWindowSpan() {
-  return getViewportSize().w
+  return getViewportSize().h
 }
 
-function minContentWidth() {
+function minContentHeight() {
   return getWindowSpan() * GALLERY_CONTENT_MIN_VW
 }
 
@@ -149,10 +149,10 @@ function isWideAspect() {
   return isGalleryWideAspect(w, h)
 }
 
-function sectionTotalWidth() {
+function sectionTotalHeight() {
   const doc = getGalleryLayoutDocument()
   if (!doc) return getWindowSpan()
-  return doc.sections.length * getGallerySectionWidth()
+  return doc.sections.length * getGallerySectionHeight()
 }
 
 function appendCloneRound() {
@@ -161,19 +161,19 @@ function appendCloneRound() {
   return appendGalleryLayoutCloneRound()
 }
 
-function ensureContentWideEnough() {
-  const target = minContentWidth()
+function ensureContentTallEnough() {
+  const target = minContentHeight()
   let guard = 0
-  while (sectionTotalWidth() <= target && guard < 24) {
+  while (sectionTotalHeight() <= target && guard < 24) {
     if (!appendCloneRound()) break
     guard++
   }
   return guard > 0
 }
 
-function cloneSectionsUntilWideEnough() {
+function cloneSectionsUntilTallEnough() {
   clearGalleryLayoutClones()
-  ensureContentWideEnough()
+  ensureContentTallEnough()
 }
 
 export function createJsScroll({
@@ -188,7 +188,7 @@ export function createJsScroll({
   const power = createScrollPower()
   let delta1 = 0
   let scrollX = 0
-  let scrollLeft = 0
+  let scrollTop = 0
   let ready = false
   let inputEnabled = true
   let currentCategory = 'interior'
@@ -213,10 +213,10 @@ export function createJsScroll({
         index: spec.index,
         category: normalizeCategoryId(spec.category),
         isClone: spec.isClone,
-        left: 0,
-        width: 0,
-        x: 0,
-        cx: 0,
+        top: 0,
+        height: 0,
+        y: 0,
+        cy: 0,
         progress: 0,
         selected: false,
         visible: true,
@@ -226,30 +226,30 @@ export function createJsScroll({
 
   const measure = () => {
     recomputeGalleryMetrics()
-    const sectionWidth = getGallerySectionWidth()
-    let left = 0
+    const sectionHeight = getGallerySectionHeight()
+    let top = 0
 
     for (const entry of sections) {
-      entry.width = sectionWidth
-      entry.left = left
-      left += sectionWidth
+      entry.height = sectionHeight
+      entry.top = top
+      top += sectionHeight
     }
 
     ready = sections.length > 0
   }
 
-  const contentWidth = () => {
+  const contentHeight = () => {
     let total = 0
-    for (const entry of sections) total += entry.width
-    return total || sectionTotalWidth()
+    for (const entry of sections) total += entry.height
+    return total || sectionTotalHeight()
   }
 
   const layoutInit = () => {
-    cloneSectionsUntilWideEnough()
+    cloneSectionsUntilTallEnough()
     syncSectionsFromLayout()
     measure()
     let guard = 0
-    while (contentWidth() <= minContentWidth() && guard < 24) {
+    while (contentHeight() <= minContentHeight() && guard < 24) {
       appendCloneRound()
       syncSectionsFromLayout()
       measure()
@@ -260,9 +260,9 @@ export function createJsScroll({
   layoutInit()
 
   const getThreshold = () => {
-    const w = getWindowSpan()
-    const overscan = w * GALLERY_MESH_OVERSCAN_VW
-    return w < 768 ? w * 0.5 + overscan : w / 2 + overscan
+    const h = getWindowSpan()
+    const overscan = h * GALLERY_MESH_OVERSCAN_VW
+    return h < 768 ? h * 0.5 + overscan : h / 2 + overscan
   }
 
   let completeTimer: ReturnType<typeof window.setTimeout> | null = null
@@ -331,14 +331,14 @@ export function createJsScroll({
   }
 
   let dragging = false
-  let dragStartX = 0
+  let dragStartY = 0
   let dragStartDelta = 0
 
   const onPointerDown = (event: PointerEvent) => {
     if (!inputEnabled) return
     if ((event.target as Element).closest('a, button, input, label')) return
     dragging = true
-    dragStartX = event.clientX
+    dragStartY = event.clientY
     dragStartDelta = delta1
     wrap.setPointerCapture(event.pointerId)
     power.pow0.value = 0
@@ -349,7 +349,7 @@ export function createJsScroll({
 
   const onPointerMove = (event: PointerEvent) => {
     if (!dragging) return
-    const nextDelta = dragStartDelta - (event.clientX - dragStartX) * 1.8
+    const nextDelta = dragStartDelta + (event.clientY - dragStartY) * 1.8
     const dragDetail = Math.abs(nextDelta - delta1) / speed
     delta1 = nextDelta
     if (dragDetail > 0) applyScrollImpulse(dragDetail)
@@ -375,30 +375,31 @@ export function createJsScroll({
     scrollX += (delta1 - scrollX) * getScrollEase()
     if (Math.abs(scrollX) < 1e-3) scrollX = 0
 
-    const cw = contentWidth()
-    scrollLeft = cw > 0 ? scrollX % cw : 0
+    const ch = contentHeight()
+    scrollTop = ch > 0 ? scrollX % ch : 0
 
-    const position = cw > 0 ? scrollLeft / cw : 0
+    const position = ch > 0 ? scrollTop / ch : 0
     const threshold = getThreshold()
-    const viewportW = getWindowSpan()
+    const viewportH = getWindowSpan()
     let activeSet = false
 
     for (const entry of sections) {
-      entry.x = -scrollLeft
-      if (entry.x < -entry.width - entry.left - threshold) {
-        entry.x += cw
+      // `delta1` grows → sections move down → photos enter from the top, exit at the bottom.
+      entry.y = scrollTop
+      if (entry.top + entry.y - viewportH > threshold) {
+        entry.y -= ch
       }
-      if (entry.left + entry.x - viewportW > threshold) {
-        entry.x -= cw
+      if (entry.top + entry.y < -entry.height - threshold) {
+        entry.y += ch
       }
 
-      const iLeft = entry.left + entry.x
-      const iRight = iLeft + entry.width
-      const inView = iRight > -threshold && iLeft - entry.width < viewportW + threshold
+      const iTop = entry.top + entry.y
+      const iBottom = iTop + entry.height
+      const inView = iBottom > -threshold && iTop - entry.height < viewportH + threshold
 
-      entry.cx = clamp((iLeft + viewportW / 2) / viewportW - 0.5, -1, 1)
+      entry.cy = clamp((iTop + viewportH / 2) / viewportH - 0.5, -1, 1)
 
-      if (Math.abs(entry.cx) < 0.5 && !activeSet) {
+      if (Math.abs(entry.cy) < 0.5 && !activeSet) {
         entry.selected = true
         activeSet = true
         if (entry.category !== currentCategory) {
@@ -410,7 +411,7 @@ export function createJsScroll({
       }
 
       if (inView) {
-        entry.progress = Math.abs(iLeft / viewportW) < 1e-3 ? 0 : roundToNearest(iLeft / viewportW)
+        entry.progress = Math.abs(iTop / viewportH) < 1e-3 ? 0 : roundToNearest(iTop / viewportH)
         entry.visible = true
       } else {
         entry.visible = false
@@ -418,17 +419,17 @@ export function createJsScroll({
     }
 
     if (scrollbar) {
-      const trackWidth = getWindowSpan()
-      const progressPx = position * trackWidth
-      scrollbar.thumbBefore.style.transform = `translate3d(${progressPx - trackWidth}px, 0, 0)`
-      scrollbar.thumbAfter.style.transform = `translate3d(${progressPx}px, 0, 0)`
+      const trackHeight = getWindowSpan()
+      const progressPx = position * trackHeight
+      scrollbar.thumbBefore.style.transform = `translate3d(0, ${progressPx - trackHeight}px, 0)`
+      scrollbar.thumbAfter.style.transform = `translate3d(0, ${progressPx}px, 0)`
     }
 
     syncGalleryLayoutScroll(
       sections.map((entry) => ({
         index: entry.index,
-        left: entry.left,
-        scrollX: entry.x,
+        top: entry.top,
+        scrollOffset: entry.y,
       })),
       power.pow1.value ?? 0,
     )
@@ -441,16 +442,16 @@ export function createJsScroll({
 
     const nowWide = isWideAspect()
     if (nowWide !== lastWideAspect) {
-      cloneSectionsUntilWideEnough()
+      cloneSectionsUntilTallEnough()
       lastWideAspect = nowWide
     } else {
-      ensureContentWideEnough()
+      ensureContentTallEnough()
     }
     syncSectionsFromLayout()
     measure()
 
     let guard = 0
-    while (contentWidth() <= minContentWidth() && guard < 24) {
+    while (contentHeight() <= minContentHeight() && guard < 24) {
       appendCloneRound()
       syncSectionsFromLayout()
       measure()
@@ -506,8 +507,8 @@ export function createJsScroll({
     const id = normalizeCategoryId(category)
     const entry = sections.find((s) => !s.isClone && s.category === id)
     if (!entry) return
-    const viewportW = getWindowSpan()
-    onScrollTo(entry.left - (viewportW - entry.width) / 2, 2)
+    const viewportH = getWindowSpan()
+    onScrollTo((viewportH - entry.height) / 2 - entry.top, 2)
   }
 
   const destroy = () => {
