@@ -110,14 +110,15 @@ export function getFrameSpecById(id: string): GalleryFrameSpec | null {
   return null
 }
 
-/** Row 2 (splash hero row) in the same column as `frameId`. */
+/** Center (splash hero) row in the same column as `frameId`. */
 export function getColumnCenterFrameSpec(frameId: string): GalleryFrameSpec | null {
   const spec = getFrameSpecById(frameId)
   if (!spec || !layoutDoc) return spec
-  if (spec.row === 2) return spec
+  const centerRow = ensureMetrics().centerRow
+  if (spec.row === centerRow) return spec
   for (const section of layoutDoc.sections) {
     if (section.index !== spec.sectionIndex) continue
-    const center = section.frames.find((f) => f.col === spec.col && f.row === 2)
+    const center = section.frames.find((f) => f.col === spec.col && f.row === centerRow)
     if (center) return center
   }
   return spec

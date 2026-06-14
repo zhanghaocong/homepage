@@ -71,8 +71,10 @@ export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallReveal
     hooks?.onComplete?.()
   })
 
+  const { centerRow } = metrics
+
   for (const column of columns) {
-    const center = column.find((s) => s.row === 2)
+    const center = column.find((s) => s.row === centerRow)
     if (center) {
       const tween = getSplashFrameTween(center.id)
       const final = splashFinalFrameSize(center, metrics)
@@ -91,26 +93,13 @@ export function runGalleryWallReveal(scroll: JsScroll, hooks?: GalleryWallReveal
       }
     }
 
-    const row0 = column.find((s) => s.row === 0)
-    const row1 = column.find((s) => s.row === 1)
-    const row3 = column.find((s) => s.row === 3)
-    const row4 = column.find((s) => s.row === 4)
-
-    if (row0) {
-      const t = getSplashFrameTween(row0.id)
-      if (t) gsap.to(t, { x: 0, duration: 1.35, ease: 'expo.out', delay: 0.7 })
-    }
-    if (row1) {
-      const t = getSplashFrameTween(row1.id)
-      if (t) gsap.to(t, { x: 0, duration: 1.35, ease: 'expo.out', delay: 0.38 })
-    }
-    if (row3) {
-      const t = getSplashFrameTween(row3.id)
-      if (t) gsap.to(t, { x: 0, duration: 1.35, ease: 'expo.out', delay: 0.38 })
-    }
-    if (row4) {
-      const t = getSplashFrameTween(row4.id)
-      if (t) gsap.to(t, { x: 0, duration: 1.35, ease: 'expo.out', delay: 0.7 })
+    for (const spec of column) {
+      if (spec.row === centerRow) continue
+      const tween = getSplashFrameTween(spec.id)
+      if (!tween) continue
+      const dist = Math.abs(spec.row - centerRow)
+      const delay = dist === 1 ? 0.38 : 0.7
+      gsap.to(tween, { x: 0, duration: 1.35, ease: 'expo.out', delay })
     }
   }
 

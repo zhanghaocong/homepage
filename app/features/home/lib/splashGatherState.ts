@@ -1,5 +1,6 @@
 import {
   frameSizeInCell,
+  getCellsPerColumn,
   getImageAspect,
   getViewport,
   splashGatherOffsetX,
@@ -48,12 +49,12 @@ export function groupLayoutColumns(specs: GalleryFrameSpec[]): GalleryFrameSpec[
   const columns: GalleryFrameSpec[][] = []
   for (const frames of map.values()) {
     frames.sort((a, b) => a.row - b.row)
-    if (frames.length >= 5) columns.push(frames)
+    if (frames.length >= getCellsPerColumn()) columns.push(frames)
   }
   return columns
 }
 
-/** Seed tween state for one column (rows 0–4). */
+/** Seed tween state for one column (all responsive rows). */
 export function initSplashColumn(
   frames: GalleryFrameSpec[],
   metrics: GalleryGridMetrics,
@@ -62,7 +63,7 @@ export function initSplashColumn(
   for (const spec of frames) {
     const aspect = getImageAspect(spec.image)
     const final = frameSizeInCell(metrics.cell, aspect)
-    if (spec.row === 2) {
+    if (spec.row === metrics.centerRow) {
       const hero = splashHeroFrameSize(metrics, viewport)
       tweens.set(spec.id, {
         x: 0,

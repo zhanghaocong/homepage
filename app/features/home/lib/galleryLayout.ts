@@ -7,13 +7,24 @@ export const GALLERY_WIDE_ASPECT = 3039929748475085 / 2251799813685248
 const GRID_VW_NARROW = 1.6667
 const GRID_VW_MOBILE = 4.97512437811
 const MOBILE_MAX_WIDTH = 680
-const CELLS_PER_COLUMN = 5
+const CELLS_MINI = 3
+const CELLS_NORMAL = 5
+const CELLS_MAX = 7
+/** Ultra-wide (cinematic) aspect threshold for the 7-up row (≈ 2:1; captures 21:9 / 32:9, excludes 16:9). */
+const ULTRAWIDE_ASPECT = 2.0
+/** Stacked rows per section on the vertical axis (the horizontal count is responsive). */
+const SECTION_ROWS = 2
+/** Fraction of viewport width the horizontal row of cells should fill. */
+const ROW_FILL_DESKTOP = 0.9
+const ROW_FILL_MOBILE = 0.94
+/** Inter-cell gap as a fraction of cell size. */
+const CELL_GAP_RATIO = 0.16
 /** Vertical gap between stacked cells (photoyoshi flex `row-gap`; tuned above default). */
 const ROW_GAP_GRID_MULT = 2
-/** Extra viewport width of scroll content beyond minimum loop length. */
-export const GALLERY_CONTENT_MIN_VW = 2.5
-/** Mesh visibility padding beyond viewport edges (per side, in viewport widths). */
-export const GALLERY_MESH_OVERSCAN_VW = 1
+/** Min loop length of scroll content (× viewport span); keep ≥ viewport + 2×wrap threshold to avoid edge gaps on fast scroll. */
+export const GALLERY_CONTENT_MIN_VW = 5.5
+/** Mesh visibility overscan beyond viewport edges (per side, × viewport span on the scroll axis). */
+export const GALLERY_MESH_OVERSCAN_VW = 1.5
 /** Mobile column width (photoyoshi `.gl-inner` width). */
 const MOBILE_COL_WIDTH_VW = 19.9004975124
 const MOBILE_COL_MARGIN_VW = 2.4875621891
@@ -35,10 +46,14 @@ export type GalleryGridMetrics = {
   contentMarginRight: number
   columnTop: number
   columnInnerHeight: number
-  /** Vertical offset to center the 5-cell stack inside the column. */
+  /** Vertical offset to center the cell stack (unused in 90° CCW horizontal row layout). */
   columnStackOffset: number
-  /** 90° CCW: horizontal centering offset for the rotated 5-cell stack. */
+  /** 90° CCW: horizontal centering offset for the rotated cell row. */
   rowStackOffset: number
+  /** Responsive photos-per-row (3 / 5 / 7). */
+  cellsPerColumn: number
+  /** Center (hero) row index. */
+  centerRow: number
   wrapTop: number
   useLargeCells: boolean
   mobile: boolean
@@ -119,6 +134,22 @@ export function parseCssGridLength(raw: string, viewport: GalleryViewport = getV
   return null
 }
 
+/**
+ * Photos across one horizontal row of the vertical marquee — responsive to viewport.
+ * Mini (phones) 3 · Normal (wide screens) 5 · Max (ultra-wide / cinematic) 7.
+ */
+export function getCellsPerColumn(viewport: GalleryViewport = getViewport()): number {
+  const { w, h } = viewport
+  if (w < MOBILE_MAX_WIDTH) return CELLS_MINI
+  if (w / h >= ULTRAWIDE_ASPECT) return CELLS_MAX
+  return CELLS_NORMAL
+}
+
+/** Center (hero) row index of an N-cell row. */
+export function getColumnCenterRow(cells: number): number {
+  return Math.floor(cells / 2)
+}
+
 /** Mirrors photoyoshi `:root --grid` and mobile override. */
 export function getGridUnit(viewport: GalleryViewport = getViewport()) {
   if (typeof window !== 'undefined') {
@@ -167,24 +198,28 @@ export function getGalleryGridMetrics(viewport: GalleryViewport = getViewport())
   const grid = getGridUnit(viewport)
   const mobile = w < MOBILE_MAX_WIDTH
   const useLargeCells = !mobile && !isGalleryWideAspect(w, h)
-  const cellMult = useLargeCells ? 6 : 4
-  const marginMult = useLargeCells ? 0.75 : 1.75
-  const cell = grid * cellMult
-  const columnStride = getColumnStride(viewport, grid, useLargeCells)
-  const sectionWidth = columnStride * 2
-  const columnMargin = mobile ? w * (MOBILE_COL_MARGIN_VW / 100) : grid * marginMult
-  const wrapTop = grid * -0.5
-  const columnTop = wrapTop + grid * getColumnInnerTopMult(mobile)
-  const rowGap = grid * ROW_GAP_GRID_MULT
+  const cellsPerColumn = getCellsPerColumn(viewport)
+  const centerRow = getColumnCenterRow(cellsPerColumn)
+
+  // Horizontal axis: pack `cellsPerColumn` square cells + gaps to fill viewport width.
+  const fill = mobile ? ROW_FILL_MOBILE : ROW_FILL_DESKTOP
+  const cell = (w * fill) / (cellsPerColumn + (cellsPerColumn - 1) * CELL_GAP_RATIO)
+  const rowGap = cell * CELL_GAP_RATIO
   const cellStride = cell + rowGap
+
+  // Vertical axis: square grid — identical stride; sections stack SECTION_ROWS rows seamlessly.
+  const columnStride = cellStride
+  const sectionWidth = columnStride * SECTION_ROWS
+  const columnMargin = rowGap / 2
+  const wrapTop = grid * -0.5
+  const columnTop = 0
   const columnInnerHeight = getColumnInnerHeight(viewport, grid, useLargeCells)
-  const stackHeight = cell * CELLS_PER_COLUMN + rowGap * (CELLS_PER_COLUMN - 1)
-  // Center the 5-row stack in the viewport (photoyoshi `align-content: center`).
-  const stackTop = Math.max(0, (h - stackHeight) / 2)
-  const columnStackOffset = stackTop - columnTop
-  // 90° CCW: center the same 5-cell stack along the horizontal axis (viewport width).
+
+  // 90° CCW: center the cell row along the horizontal axis (viewport width).
+  const stackHeight = cell * cellsPerColumn + rowGap * (cellsPerColumn - 1)
   const rowStackLeft = Math.max(0, (w - stackHeight) / 2)
   const rowStackOffset = rowStackLeft - columnTop
+  const columnStackOffset = 0
 
   return {
     grid,
@@ -199,6 +234,8 @@ export function getGalleryGridMetrics(viewport: GalleryViewport = getViewport())
     columnInnerHeight,
     columnStackOffset,
     rowStackOffset,
+    cellsPerColumn,
+    centerRow,
     wrapTop,
     useLargeCells,
     mobile,
@@ -219,16 +256,9 @@ export function frameSizeInCell(cell: number, aspect: number) {
   }
 }
 
-const PARALLAX_ROW_MULT: Record<number, number> = {
-  0: 2,
-  1: 1,
-  3: -1,
-  4: -2,
-}
-
-export function getCellParallaxOffset(row: number, scrollPow: number, grid: number) {
-  const mult = PARALLAX_ROW_MULT[row]
-  if (mult === undefined) return 0
+export function getCellParallaxOffset(row: number, centerRow: number, scrollPow: number, grid: number) {
+  // Rows fan out from the hero center; the offset grows linearly toward the edges.
+  const mult = centerRow - row
   return scrollPow * grid * mult
 }
 
@@ -248,20 +278,17 @@ export function splashGatherOffsetX(
   metrics: GalleryGridMetrics,
   viewport: GalleryViewport = getViewport(),
 ): number {
-  if (spec.row === 2) return 0
+  const { cell, columnTop, rowStackOffset, cellStride, centerRow } = metrics
+  if (spec.row === centerRow) return 0
 
-  const { cell, columnTop, rowStackOffset, cellStride } = metrics
   // `row` now maps to the horizontal axis (90° CCW); push frames off-screen left/right.
   const rowAxis = columnTop + rowStackOffset + spec.row * cellStride
   const { w: vw } = viewport
 
-  if (spec.row === 0 || spec.row === 1) {
+  if (spec.row < centerRow) {
     return -1 * (rowAxis + cell)
   }
-  if (spec.row === 3 || spec.row === 4) {
-    return -1 * (rowAxis + cell - vw - cell)
-  }
-  return 0
+  return -1 * (rowAxis + cell - vw - cell)
 }
 
 export type SplashFramePose = {
@@ -277,9 +304,9 @@ export function frameRectInSectionForSplash(
   scrollPow = 0,
 ): GalleryFrameRect {
   const { col, row } = spec
-  const { grid, cell, columnStride, columnMargin, columnTop, rowStackOffset, cellStride } = metrics
+  const { grid, cell, columnStride, columnMargin, columnTop, rowStackOffset, cellStride, centerRow } = metrics
   // 90° CCW: row drives the horizontal axis, col drives the vertical axis.
-  const rowAxis = columnTop + rowStackOffset + row * cellStride + getCellParallaxOffset(row, scrollPow, grid)
+  const rowAxis = columnTop + rowStackOffset + row * cellStride + getCellParallaxOffset(row, centerRow, scrollPow, grid)
   const colAxis = col * columnStride + columnMargin
 
   return {
@@ -296,10 +323,10 @@ export function frameRectInSectionForImage(
   scrollPow = 0,
 ): GalleryFrameRect {
   const { col, row, image } = spec
-  const { grid, cell, columnStride, columnMargin, columnTop, rowStackOffset, cellStride } = metrics
+  const { grid, cell, columnStride, columnMargin, columnTop, rowStackOffset, cellStride, centerRow } = metrics
   const aspect = getImageAspect(image)
   // 90° CCW: row drives the horizontal axis, col drives the vertical axis.
-  const rowAxis = columnTop + rowStackOffset + row * cellStride + getCellParallaxOffset(row, scrollPow, grid)
+  const rowAxis = columnTop + rowStackOffset + row * cellStride + getCellParallaxOffset(row, centerRow, scrollPow, grid)
   const colAxis = col * columnStride + columnMargin
   const frame = frameSizeInCell(cell, aspect)
 

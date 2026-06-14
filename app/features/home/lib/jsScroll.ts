@@ -1,4 +1,5 @@
 import gsap from 'gsap'
+import { rebuildGalleryLayoutIfCellsChanged } from '~/features/home/lib/buildGalleryLayout'
 import { GALLERY_CONTENT_MIN_VW, GALLERY_MESH_OVERSCAN_VW, isGalleryWideAspect } from '~/features/home/lib/galleryLayout'
 import {
   appendGalleryLayoutCloneRound,
@@ -440,12 +441,18 @@ export function createJsScroll({
   const remeasure = () => {
     syncViewport()
 
-    const nowWide = isWideAspect()
-    if (nowWide !== lastWideAspect) {
+    const layoutRebuilt = rebuildGalleryLayoutIfCellsChanged()
+    if (layoutRebuilt) {
       cloneSectionsUntilTallEnough()
-      lastWideAspect = nowWide
+      lastWideAspect = isWideAspect()
     } else {
-      ensureContentTallEnough()
+      const nowWide = isWideAspect()
+      if (nowWide !== lastWideAspect) {
+        cloneSectionsUntilTallEnough()
+        lastWideAspect = nowWide
+      } else {
+        ensureContentTallEnough()
+      }
     }
     syncSectionsFromLayout()
     measure()
