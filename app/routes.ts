@@ -1,8 +1,11 @@
-import { type RouteConfig, index, route } from "@react-router/dev/routes";
+import { type RouteConfig, index, route } from '@react-router/dev/routes'
+
+const devOnlyRoutes: RouteConfig = import.meta.env.DEV ? [route('admin', 'routes/admin.tsx')] : []
 
 export default [
-	index("routes/_index.tsx"),
-	route("about", "routes/about.tsx"),
-	route("projects", "routes/projects.tsx"),
-	route("*", "routes/$.tsx"),
-] satisfies RouteConfig;
+  index('routes/_index.tsx'),
+  route('series', 'routes/series.tsx'),
+  route('about', 'routes/about.tsx'),
+  ...devOnlyRoutes,
+  route('*', 'routes/$.tsx'),
+] satisfies RouteConfig

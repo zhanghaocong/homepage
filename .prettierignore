@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+.react-router/
+.wrangler/
+
+# Generated files
+worker-configuration.d.ts
+*.tsbuildinfo
+
+# Lockfiles (managed by the package manager)
+package-lock.json
+
+# Static assets
+public/
