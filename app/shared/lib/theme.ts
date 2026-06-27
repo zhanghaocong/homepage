@@ -19,7 +19,6 @@ export function resolveTheme(preference: ThemePreference): ResolvedTheme {
 
 export function applyResolvedTheme(resolved: ResolvedTheme) {
   const root = document.documentElement
-  // theme-* avoids photoyoshi .l-light/.l-dark (grid/full view) background rules
   root.classList.remove('theme-light', 'theme-dark')
   root.classList.add(resolved === 'dark' ? 'theme-dark' : 'theme-light')
   root.style.colorScheme = resolved

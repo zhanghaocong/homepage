@@ -14,16 +14,10 @@
     "publish": true
   },
   "dependencies": {
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.6.1",
-    "@react-three/postprocessing": "^3.0.4",
-    "@use-gesture/vanilla": "^10.3.1",
     "isbot": "5.1.32",
-    "postprocessing": "^6.39.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router": "7.9.6",
-    "three": "^0.184.0"
+    "react-router": "7.9.6"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.15.3",
@@ -34,7 +28,6 @@
     "@types/node": "24.10.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@types/three": "^0.184.1",
     "busboy": "^1.6.0",
     "eslint": "^10.4.1",
     "eslint-config-prettier": "^10.1.8",
@@ -65,8 +58,6 @@
     "r2:setup": "node scripts/r2-setup.mjs",
     "r2:sync": "node scripts/sync-archive-to-r2.mjs",
     "r2:sync:manifest": "node scripts/sync-archive-to-r2.mjs --update-manifest",
-    "download:gallery": "node scripts/download-gallery-images.mjs",
-    "build:gallery-atlas": "node scripts/build-gallery-atlas.mjs",
     "preview": "npm run build && vite preview",
     "typecheck": "npm run cf-typegen && tsc -b",
     "lint": "eslint .",

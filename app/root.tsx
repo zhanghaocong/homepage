@@ -26,7 +26,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="page" data-xhr="wrapper">
+      <body className="page">
         {children}
         <ScrollRestoration />
         <Scripts />

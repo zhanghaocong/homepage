@@ -6,7 +6,6 @@
 }
 
 :root {
-  --grid: 1.6667vw;
   --site-bg: #f7f5f2;
   --site-fg: #1a1918;
   --site-fg-muted: #6b6863;
@@ -85,10 +84,4 @@ html.is-archive-scroll {
 
 ::-moz-selection {
   background-color: var(--site-selection);
-}
-
-@media screen and (max-width: 680px) {
-  :root {
-    --grid: 4.97512437811vw;
-  }
 }

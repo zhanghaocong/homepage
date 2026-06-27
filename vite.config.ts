@@ -6,13 +6,6 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 // @ts-expect-error dev-only middleware has no typed .mjs entry
 import { adminApiPlugin } from './scripts/vite-admin-api.mjs'
 
-function vendorChunk(id: string) {
-  if (!id.includes('node_modules')) return undefined
-  if (id.includes('/three/') || id.includes('/@react-three/')) return 'three-vendor'
-  if (id.includes('/postprocessing/')) return 'postprocessing-vendor'
-  return undefined
-}
-
 export default defineConfig(({ mode }) => ({
   plugins: [
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
@@ -21,13 +14,4 @@ export default defineConfig(({ mode }) => ({
     tsconfigPaths(),
     ...(mode === 'development' ? [adminApiPlugin()] : []),
   ],
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          return vendorChunk(id)
-        },
-      },
-    },
-  },
 }))
