@@ -1,0 +1,1040 @@
+{
+  "generatedAt": "2026-06-22T15:49:00.724Z",
+  "sourceRoot": "/Volumes/Public/photos-dist",
+  "series": [
+    {
+      "id": "hokkaido-2025",
+      "title": "北海道 · 2025",
+      "photos": [
+        {
+          "id": "hokkaido-2025-0",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0001-dsc00027.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0001-dsc00027-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-1",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0002-dsc00129-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0002-dsc00129-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-2",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0003-dsc00417-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0003-dsc00417-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-3",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0004-dsc00593-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0004-dsc00593-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-4",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0005-dsc00809.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0005-dsc00809-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-5",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0007-dsc01092.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0007-dsc01092-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-6",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0006-dsc00848.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0006-dsc00848-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-7",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0008-dsc01259.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0008-dsc01259-2048.webp",
+          "width": 2048,
+          "height": 1538
+        },
+        {
+          "id": "hokkaido-2025-8",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0009-dsc01278-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0009-dsc01278-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-9",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0010-dsc01308.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0010-dsc01308-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-10",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0011-dsc01352-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0011-dsc01352-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-11",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0012-dsc01399.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0012-dsc01399-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-12",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0013-dsc01460.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0013-dsc01460-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-13",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0014-dsc01496.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0014-dsc01496-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-14",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0015-dsc01564.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0015-dsc01564-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-15",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0016-dsc01580.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0016-dsc01580-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-16",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0017-dsc01677.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0017-dsc01677-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-17",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0018-dsc01822-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0018-dsc01822-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-18",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0019-dsc01860.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0019-dsc01860-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-19",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0020-dsc01864.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0020-dsc01864-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-20",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0021-dsc02200-enhanced-nr.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0021-dsc02200-enhanced-nr-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-21",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0022-dsc02201.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0022-dsc02201-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-22",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0023-dsc02202.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0023-dsc02202-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-23",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0024-dsc02203.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0024-dsc02203-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-24",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0025-dsc02205-enhanced-nr.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0025-dsc02205-enhanced-nr-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-25",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0026-dsc02298.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0026-dsc02298-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-26",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0027-dsc02314-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0027-dsc02314-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-27",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0028-dsc02358-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0028-dsc02358-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-28",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0029-dsc02367-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0029-dsc02367-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-29",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0030-dsc02395-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0030-dsc02395-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-30",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0031-dsc02404.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0031-dsc02404-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-31",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0032-dsc02478.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0032-dsc02478-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-32",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0033-dsc02562-enhanced-nr.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0033-dsc02562-enhanced-nr-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-33",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0034-dsc02643-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0034-dsc02643-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-34",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0035-dsc02734.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0035-dsc02734-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-35",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0036-dsc02991.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0036-dsc02991-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-36",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0037-dsc03028-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0037-dsc03028-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-37",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0038-dsc03052.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0038-dsc03052-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-38",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0039-dsc03089.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0039-dsc03089-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-39",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0040-dsc03104-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0040-dsc03104-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-40",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0041-dsc03117.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0041-dsc03117-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-41",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0042-dsc03676.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0042-dsc03676-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-42",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0043-dsc03878-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0043-dsc03878-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-43",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0044-dsc03968.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0044-dsc03968-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-44",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0045-dsc04122.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0045-dsc04122-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-45",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0046-dsc09590.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0046-dsc09590-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-46",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0047-dsc09743.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0047-dsc09743-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-47",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0048-dsc09783.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0048-dsc09783-2048.webp",
+          "width": 2048,
+          "height": 1537
+        },
+        {
+          "id": "hokkaido-2025-48",
+          "seriesId": "hokkaido-2025",
+          "src": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0049-dsc09967-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/hokkaido-2025/0049-dsc09967-edit-2048.webp",
+          "width": 2048,
+          "height": 1537
+        }
+      ]
+    },
+    {
+      "id": "okinawa-2024",
+      "title": "冲绳 · 2024",
+      "photos": [
+        {
+          "id": "okinawa-2024-0",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0001-dsc00952.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0001-dsc00952-2048.webp",
+          "width": 2048,
+          "height": 1639
+        },
+        {
+          "id": "okinawa-2024-1",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0002-dsc00953.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0002-dsc00953-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-2",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0003-dsc00965.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0003-dsc00965-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-3",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0004-dsc01003.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0004-dsc01003-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-4",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0005-dsc01004.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0005-dsc01004-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-5",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0006-dsc01006-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0006-dsc01006-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-6",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0007-dsc01054-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0007-dsc01054-edit-2048.webp",
+          "width": 1365,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-7",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0008-dsc01058-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0008-dsc01058-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-8",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0009-dsc01065-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0009-dsc01065-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-9",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0010-dsc01119-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0010-dsc01119-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-10",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0011-dsc01269.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0011-dsc01269-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-11",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0012-dsc01281-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0012-dsc01281-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-12",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0013-dsc01310.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0013-dsc01310-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-13",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0014-dsc01360-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0014-dsc01360-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-14",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0015-dsc01444.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0015-dsc01444-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-15",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0016-dsc01497.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0016-dsc01497-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-16",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0017-dsc01517.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0017-dsc01517-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-17",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0018-dsc01518.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0018-dsc01518-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-18",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0019-dsc01519.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0019-dsc01519-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-19",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0020-dsc01521.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0020-dsc01521-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-20",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0021-dsc01522.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0021-dsc01522-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-21",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0022-dsc01523.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0022-dsc01523-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-22",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0023-dsc01526.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0023-dsc01526-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-23",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0024-dsc01586.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0024-dsc01586-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-24",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0025-dsc01587.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0025-dsc01587-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-25",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0026-dsc01597-enhanced-nr.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0026-dsc01597-enhanced-nr-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-26",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0027-dsc01602-enhanced-nr.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0027-dsc01602-enhanced-nr-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-27",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0028-dsc01644-enhanced-nr-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0028-dsc01644-enhanced-nr-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-28",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0029-dsc01675-enhanced-nr.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0029-dsc01675-enhanced-nr-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-29",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0030-dsc01676-enhanced-nr.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0030-dsc01676-enhanced-nr-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-30",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0031-dsc01685-enhanced-nr.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0031-dsc01685-enhanced-nr-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-31",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0032-dsc01693.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0032-dsc01693-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-32",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0033-dsc01695.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0033-dsc01695-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-33",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0034-dsc01744-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0034-dsc01744-edit-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-34",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0035-dsc01758.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0035-dsc01758-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-35",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0036-dsc01759.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0036-dsc01759-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-36",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0037-dsc01761.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0037-dsc01761-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-37",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0038-dsc01905-enhanced-nr-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0038-dsc01905-enhanced-nr-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-38",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0039-dsc01962.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0039-dsc01962-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-39",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0040-dsc01975.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0040-dsc01975-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-40",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0041-dsc01978.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0041-dsc01978-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-41",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0042-dsc01982.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0042-dsc01982-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-42",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0043-dsc01989.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0043-dsc01989-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-43",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0044-dsc01996.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0044-dsc01996-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-44",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0045-dsc02181.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0045-dsc02181-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-45",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0046-dsc02182.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0046-dsc02182-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-46",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0047-dsc02183.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0047-dsc02183-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-47",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0048-dsc02190.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0048-dsc02190-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-48",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0049-dsc02197.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0049-dsc02197-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-49",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0050-dsc02210.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0050-dsc02210-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-50",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0051-dsc02219.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0051-dsc02219-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-51",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0052-dsc02226.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0052-dsc02226-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-52",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0053-dsc02233-enhanced-nr-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0053-dsc02233-enhanced-nr-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-53",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0054-dsc02238-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0054-dsc02238-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-54",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0055-dsc02261-enhanced-nr-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0055-dsc02261-enhanced-nr-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-55",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0056-dsc02266-enhanced-nr-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0056-dsc02266-enhanced-nr-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-56",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0057-dsc02393.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0057-dsc02393-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-57",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0058-dsc02434.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0058-dsc02434-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "okinawa-2024-58",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0059-dsc02445.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0059-dsc02445-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-59",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0060-dsc02448.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0060-dsc02448-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-60",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0061-dsc02451.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0061-dsc02451-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-61",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0062-dsc02453.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0062-dsc02453-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "okinawa-2024-62",
+          "seriesId": "okinawa-2024",
+          "src": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0063-dsc02454.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/okinawa-2024/0063-dsc02454-2048.webp",
+          "width": 2048,
+          "height": 1366
+        }
+      ]
+    },
+    {
+      "id": "kobe-2023",
+      "title": "神户 · 2023",
+      "photos": [
+        {
+          "id": "kobe-2023-0",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0001-dsc00097.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0001-dsc00097-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "kobe-2023-1",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0002-dsc00121.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0002-dsc00121-2048.webp",
+          "width": 2048,
+          "height": 1536
+        },
+        {
+          "id": "kobe-2023-2",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0003-dsc00338-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0003-dsc00338-edit-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "kobe-2023-3",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0004-dsc00345.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0004-dsc00345-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "kobe-2023-4",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0005-dsc00376-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0005-dsc00376-edit-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "kobe-2023-5",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0006-dsc00481.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0006-dsc00481-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "kobe-2023-6",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0007-dsc00482.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0007-dsc00482-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "kobe-2023-7",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0008-dsc00694.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0008-dsc00694-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "kobe-2023-8",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0009-dsc00752.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0009-dsc00752-2048.webp",
+          "width": 2048,
+          "height": 1536
+        },
+        {
+          "id": "kobe-2023-9",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0010-dsc00816.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0010-dsc00816-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "kobe-2023-10",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0011-dsc00958.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0011-dsc00958-2048.webp",
+          "width": 1366,
+          "height": 2048
+        },
+        {
+          "id": "kobe-2023-11",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0012-dsc01440-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0012-dsc01440-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "kobe-2023-12",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0013-dsc02106-edit.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0013-dsc02106-edit-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "kobe-2023-13",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0014-dsc09731.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0014-dsc09731-2048.webp",
+          "width": 2048,
+          "height": 1366
+        },
+        {
+          "id": "kobe-2023-14",
+          "seriesId": "kobe-2023",
+          "src": "https://homepage.kakera.workers.dev/archive/kobe-2023/0015-dsc09933.webp",
+          "largeSrc": "https://homepage.kakera.workers.dev/archive/kobe-2023/0015-dsc09933-2048.webp",
+          "width": 2048,
+          "height": 1366
+        }
+      ]
+    }
+  ]
+}

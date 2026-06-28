@@ -52,7 +52,7 @@ fi
 
 echo "Creating production trigger for main..."
 TRIGGER=$(curl -sS -X POST "${API}/builds/triggers" "${AUTH[@]}" \
-  -d "{\"external_script_id\":\"${WORKER_TAG}\",\"repo_connection_uuid\":\"${REPO_CONNECTION_UUID}\",\"build_token_uuid\":\"${BUILD_TOKEN_UUID}\",\"trigger_name\":\"Deploy production\",\"build_command\":\"npm run build\",\"deploy_command\":\"npx wrangler deploy\",\"root_directory\":\"/\",\"branch_includes\":[\"main\"],\"branch_excludes\":[],\"path_includes\":[\"*\"],\"path_excludes\":[]}")
+  -d "{\"external_script_id\":\"${WORKER_TAG}\",\"repo_connection_uuid\":\"${REPO_CONNECTION_UUID}\",\"build_token_uuid\":\"${BUILD_TOKEN_UUID}\",\"trigger_name\":\"Deploy production\",\"build_command\":\"npm run r2:sync && npm run r2:prune && npm run build\",\"deploy_command\":\"npx wrangler deploy\",\"root_directory\":\"/\",\"branch_includes\":[\"main\"],\"branch_excludes\":[],\"path_includes\":[\"*\"],\"path_excludes\":[]}")
 
 echo "$TRIGGER" | python3 -c "import sys,json; r=json.load(sys.stdin); print('success:', r.get('success')); print('errors:', r.get('errors')); print('trigger_uuid:', (r.get('result') or {}).get('trigger_uuid'))"
 

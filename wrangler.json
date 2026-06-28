@@ -1,10 +1,20 @@
 {
-	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "homepage",
-	"main": "./workers/app.ts",
-	"compatibility_date": "2025-11-25",
-	"compatibility_flags": ["nodejs_compat"],
-	"observability": {
-		"enabled": true
-	}
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "homepage",
+  "account_id": "8b7eba6c480b84cad297f995413afd14",
+  "main": "./workers/app.ts",
+  "compatibility_date": "2025-11-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "PHOTOS_PUBLIC_URL": "https://homepage.kakera.workers.dev"
+  },
+  "r2_buckets": [
+    {
+      "binding": "PHOTOS",
+      "bucket_name": "homepage-photos"
+    }
+  ]
 }
