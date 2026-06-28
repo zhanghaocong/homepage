@@ -3,8 +3,8 @@ import seriesManifest from './series.json'
 export type Photo = {
   id: string
   seriesId: string
-  thumbSrc: string
-  previewSrc: string
+  thumbSrc?: string
+  previewSrc?: string
   largeSrc: string
   /** Alias of previewSrc for covers and admin thumbnails */
   src: string

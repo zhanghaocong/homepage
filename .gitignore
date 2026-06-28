@@ -9,6 +9,7 @@
 # Created by git when using merge tools for conflicts
 *.BACKUP.*
 *.BASE.*
+!tsconfig.base.json
 *.LOCAL.*
 *.REMOTE.*
 *_BACKUP_*.txt
