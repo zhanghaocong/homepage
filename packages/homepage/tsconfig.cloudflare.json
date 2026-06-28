@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.react.json",
   "include": [
     ".react-router/types/**/*",
     "app/**/*",
@@ -10,13 +10,7 @@
   ],
   "compilerOptions": {
     "composite": true,
-    "strict": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["vite/client"],
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
     "baseUrl": ".",
     "rootDirs": [".", "./.react-router/types"],
     "paths": {
