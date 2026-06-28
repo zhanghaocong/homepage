@@ -1,0 +1,29 @@
+.archive {
+  padding-bottom: 50dvh;
+  width: 100%;
+}
+
+.archive__series + .archive__series {
+  padding-top: clamp(3rem, 8vh, 6rem);
+}
+
+/* 虚拟画框：一屏高度，图在框内居中 */
+.archive__photo {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  height: 100dvh;
+  justify-content: center;
+  margin: 0;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+.archive__photo img {
+  display: block;
+  height: auto;
+  max-height: 100%;
+  max-width: min(100%, 1920px);
+  object-fit: contain;
+  width: auto;
+}

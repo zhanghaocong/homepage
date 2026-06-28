@@ -198,6 +198,11 @@ dist
 .dev.vars*
 !.dev.vars.example
 
+### pnpm ###
+.pnpm-debug.log*
+
 ### React Router ###
 .react-router/
 /build/
+packages/homepage/build/
+tmp/
