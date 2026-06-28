@@ -18,6 +18,7 @@
     "r2:prune:dry-run": "pnpm --filter @internal/albums prune:dry-run",
     "r2:setup": "pnpm --filter @internal/albums setup",
     "r2:create": "pnpm --filter @internal/albums create-bucket",
-    "builds:previews": "bash packages/homepage/scripts/list-preview-builds.sh"
+    "builds:previews": "bash packages/homepage/scripts/list-preview-builds.sh",
+    "dev:admin": "pnpm --filter admin dev"
   }
 }
