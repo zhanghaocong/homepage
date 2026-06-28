@@ -1,5 +1,5 @@
 /**
- * One-shot R2 setup: create bucket, sync archive, update series.json URLs.
+ * One-shot R2 setup: create bucket and sync public/albums.
  *
  * Prerequisites:
  *   npx wrangler login
@@ -9,8 +9,7 @@
  */
 import { execSync, spawnSync } from 'node:child_process'
 
-import { applyPublicUrl, readManifest, writeManifest } from './lib/manifest.mjs'
-import { getR2PublicUrl, syncArchiveToR2 } from './lib/r2-sync.mjs'
+import { getR2PublicUrl, syncAlbumsToR2 } from './lib/r2-sync.mjs'
 
 function run(command) {
   console.log(`→ ${command}`)
@@ -60,18 +59,11 @@ async function main() {
     throw new Error('Set vars.PHOTOS_PUBLIC_URL in wrangler.json before running setup')
   }
 
-  console.log(`\nSyncing archive to R2 (public base: ${publicUrl})...`)
-  const sync = await syncArchiveToR2()
+  console.log(`\nSyncing albums to R2 (public base: ${publicUrl})...`)
+  const sync = await syncAlbumsToR2()
   console.log(`Uploaded ${sync.uploaded} objects`)
 
-  const manifest = await readManifest()
-  const next = await writeManifest(applyPublicUrl(manifest, publicUrl))
-  const photos = next.series.reduce((count, series) => count + series.photos.length, 0)
-
   console.log(`\nDone.`)
-  console.log(`  series: ${next.series.length}`)
-  console.log(`  photos: ${photos}`)
-  console.log(`  manifest: app/data/series.json`)
   console.log(`\nNext: npm run deploy`)
 }
 

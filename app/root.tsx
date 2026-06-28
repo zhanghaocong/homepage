@@ -38,13 +38,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const location = useLocation()
   const isArchive = location.pathname === '/'
-  const isAdmin = location.pathname.startsWith('/admin')
 
   const mainClassName = isArchive
     ? 'flex min-h-0 flex-1 flex-col'
-    : isAdmin
-      ? 'mx-auto w-full max-w-6xl flex-1 py-12 pl-[var(--site-sidebar-width)] pr-6'
-      : 'mx-auto w-full max-w-3xl flex-1 py-12 pl-[var(--site-sidebar-width)] pr-6'
+    : 'mx-auto w-full max-w-3xl flex-1 py-12 pl-[var(--site-sidebar-width)] pr-6'
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--site-bg)] font-[family-name:var(--site-font)] text-[var(--site-fg)] antialiased">

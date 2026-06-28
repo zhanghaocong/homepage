@@ -25,11 +25,6 @@ export function Header() {
           <NavLink to="/about" className={navClass}>
             About
           </NavLink>
-          {import.meta.env.DEV ? (
-            <NavLink to="/admin" className={navClass}>
-              Admin
-            </NavLink>
-          ) : null}
         </nav>
         <div className="l-header__footer space-y-4">
           <ThemeToggle />
