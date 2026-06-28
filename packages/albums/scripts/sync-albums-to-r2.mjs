@@ -1,5 +1,5 @@
 /**
- * Sync public/albums to the PHOTOS R2 binding from wrangler.json.
+ * Sync @internal/albums/public to the PHOTOS R2 binding from packages/homepage/wrangler.json.
  *
  * Usage:
  *   node scripts/sync-albums-to-r2.mjs

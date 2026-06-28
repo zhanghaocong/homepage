@@ -1,5 +1,5 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
+  "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "homepage",
   "account_id": "8b7eba6c480b84cad297f995413afd14",
   "main": "./workers/app.ts",

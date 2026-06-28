@@ -1,5 +1,5 @@
 /**
- * One-shot R2 setup: create bucket and sync public/albums.
+ * One-shot R2 setup: create bucket and sync @internal/albums/public.
  *
  * Prerequisites:
  *   npx wrangler login
@@ -42,7 +42,7 @@ function ensureBucket() {
 
   if (output.includes('10042') || output.includes('enable R2')) {
     throw new Error(
-      'R2 is not enabled for this account. Open https://dash.cloudflare.com/8b7eba6c480b84cad297f995413afd14/r2/overview and enable R2, then rerun: npm run r2:setup',
+      'R2 is not enabled for this account. Open https://dash.cloudflare.com/8b7eba6c480b84cad297f995413afd14/r2/overview and enable R2, then rerun: pnpm run r2:setup',
     )
   }
 
@@ -64,7 +64,7 @@ async function main() {
   console.log(`Uploaded ${sync.uploaded} objects`)
 
   console.log(`\nDone.`)
-  console.log(`\nNext: npm run deploy`)
+  console.log(`\nNext: pnpm run deploy`)
 }
 
 main().catch((error) => {

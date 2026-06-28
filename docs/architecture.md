@@ -20,32 +20,21 @@
 
 ```
 homepage/
-├── app/                    # React Router 应用
-│   ├── routes.ts           # 路由配置（admin 仅 DEV）
-│   ├── routes/             # 路由模块
-│   ├── features/           # 按功能划分的 UI
-│   │   ├── archive/        # 首页长卷 + 系列索引
-│   │   ├── admin/          # 开发环境照片管理
-│   │   └── about/
-│   ├── data/               # 静态数据与 manifest
-│   │   ├── series.json     # 系列与照片元数据（构建时打入 bundle）
-│   │   └── series.ts       # 类型与查询 helper
-│   └── shared/             # 通用组件、主题、站点配置
-├── workers/
-│   ├── app.ts              # Worker 入口：R2 静态资源 + SSR
-│   └── archive.ts          # /archive/* 从 R2 读取
-├── scripts/                # Node 本地工具链
-│   ├── vite-admin-api.mjs  # 开发环境 Admin API（Vite 中间件）
-│   └── lib/
-│       ├── photo-pipeline.mjs  # WebP 变体生成
-│       ├── manifest.mjs        # series.json 读写
-│       ├── r2-sync.mjs         # 同步 public/archive → R2
-│       └── paths.mjs           # 路径常量
-├── public/
-│   └── archive/            # 本地归档图片（开发 / 同步源）
-├── wrangler.json           # Worker 与 R2 绑定
-├── vite.config.ts
-└── react-router.config.ts
+├── packages/
+│   ├── homepage/           # React Router 应用
+│   │   ├── app/
+│   │   ├── workers/
+│   │   ├── public/         # 静态资源（favicon 等；albums 开发时由 Vite 中间件代理）
+│   │   ├── wrangler.json
+│   │   └── vite.config.ts
+│   └── albums/             # @internal/albums：相册静态内容与 R2 同步
+│       ├── public/         # 相册目录与 manifest
+│       │   ├── {albumId}/
+│       │   └── manifest.txt
+│       └── scripts/        # sync / prune / setup
+├── docs/
+├── pnpm-workspace.yaml
+└── package.json            # pnpm workspace 根配置
 ```
 
 ## 请求处理流程
@@ -133,7 +122,7 @@ Worker 在 React Router 之前拦截 `/archive/*`：
 
 两套入口，共用 `scripts/lib/photo-pipeline.mjs` 的 preset 逻辑：
 
-### 1. NAS 批量导入（`npm run import:series`）
+### 1. NAS 批量导入（`pnpm run import:series`）
 
 - 从 `NAS_PHOTOS_ROOT`（默认 `/Volumes/Public/photos-dist`）读取选定文件夹
 - 输出到 `public/archive/{seriesId}/`
@@ -153,11 +142,11 @@ Worker 在 React Router 之前拦截 `/archive/*`：
 
 | 命令 | 作用 |
 |------|------|
-| `npm run r2:sync` | 上传 `public/archive/**` → R2 |
-| `npm run r2:sync:manifest` | 同步后把 manifest URL 改为 `PHOTOS_PUBLIC_URL` |
-| `npm run r2:setup` | 创建 bucket + 全量同步 + 更新 manifest |
+| `pnpm run r2:sync` | 上传 `packages/albums/public/**` → R2（key 前缀 `albums/`） |
+| `pnpm run r2:prune` | 删除 R2 中本地已不存在的 orphan objects |
+| `pnpm run r2:setup` | 创建 bucket + 全量同步 |
 
-`r2-sync.mjs` 通过 `wrangler` 的 `getPlatformProxy` 访问本地 R2 模拟绑定。
+`packages/albums/scripts/lib/r2-sync.mjs` 通过 `wrangler` 的 `getPlatformProxy` 读取 `packages/homepage/wrangler.json` 中的 R2 绑定。
 
 ## Admin（开发专用）
 
@@ -192,18 +181,18 @@ Worker 在 React Router 之前拦截 `/archive/*`：
 - R2 binding：`PHOTOS` → `homepage-photos`
 - `vars.PHOTOS_PUBLIC_URL`：manifest 与线上图片的 public base
 
-类型生成：`npm run cf-typegen` → `worker-configuration.d.ts`。
+类型生成：`pnpm run cf-typegen` → `worker-configuration.d.ts`。
 
 ## 构建与部署
 
 ```bash
-npm run dev          # 本地开发（HMR + Admin API）
-npm run build        # react-router build
-npm run deploy       # wrangler deploy
-npm run check        # tsc + build + deploy dry-run
+pnpm run dev          # 本地开发（HMR + Admin API）
+pnpm run build        # react-router build
+pnpm run deploy       # wrangler deploy
+pnpm run check        # tsc + build + deploy dry-run
 ```
 
-**CI**：`main` 推送触发 Workers Builds（`npm run build` + `npx wrangler deploy`）。一次性配置见 `scripts/setup-workers-builds.sh` 与 `README.md`。
+**CI**：`main` 推送触发 Workers Builds（`pnpm install --frozen-lockfile && pnpm run r2:sync && pnpm run r2:prune && pnpm run build` + `pnpm --filter homepage deploy`）。非 `main` 分支走 preview trigger（`deploy:preview`）。查看 preview URL：`pnpm run builds:previews`（见 `packages/homepage/scripts/list-preview-builds.sh`）。
 
 ## 共享 UI
 
@@ -220,5 +209,5 @@ npm run check        # tsc + build + deploy dry-run
 | 长卷行为与性能 | `features/archive/ArchiveScroll.tsx`、`useArchiveVisibleIndex.ts`、`photoPreload.ts` |
 | 系列数据 | `app/data/series.json`、`app/data/series.ts` |
 | 上传与 manifest | `scripts/vite-admin-api.mjs`、`scripts/lib/manifest.mjs`、`photo-pipeline.mjs` |
-| 线上图片 URL / CDN | `wrangler.json`、`workers/archive.ts`、`r2-sync.mjs` |
-| 部署与绑定 | `wrangler.json`、`workers/app.ts`、`package.json` scripts |
+| 线上图片 URL / CDN | `packages/homepage/wrangler.json`、`workers/archive.ts`、`packages/albums/scripts/lib/r2-sync.mjs` |
+| 部署与绑定 | `packages/homepage/wrangler.json`、`workers/app.ts`、根 `package.json` scripts |

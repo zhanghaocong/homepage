@@ -1,5 +1,5 @@
 /**
- * Delete R2 objects under albums/ that no longer exist in public/albums/.
+ * Delete R2 objects under albums/ that no longer exist in @internal/albums/public/.
  *
  * Usage:
  *   node scripts/prune-albums-from-r2.mjs           # delete orphans

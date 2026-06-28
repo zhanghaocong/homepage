@@ -2,7 +2,7 @@ import { readdir, readFile, stat } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import { getPlatformProxy } from 'wrangler'
 
-import { albumsRoot, projectRoot } from './paths.mjs'
+import { albumsRoot, homepageRoot, wranglerConfigPath } from './paths.mjs'
 
 const MANIFEST_FILE = 'manifest.txt'
 const ALBUMS_R2_PREFIX = 'albums'
@@ -13,8 +13,8 @@ let platformProxy = null
 export async function getWranglerPlatform() {
   if (!platformProxy) {
     platformProxy = await getPlatformProxy({
-      configPath: join(projectRoot, 'wrangler.json'),
-      persist: true,
+      configPath: wranglerConfigPath,
+      persist: { path: join(homepageRoot, '.wrangler/state') },
     })
   }
   return platformProxy
@@ -25,7 +25,7 @@ async function walkFiles(dir, { skipNames = new Set() } = {}) {
   const files = []
 
   for (const entry of entries) {
-    if (skipNames.has(entry.name)) {
+    if (entry.name.startsWith('.') || skipNames.has(entry.name)) {
       continue
     }
 
