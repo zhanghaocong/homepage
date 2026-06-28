@@ -20,5 +20,8 @@
     "r2:create": "pnpm --filter @internal/albums create-bucket",
     "builds:previews": "bash packages/homepage/scripts/list-preview-builds.sh",
     "dev:admin": "pnpm --filter admin dev"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
   }
 }
