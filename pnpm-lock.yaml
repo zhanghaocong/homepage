@@ -35,9 +35,6 @@ importers:
         specifier: 7.15.1
         version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
-      '@eslint/js':
-        specifier: ^10
-        version: 10.0.1(eslint@10.6.0(jiti@2.7.0))
       '@react-router/dev':
         specifier: 7.15.1
         version: 7.15.1(@react-router/serve@7.15.1(react-router@7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3))(@types/node@24.10.1)(jiti@2.7.0)(lightningcss@1.32.0)(react-router@7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3)(vite@8.1.0(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.7.0))(wrangler@4.56.0)
@@ -53,27 +50,18 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.17)
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       eslint:
         specifier: ^10
         version: 10.6.0(jiti@2.7.0)
-      eslint-plugin-react-hooks:
-        specifier: ^7.1.1
-        version: 7.1.1(eslint@10.6.0(jiti@2.7.0))
-      eslint-plugin-react-refresh:
-        specifier: ^0.5.2
-        version: 0.5.3(eslint@10.6.0(jiti@2.7.0))
-      globals:
-        specifier: ^17
-        version: 17.7.0
       tailwindcss:
         specifier: ^4
         version: 4.1.17
       typescript:
         specifier: ~6
         version: 6.0.3
-      typescript-eslint:
-        specifier: ^8
-        version: 8.62.0(eslint@10.6.0(jiti@2.7.0))(typescript@6.0.3)
       vite:
         specifier: ^8
         version: 8.1.0(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.7.0)
@@ -83,6 +71,30 @@ importers:
       wrangler:
         specifier: 4.56.0
         version: 4.56.0
+
+  packages/eslint-config:
+    dependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0(jiti@2.7.0))
+      eslint:
+        specifier: ^10
+        version: 10.6.0(jiti@2.7.0)
+      eslint-config-prettier:
+        specifier: ^10.1.8
+        version: 10.1.8(eslint@10.6.0(jiti@2.7.0))
+      eslint-plugin-react-hooks:
+        specifier: ^7.1.1
+        version: 7.1.1(eslint@10.6.0(jiti@2.7.0))
+      eslint-plugin-react-refresh:
+        specifier: ^0.5.2
+        version: 0.5.3(eslint@10.6.0(jiti@2.7.0))
+      globals:
+        specifier: ^17.6.0
+        version: 17.7.0
+      typescript-eslint:
+        specifier: ^8.60.0
+        version: 8.62.0(eslint@10.6.0(jiti@2.7.0))(typescript@6.0.3)
 
   packages/homepage:
     dependencies:
@@ -102,9 +114,6 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: 1.15.3
         version: 1.15.3(vite@6.4.3(@types/node@24.10.1)(jiti@2.7.0)(lightningcss@1.32.0))(workerd@1.20251217.0)(wrangler@4.56.0)
-      '@eslint/js':
-        specifier: ^10.0.1
-        version: 10.0.1(eslint@10.6.0(jiti@2.7.0))
       '@react-router/dev':
         specifier: 7.9.6
         version: 7.9.6(@react-router/serve@7.15.1(react-router@7.9.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3))(@types/node@24.10.1)(jiti@2.7.0)(lightningcss@1.32.0)(react-router@7.9.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3)(vite@6.4.3(@types/node@24.10.1)(jiti@2.7.0)(lightningcss@1.32.0))(wrangler@4.56.0)
@@ -120,21 +129,12 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.0
         version: 19.2.3(@types/react@19.2.17)
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       eslint:
         specifier: ^10.4.1
         version: 10.6.0(jiti@2.7.0)
-      eslint-config-prettier:
-        specifier: ^10.1.8
-        version: 10.1.8(eslint@10.6.0(jiti@2.7.0))
-      eslint-plugin-react-hooks:
-        specifier: ^7.1.1
-        version: 7.1.1(eslint@10.6.0(jiti@2.7.0))
-      eslint-plugin-react-refresh:
-        specifier: ^0.5.2
-        version: 0.5.3(eslint@10.6.0(jiti@2.7.0))
-      globals:
-        specifier: ^17.6.0
-        version: 17.7.0
       prettier:
         specifier: ^3.8.3
         version: 3.9.1
@@ -150,9 +150,6 @@ importers:
       typescript:
         specifier: ~6
         version: 6.0.3
-      typescript-eslint:
-        specifier: ^8.60.0
-        version: 8.62.0(eslint@10.6.0(jiti@2.7.0))(typescript@6.0.3)
       vite:
         specifier: ^6.0.0
         version: 6.4.3(@types/node@24.10.1)(jiti@2.7.0)(lightningcss@1.32.0)
@@ -205,9 +202,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@eslint/js':
-        specifier: ^10
-        version: 10.0.1(eslint@10.6.0(jiti@2.7.0))
       '@tailwindcss/vite':
         specifier: ^4
         version: 4.1.17(vite@8.1.0(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.7.0))
@@ -223,27 +217,18 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.17)
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       eslint:
         specifier: ^10
         version: 10.6.0(jiti@2.7.0)
-      eslint-plugin-react-hooks:
-        specifier: ^7.1.1
-        version: 7.1.1(eslint@10.6.0(jiti@2.7.0))
-      eslint-plugin-react-refresh:
-        specifier: ^0.5.2
-        version: 0.5.3(eslint@10.6.0(jiti@2.7.0))
-      globals:
-        specifier: ^17
-        version: 17.7.0
       tailwindcss:
         specifier: ^4
         version: 4.1.17
       typescript:
         specifier: ~6
         version: 6.0.3
-      typescript-eslint:
-        specifier: ^8
-        version: 8.62.0(eslint@10.6.0(jiti@2.7.0))(typescript@6.0.3)
 
 packages:
 

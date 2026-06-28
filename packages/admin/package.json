@@ -7,7 +7,8 @@
     "dev": "react-router dev",
     "build": "react-router build",
     "start": "react-router-serve ./build/server/index.js",
-    "lint": "eslint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "react-router typegen && tsc && tsc -p tsconfig.node.json",
     "preview": "pnpm run build && react-router-serve ./build/server/index.js"
@@ -23,19 +24,15 @@
     "react-router": "7.15.1"
   },
   "devDependencies": {
-    "@eslint/js": "^10",
     "@react-router/dev": "7.15.1",
     "@tailwindcss/vite": "^4",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@workspace/eslint-config": "workspace:*",
     "eslint": "^10",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17",
     "tailwindcss": "^4",
     "typescript": "~6",
-    "typescript-eslint": "^8",
     "vite": "^8"
   }
 }
