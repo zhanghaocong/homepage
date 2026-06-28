@@ -206,4 +206,5 @@ dist
 .react-router/
 /build/
 packages/homepage/build/
+packages/admin/build/
 tmp/

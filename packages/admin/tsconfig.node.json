@@ -5,5 +5,5 @@
     "module": "esnext",
     "allowImportingTsExtensions": true
   },
-  "include": ["vite.config.ts", "server/**/*.ts"]
+  "include": ["vite.config.ts", "react-router.config.ts", "server/**/*.ts"]
 }
