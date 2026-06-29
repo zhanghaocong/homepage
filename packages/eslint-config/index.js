@@ -44,12 +44,18 @@ const reactHooksCompilerRules = [
 ]
 
 /**
- * @param {object} [options]
+ * @param {object} options
+ * @param {string} options.tsconfigRootDir Absolute path to the package root (directory containing tsconfig.json).
  * @param {string[]} [options.ignores]
  * @param {boolean} [options.prettier]
  * @param {boolean} [options.nodeGlobals]
  */
-export function createReactRouterAppConfig({ ignores = [], prettier = false, nodeGlobals = true } = {}) {
+export function createReactRouterAppConfig({
+  tsconfigRootDir,
+  ignores = [],
+  prettier = false,
+  nodeGlobals = true,
+} = {}) {
   return tseslint.config(
     { ignores },
 
@@ -85,6 +91,11 @@ export function createReactRouterAppConfig({ ignores = [], prettier = false, nod
 
     {
       files: ['**/*.{ts,tsx}'],
+      languageOptions: {
+        parserOptions: {
+          tsconfigRootDir,
+        },
+      },
       plugins: {
         'react-refresh': reactRefresh.plugin,
       },
@@ -104,10 +115,11 @@ export function createReactRouterAppConfig({ ignores = [], prettier = false, nod
 }
 
 /**
- * @param {object} [options]
+ * @param {object} options
+ * @param {string} options.tsconfigRootDir Absolute path to the package root (directory containing tsconfig.json).
  * @param {string[]} [options.ignores]
  */
-export function createReactLibraryConfig({ ignores = ['dist'] } = {}) {
+export function createReactLibraryConfig({ tsconfigRootDir, ignores = ['dist'] } = {}) {
   return tseslint.config(
     { ignores },
 
@@ -125,6 +137,9 @@ export function createReactLibraryConfig({ ignores = ['dist'] } = {}) {
         ecmaVersion: 2024,
         sourceType: 'module',
         globals: globals.browser,
+        parserOptions: {
+          tsconfigRootDir,
+        },
       },
       plugins: {
         'react-refresh': reactRefresh.plugin,
