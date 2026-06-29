@@ -1,3 +1,5 @@
 import { createReactLibraryConfig } from '@workspace/eslint-config'
 
-export default createReactLibraryConfig()
+export default createReactLibraryConfig({
+  tsconfigRootDir: import.meta.dirname,
+})
