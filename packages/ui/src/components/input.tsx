@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Input as InputPrimitive } from "@base-ui/react/input"
 
+import { buControl, buFocusOutline, buInput } from "@workspace/ui/lib/base-ui-styles"
 import { cn } from "@workspace/ui/lib/utils"
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
@@ -8,7 +9,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
     <InputPrimitive
       type={type}
       data-slot="input"
-      className={cn("bu-control h-8 w-full min-w-0 px-2 py-1", className)}
+      className={cn(buControl, buInput, buFocusOutline, className)}
       {...props}
     />
   )

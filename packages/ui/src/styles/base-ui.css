@@ -1,103 +1,19 @@
 /*
- * Base UI default-style utilities.
- * Patterns from https://base-ui.com/react/handbook/styling
- * and component demo CSS (combobox, menu, dialog, input).
+ * Base UI list item highlight — requires ::before pseudo-element.
+ * https://base-ui.com/react/components/combobox
  */
 
 @layer utilities {
-  /* Form controls: input, textarea, input-group shell */
-  .bu-control {
-    @apply rounded-none border border-foreground bg-background text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground;
-  }
-
-  .bu-control:focus-visible {
-    @apply outline-2 outline-foreground outline-offset-[-1px];
-  }
-
-  .bu-control:disabled {
-    @apply pointer-events-none cursor-not-allowed opacity-50;
-  }
-
-  .bu-control[aria-invalid="true"] {
-    @apply border-destructive;
-  }
-
-  .bu-control[aria-invalid="true"]:focus-visible {
-    @apply outline-destructive;
-  }
-
-  /* Popups: dialog, alert-dialog, combobox content, select menu */
-  .bu-popup {
-    @apply rounded-none border border-foreground bg-popover text-popover-foreground shadow-[0.25rem_0.25rem_0_rgb(0_0_0/0.12)] outline-none transition-[opacity,transform] duration-100 dark:shadow-none;
-  }
-
-  /* List / menu items with inverted highlight */
-  .bu-item {
-    @apply relative cursor-default outline-none select-none;
-  }
-
   .bu-item[data-highlighted] {
-    @apply z-0 text-background;
+    @apply z-0 text-white dark:text-neutral-950;
   }
 
   .bu-item[data-highlighted]::before {
     content: "";
-    @apply absolute inset-0 -z-10 bg-foreground;
-  }
-
-  .dark .bu-item[data-highlighted] {
-    @apply text-foreground;
-  }
-
-  .dark .bu-item[data-highlighted]::before {
-    @apply bg-background;
+    @apply absolute inset-0 -z-10 bg-neutral-950 dark:bg-white;
   }
 
   .bu-item[data-highlighted] [data-slot="item-description"] {
-    @apply text-background/70;
-  }
-
-  .dark .bu-item[data-highlighted] [data-slot="item-description"] {
-    @apply text-foreground/70;
-  }
-
-  /* Buttons */
-  .bu-button {
-    @apply inline-flex shrink-0 items-center justify-center rounded-none border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap outline-none transition-all select-none;
-  }
-
-  .bu-button:focus-visible {
-    @apply outline-2 outline-foreground outline-offset-[-1px];
-  }
-
-  .bu-button:disabled {
-    @apply pointer-events-none opacity-50;
-  }
-
-  .bu-button[aria-invalid="true"] {
-    @apply border-destructive;
-  }
-
-  .bu-button[aria-invalid="true"]:focus-visible {
-    @apply outline-destructive;
-  }
-
-  /* Bordered surfaces: card, panel */
-  .bu-surface {
-    @apply rounded-none border border-foreground bg-card text-card-foreground;
-  }
-
-  /* Form labels (base-ui docs use font-bold) */
-  .bu-label {
-    @apply text-sm leading-tight font-bold;
-  }
-
-  /* Badge / chip — square, not pill */
-  .bu-badge {
-    @apply inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 rounded-none border border-foreground px-2 py-0.5 text-xs font-medium whitespace-nowrap outline-none;
-  }
-
-  .bu-badge:focus-visible {
-    @apply outline-2 outline-foreground outline-offset-[-1px];
+    @apply text-white/70 dark:text-neutral-950/70;
   }
 }

@@ -1,5 +1,6 @@
 import * as React from "react"
 
+import { buFieldLabel } from "@workspace/ui/lib/base-ui-styles"
 import { cn } from "@workspace/ui/lib/utils"
 
 function Label({ className, ...props }: React.ComponentProps<"label">) {
@@ -7,7 +8,8 @@ function Label({ className, ...props }: React.ComponentProps<"label">) {
     <label
       data-slot="label"
       className={cn(
-        "bu-label flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        buFieldLabel,
+        "flex items-center gap-2 group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
         className
       )}
       {...props}
